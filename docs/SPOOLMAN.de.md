@@ -1,5 +1,7 @@
 # Spoolman am Trident (INDX, T0-T8)
 
+[English version → SPOOLMAN.md](SPOOLMAN.md)
+
 ## 0. Vorher prüfen: läuft Spoolman schon?
 
 In `moonraker.conf` steht schon:
@@ -134,7 +136,7 @@ Hat ein Tool keine Spule, steht beim Pickup eine rote Meldung in der Konsole. De
 
 1. In Spoolman zwei Spulen anlegen, zum Beispiel ID 1 und 2.
 2. `SET_TOOL_SPOOL T=0 ID=1` und `SET_TOOL_SPOOL T=1 ID=2`, dann `SHOW_TOOL_SPOOLS`.
-3. `T0` → Konsole meldet „Spoolman: T0 -> Spule 1“, das Spoolman-Panel zeigt Spule 1.
+3. `T0` → Konsole meldet „Spoolman: T0 -> spool 1“, das Spoolman-Panel zeigt Spule 1.
 4. Heizen, `G1 E50 F300` → nach etwa 5 s sinkt das Restgewicht von Spule 1.
 5. `T1` → Spule 2 aktiv, wieder extrudieren, nur Spule 2 nimmt ab.
 6. `PARK_TOOL` → keine aktive Spule.
@@ -161,7 +163,7 @@ Hochladen (Mainsail → *Machine*):
 | `scripts/orca_lanes/orca_lanes_launch.sh` | Startet das Skript im Hintergrund (blockiert keinen Druck) |
 | `macros/spoolman.cfg` | Neu: `[gcode_shell_command orca_lanes]`, `_ORCA_LANES`, `ORCA_LANES_SYNC`; der Wächter ruft `_ORCA_LANES` auf |
 
-Danach `FIRMWARE_RESTART`. Etwa 10 s nach dem Start kommt in der Konsole „Orca-Lanes: 9 Tools uebertragen, … mit Spule“. Das Skript läuft wieder, sobald sich eine Zuweisung ändert (`SET_TOOL_SPOOL`, Mainsail-Dialog). Nach Änderungen an einer Spule in Spoolman selbst (z. B. Farbe korrigiert): `ORCA_LANES_SYNC`. Log: `logs/orca_lanes.log`.
+Danach `FIRMWARE_RESTART`. Etwa 10 s nach dem Start kommt in der Konsole „Orca-Lanes: 9 tools sent, … with spool“. Das Skript läuft wieder, sobald sich eine Zuweisung ändert (`SET_TOOL_SPOOL`, Mainsail-Dialog). Nach Änderungen an einer Spule in Spoolman selbst (z. B. Farbe korrigiert): `ORCA_LANES_SYNC`. Log: `logs/orca_lanes.log`.
 
 Kontrolle per SSH:
 

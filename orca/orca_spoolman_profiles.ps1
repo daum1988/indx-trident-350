@@ -1,21 +1,22 @@
 <#
 .SYNOPSIS
-  Legt aus den Filamenten in Spoolman eigenstaendige OrcaSlicer-Filamentprofile an.
+  Creates standalone OrcaSlicer filament profiles from the filaments in Spoolman.
 
 .DESCRIPTION
-  Pro Spoolman-Filament entsteht ein Profil "<Hersteller> <Name> (SM<id>)" mit der
-  Filament-ID "PSM<id>". Dieselbe ID schreibt der Drucker (orca_lanes.py) in
-  Moonrakers lane_data, so dass Orca beim Filamentabgleich genau dieses Profil waehlt.
+  For each Spoolman filament a profile "<Vendor> <Name> (SM<id>)" is created with
+  filament ID "PSM<id>". The printer (orca_lanes.py) writes the same ID into
+  Moonraker's lane_data, so Orca picks exactly this profile when syncing filaments.
 
-  Vorlagen: Pro Material legst du in Orca einmal ein eigenes Filament an
-  ("Filament erstellen", kompatibel mit deinem Trident) und nennst es
-  "SM-Vorlage <Material>", z.B. "SM-Vorlage PLA", "SM-Vorlage PETG".
-  Alle Einstellungen der Vorlage werden uebernommen; aus Spoolman kommen Name,
-  Hersteller, Farbe, Duesen- und Betttemperatur, Dichte, Durchmesser und Preis.
-  Das Material einer Spoolman-Spule wird der Vorlage mit dem laengsten passenden
-  Typ zugeordnet ("PLA+" -> "SM-Vorlage PLA", wenn es keine "PLA+"-Vorlage gibt).
+  Templates: for each material, create your own filament in Orca once
+  ("Create filament", compatible with your printer) and name it
+  "<TemplatePrefix> <Material>", e.g. "SM-Vorlage PLA", "SM-Vorlage PETG"
+  (default prefix "SM-Vorlage", change it with -TemplatePrefix "SM-Template").
+  All settings of the template are kept; Spoolman provides name, vendor,
+  colour, nozzle and bed temperature, density, diameter and price.
+  A Spoolman spool's material is matched to the template with the longest matching
+  type ("PLA+" -> "SM-Vorlage PLA" if there is no "PLA+" template).
 
-  OrcaSlicer vor dem Lauf schliessen und danach neu starten.
+  Close OrcaSlicer before running and restart it afterwards.
 
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File .\orca_spoolman_profiles.ps1 -WhatIf
@@ -25,26 +26,26 @@
 [CmdletBinding()]
 param(
   [string]$SpoolmanUrl = "http://spoolman.local:7912",
-  # Orca-Ordner fuer eigenstaendige eigene Filamentprofile. Standard: der Ordner,
-  # den Orca gerade benutzt (preset_folder in OrcaSlicer.conf; angemeldet =
-  # user\<Konto-ID>, sonst user\default).
+  # Orca folder for standalone user filament profiles. Default: the folder
+  # Orca currently uses (preset_folder in OrcaSlicer.conf; signed in =
+  # user\<account ID>, otherwise user\default).
   [string]$OrcaDir = "",
-  # Wo die Vorlagen liegen (Standard: derselbe Ordner)
+  # Where the templates are (default: the same folder)
   [string]$TemplateDir = "",
-  # Wohin geschrieben wird (Standard: OrcaDir). Zum Testen einen leeren Ordner angeben.
+  # Where to write (default: OrcaDir). Pass an empty folder for testing.
   [string]$OutDir = "",
   [string]$TemplatePrefix = "SM-Vorlage",
-  # Nur anzeigen, nichts schreiben
+  # Only show, write nothing
   [switch]$WhatIf,
-  # Profile "PSM..." loeschen, deren Filament es in Spoolman nicht mehr gibt
+  # Delete "PSM..." profiles whose filament no longer exists in Spoolman
   [switch]$Prune,
-  # Auch archivierte Spoolman-Filamente bzw. solche ohne Spule anlegen
+  # Also create archived Spoolman filaments and those without a spool
   [switch]$All
 )
 
 $ErrorActionPreference = "Stop"
 if (-not $WhatIf -and -not $OutDir -and (Get-Process -Name OrcaSlicer -ErrorAction SilentlyContinue)) {
-  Write-Host "OrcaSlicer laeuft noch. Bitte Orca schliessen und das Skript erneut starten." -ForegroundColor Red
+  Write-Host "OrcaSlicer is still running. Close Orca and start the script again." -ForegroundColor Red
   exit 1
 }
 if (-not $OrcaDir) {
@@ -55,7 +56,7 @@ if (-not $OrcaDir) {
     if ($m.Success) { $folder = $m.Groups[1].Value }
   }
   $OrcaDir = Join-Path $env:APPDATA "OrcaSlicer\user\$folder\filament\base"
-  Write-Host "Orca-Profilordner: user\$folder" -ForegroundColor Cyan
+  Write-Host "Orca profile folder: user\$folder" -ForegroundColor Cyan
 }
 if (-not $TemplateDir) { $TemplateDir = $OrcaDir }
 if (-not $OutDir) { $OutDir = $OrcaDir }
@@ -68,8 +69,8 @@ function Read-Json([string]$path) {
 
 function Set-Prop($obj, [string]$name, $value, [switch]$OnlyIfExists) {
   if ($obj.PSObject.Properties[$name]) {
-    # Orca 2.5 fuehrt manche Werte pro Extruder-Variante als Liste (z.B. 6 Eintraege).
-    # Ein einzelner neuer Wert gilt dann fuer alle Eintraege der Vorlage.
+    # Orca 2.5 keeps some values as a list per extruder variant (e.g. 6 entries).
+    # A single new value then applies to all entries of the template.
     $old = @($obj.$name)
     if ($value -is [array] -and @($value).Count -eq 1 -and $old.Count -gt 1) {
       $v = @($value)[0]
@@ -87,15 +88,15 @@ function Get-First($obj, [string]$name) {
 
 function Num([double]$v) { $v.ToString("0.###", $inv) }
 
-# "@Voron Trident 350 0.4 nozzle" -> "d04", "0.25" -> "d025", ohne Angabe -> ""
+# "@Voron Trident 350 0.4 nozzle" -> "d04", "0.25" -> "d025", none -> ""
 function Get-NozzleKey([string]$suffix) {
   $m = [regex]::Match($suffix, '(\d+(?:\.\d+)?)\s*nozzle')
   if (-not $m.Success) { return "" }
   "d" + ([double]::Parse($m.Groups[1].Value, $inv).ToString("0.###", $inv) -replace '\.', '')
 }
 
-# Spoolman speichert Zusatzfelder als JSON-Text ("0.98"). Liefert key -> Wert als
-# Orca-Text; ein Feld mit passender Duesen-Endung ueberschreibt das allgemeine.
+# Spoolman stores extra fields as JSON text ("0.98"). Returns key -> value as
+# Orca text; a field with a matching nozzle suffix overrides the generic one.
 function Get-ExtraValues($extra, [string]$nz) {
   $out = @{}
   if (-not $extra) { return $out }
@@ -124,19 +125,19 @@ function Safe-FileName([string]$s) {
   ($s -replace "[$([regex]::Escape($bad))]", '-').Trim()
 }
 
-# ---------------------------------------------------------------- Vorlagen
-if (-not (Test-Path $TemplateDir)) { throw "Vorlagen-Ordner nicht gefunden: $TemplateDir" }
+# ---------------------------------------------------------------- Templates
+if (-not (Test-Path $TemplateDir)) { throw "Template folder not found: $TemplateDir" }
 $templates = @{}
 foreach ($f in Get-ChildItem -Path $TemplateDir -Filter *.json) {
   try { $j = Read-Json $f.FullName } catch { continue }
   if ($j.name -notlike "$TemplatePrefix *") { continue }
-  if ($j.inherits) { Write-Warning "Vorlage '$($j.name)' erbt von '$($j.inherits)' - bitte als eigenes Filament anlegen. Uebersprungen."; continue }
+  if ($j.inherits) { Write-Warning "Template '$($j.name)' inherits from '$($j.inherits)' - create it as a standalone filament. Skipped."; continue }
   $type = [string](Get-First $j "filament_type")
   if (-not $type) { $type = $j.name.Substring($TemplatePrefix.Length).Trim() }
   $gc = (@($j.filament_start_gcode) -join "`n")
-  if ($gc -match "SET_ACTIVE_SPOOL") { Write-Warning "Vorlage '$($j.name)' setzt SET_ACTIVE_SPOOL im Filament-Startcode. Das stoert die Spulenzuordnung pro Tool - bitte entfernen." }
-  # Orca legt pro Duesen-Variante ein eigenes Profil an ("... @Voron Trident 350 0.4 nozzle").
-  # Alle Varianten eines Typs werden gesammelt; jede bekommt ihr eigenes Spoolman-Profil.
+  if ($gc -match "SET_ACTIVE_SPOOL") { Write-Warning "Template '$($j.name)' sets SET_ACTIVE_SPOOL in the filament start G-code. That breaks the per-tool spool assignment - please remove it." }
+  # Orca creates a separate profile per nozzle variant ("... @Voron Trident 350 0.4 nozzle").
+  # All variants of a type are collected; each gets its own Spoolman profile.
   $suffix = ""
   $at = $j.name.LastIndexOf(" @")
   if ($at -ge 0) { $suffix = $j.name.Substring($at) }
@@ -145,14 +146,14 @@ foreach ($f in Get-ChildItem -Path $TemplateDir -Filter *.json) {
   $templates[$key] += [pscustomobject]@{ Type = $type; Path = $f.FullName; Name = $j.name; Suffix = $suffix }
 }
 if ($templates.Count -eq 0) {
-  throw "Keine Vorlage gefunden. In Orca pro Material ein eigenes Filament '$TemplatePrefix <Material>' anlegen (z.B. '$TemplatePrefix PLA'). Gesucht in: $TemplateDir"
+  throw "No template found. In Orca create a filament '$TemplatePrefix <Material>' per material (e.g. '$TemplatePrefix PLA'). Searched in: $TemplateDir"
 }
-Write-Host ("Vorlagen: " + (($templates.Values | ForEach-Object { $_ } | ForEach-Object { $_.Name }) -join ", "))
+Write-Host ("Templates: " + (($templates.Values | ForEach-Object { $_ } | ForEach-Object { $_.Name }) -join ", "))
 
 function Find-Template([string]$material) {
   $m = ($material + "").Trim().ToUpperInvariant()
   if ($templates.ContainsKey($m)) { return $templates[$m] }
-  # laengster Vorlagen-Typ, mit dem das Material beginnt (PLA+ -> PLA, PETG-CF -> PETG)
+  # longest template type the material starts with (PLA+ -> PLA, PETG-CF -> PETG)
   $best = $null
   foreach ($k in $templates.Keys) {
     if ($m.StartsWith($k) -and ($best -eq $null -or $k.Length -gt $best.Length)) { $best = $k }
@@ -163,12 +164,12 @@ function Find-Template([string]$material) {
 
 # ---------------------------------------------------------------- Spoolman
 $api = $SpoolmanUrl.TrimEnd('/') + "/api/v1"
-# PowerShell 5.1 gibt ein JSON-Array als ein Objekt zurueck: per Pipeline entpacken
+# PowerShell 5.1 returns a JSON array as one object: unpack it via the pipeline
 $filaments = @(Invoke-RestMethod -Uri "$api/filament" -Method Get -TimeoutSec 15 | ForEach-Object { $_ })
 $spools = @(Invoke-RestMethod -Uri "$api/spool" -Method Get -TimeoutSec 15 | ForEach-Object { $_ })
 $activeFil = @{}
 foreach ($s in $spools) { if (-not $s.archived -and $s.filament) { $activeFil[[int]$s.filament.id] = $true } }
-Write-Host ("Spoolman: {0} Filamente, {1} davon mit nicht archivierter Spule" -f $filaments.Count, $activeFil.Count)
+Write-Host ("Spoolman: {0} filaments, {1} of them with a non-archived spool" -f $filaments.Count, $activeFil.Count)
 
 if (-not $WhatIf -and -not (Test-Path $OutDir)) { New-Item -ItemType Directory -Path $OutDir | Out-Null }
 
@@ -180,13 +181,13 @@ foreach ($fil in $filaments) {
   $id = "PSM$fid"
   $keepIds[$id] = $true
   $tplList = Find-Template $fil.material
-  if (-not $tplList) { Write-Warning "SM$fid '$($fil.name)': keine Vorlage fuer Material '$($fil.material)'"; $skipped++; continue }
+  if (-not $tplList) { Write-Warning "SM$fid '$($fil.name)': no template for material '$($fil.material)'"; $skipped++; continue }
 
   $vendor = if ($fil.vendor -and $fil.vendor.name) { [string]$fil.vendor.name } else { "" }
   $label = (@($vendor, [string]$fil.name) | Where-Object { $_ }) -join " "
   if (-not $label) { $label = [string]$fil.material }
 
-  # Ein Profil pro Duesen-Variante der Vorlage, alle mit derselben Filament-ID
+  # One profile per nozzle variant of the template, all with the same filament ID
   foreach ($tpl in @($tplList)) {
   $p = Read-Json $tpl.Path
   $name = "$label (SM$fid)$($tpl.Suffix)"
@@ -207,12 +208,12 @@ foreach ($fil in $filaments) {
   if ($fil.density) { Set-Prop $p "filament_density" @(Num $fil.density) }
   if ($fil.diameter) { Set-Prop $p "filament_diameter" @(Num $fil.diameter) }
   if ($fil.price -and $fil.weight) {
-    # Spoolman: Preis pro Spule mit 'weight' Gramm, Orca: Preis pro kg
+    # Spoolman: price per spool of 'weight' grams, Orca: price per kg
     Set-Prop $p "filament_cost" @(Num ([double]$fil.price / [double]$fil.weight * 1000.0))
   }
   if ($fil.spool_weight) { Set-Prop $p "filament_spool_weight" @(Num $fil.spool_weight) -OnlyIfExists }
 
-  # Duesentemperatur: Abstand zur ersten Schicht und Bereich aus der Vorlage erhalten
+  # Nozzle temperature: keep the first-layer offset and range from the template
   if ($fil.settings_extruder_temp) {
     $t = [int]$fil.settings_extruder_temp
     $t0 = [int](Get-First $p "nozzle_temperature")
@@ -223,7 +224,7 @@ foreach ($fil in $filaments) {
     if ($lo -ne $null -and $t -lt [int]$lo) { Set-Prop $p "nozzle_temperature_range_low" @("$t") }
     if ($hi -ne $null -and $t -gt [int]$hi) { Set-Prop $p "nozzle_temperature_range_high" @("$t") }
   }
-  # Betttemperatur fuer alle Plattentypen, die die Vorlage kennt
+  # Bed temperature for all plate types the template knows
   if ($fil.settings_bed_temp) {
     $b = [int]$fil.settings_bed_temp
     foreach ($plate in "hot_plate", "textured_plate", "cool_plate", "eng_plate", "supertack_plate", "textured_cool_plate") {
@@ -236,16 +237,16 @@ foreach ($fil in $filaments) {
     }
   }
 
-  # Zusatzfelder aus Spoolman: Feldname = Orca-Einstellung, optional mit
-  # Duesen-Endung (_d025/_d04/_d06), die fuer die passende Variante Vorrang hat.
-  # pressure_advance (vom Drucker per Load-Cell gemessen) schaltet in Orca
-  # zusaetzlich enable_pressure_advance ein.
+  # Extra fields from Spoolman: field name = Orca setting, optionally with a
+  # nozzle suffix (_d025/_d04/_d06) that takes precedence for the matching variant.
+  # pressure_advance (measured by the printer via the load cell) also turns on
+  # enable_pressure_advance in Orca.
   $nz = Get-NozzleKey $tpl.Suffix
   $extraVals = Get-ExtraValues $fil.extra $nz
   if ($extraVals.ContainsKey("pressure_advance")) { $extraVals["enable_pressure_advance"] = "1" }
   foreach ($k in $extraVals.Keys) {
     if (-not $p.PSObject.Properties[$k]) {
-      if (-not $warnedKeys.ContainsKey($k)) { Write-Warning "Zusatzfeld '$k' gibt es in der Orca-Vorlage nicht - ignoriert."; $warnedKeys[$k] = $true }
+      if (-not $warnedKeys.ContainsKey($k)) { Write-Warning "Extra field '$k' does not exist in the Orca template - ignored."; $warnedKeys[$k] = $true }
       continue
     }
     Set-Prop $p $k @($extraVals[$k])
@@ -258,7 +259,7 @@ foreach ($fil in $filaments) {
   $old = if (Test-Path $jsonPath) { [IO.File]::ReadAllText($jsonPath, $utf8) } else { $null }
   if ($old -eq $json) { $same++; continue }
 
-  $verb = if ($old) { "aktualisiert" } else { "neu" }
+  $verb = if ($old) { "updated" } else { "new" }
   Write-Host ("  {0,-12} {1}  [{2} -> {3}, #{4}]" -f $verb, $name, $fil.material, $tpl.Name, $hex)
   if (-not $WhatIf) {
     [IO.File]::WriteAllText($jsonPath, $json, $utf8)
@@ -275,7 +276,7 @@ if ($Prune -and (Test-Path $OutDir)) {
   foreach ($f in Get-ChildItem -Path $OutDir -Filter *.json) {
     try { $j = Read-Json $f.FullName } catch { continue }
     if ($j.filament_id -like "PSM*" -and -not $keepIds.ContainsKey($j.filament_id)) {
-      Write-Host "  entfernt     $($j.name)"
+      Write-Host "  removed      $($j.name)"
       if (-not $WhatIf) {
         Remove-Item -LiteralPath $f.FullName
         $info = [IO.Path]::ChangeExtension($f.FullName, ".info")
@@ -286,6 +287,6 @@ if ($Prune -and (Test-Path $OutDir)) {
   }
 }
 
-$mode = if ($WhatIf) { " (PROBELAUF, NICHTS GESCHRIEBEN - zum Schreiben ohne -WhatIf starten)" } else { "" }
-Write-Host ("Fertig{0}: {1} neu/geaendert, {2} unveraendert, {3} ohne Vorlage, {4} entfernt. Ziel: {5}" -f $mode, $written, $same, $skipped, $pruned, $OutDir)
-if ($written -and -not $WhatIf) { Write-Host "OrcaSlicer neu starten, damit die Profile erscheinen." }
+$mode = if ($WhatIf) { " (DRY RUN, NOTHING WRITTEN - run without -WhatIf to write)" } else { "" }
+Write-Host ("Done{0}: {1} new/changed, {2} unchanged, {3} without template, {4} removed. Target: {5}" -f $mode, $written, $same, $skipped, $pruned, $OutDir)
+if ($written -and -not $WhatIf) { Write-Host "Restart OrcaSlicer so the profiles show up." }

@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""Spoolman-Spulen der INDX-Tools als Moonraker lane_data fuer OrcaSlicer.
+"""Spoolman spools of the INDX tools as Moonraker lane_data for OrcaSlicer.
 
-Aufruf (ueber orca_lanes_launch.sh aus dem Makro _ORCA_LANES):
-    orca_lanes.py 0=11 1=10 2=8 3=0 ...     <tool>=<spool_id>, 0 = keine Spule
+Usage (via orca_lanes_launch.sh from the _ORCA_LANES macro):
+    orca_lanes.py 0=11 1=10 2=8 3=0 ...     <tool>=<spool_id>, 0 = no spool
 
-Pro Tool n wird der Eintrag lane_data/lane<n> geschrieben:
+For each tool n the entry lane_data/lane<n> is written:
     {"lane": "n", "material": "PLA", "color": "#RRGGBB",
      "filament_id": "PSM<filament_id>", "nozzle_temp": 215, "bed_temp": 60,
      "spool_id": 11}
-Ein Tool ohne Spule bekommt material "" und gilt in Orca als leer.
-filament_id passt zu den Profilen, die orca_spoolman_profiles.ps1 anlegt.
+A tool without a spool gets material "" and counts as empty in Orca.
+filament_id matches the profiles created by orca_spoolman_profiles.ps1.
 
-Spoolman wird ueber den Proxy von Moonraker abgefragt, die Adresse des
-NAS steht also nur in moonraker.conf. Nur Python-Standardbibliothek.
+Spoolman is queried via Moonraker's proxy, so the Spoolman address
+is only in moonraker.conf. Python standard library only.
 """
 import json
 import sys
@@ -33,13 +33,13 @@ def call(method, path, body=None):
 
 
 def respond(msg):
-    """Kurze Meldung in die Klipper-Konsole (Mainsail)."""
+    """Short message to the Klipper console (Mainsail)."""
     msg = msg.replace('"', "'")
     try:
         call("POST", "/printer/gcode/script",
              {"script": 'RESPOND MSG="Orca-Lanes: %s"' % msg})
-    except Exception as exc:  # Konsole ist nur Komfort
-        print("RESPOND fehlgeschlagen:", exc)
+    except Exception as exc:  # console output is only a convenience
+        print("RESPOND failed:", exc)
 
 
 def get_spool(spool_id):
@@ -93,7 +93,7 @@ def main(argv):
         try:
             pairs.append((int(tool), int(sid or 0)))
         except ValueError:
-            print("Ignoriere Argument:", arg)
+            print("Ignoring argument:", arg)
     if not pairs:
         print(__doc__)
         return 2
@@ -103,18 +103,18 @@ def main(argv):
         try:
             lane, text = lane_for(tool, sid)
         except Exception as exc:
-            # Spule nicht gefunden oder Spoolman nicht erreichbar: Lane leeren,
-            # damit Orca keine veraltete Farbe uebernimmt.
+            # Spool not found or Spoolman unreachable: clear the lane
+            # so Orca does not pick up an outdated colour.
             errors += 1
-            lane, text = {"lane": str(tool), "material": ""}, "FEHLER (%s)" % exc
-            respond("T%d Spule %d nicht lesbar: %s" % (tool, sid, exc))
+            lane, text = {"lane": str(tool), "material": ""}, "ERROR (%s)" % exc
+            respond("T%d spool %d not readable: %s" % (tool, sid, exc))
         call("POST", "/server/database/item",
              {"namespace": NAMESPACE, "key": "lane%d" % tool, "value": lane})
         print("T%d -> lane%d: %s %s" % (tool, tool, text, json.dumps(lane)))
 
     used = sum(1 for _, s in pairs if s > 0)
-    respond("%d Tools uebertragen, %d mit Spule%s" % (
-        len(pairs), used, (", %d Fehler (Log: orca_lanes.log)" % errors) if errors else ""))
+    respond("%d tools sent, %d with spool%s" % (
+        len(pairs), used, (", %d errors (log: orca_lanes.log)" % errors) if errors else ""))
     return 1 if errors else 0
 
 

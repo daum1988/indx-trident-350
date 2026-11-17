@@ -37,7 +37,7 @@ moonraker/moonraker.example.conf   the moonraker.conf sections this repo needs
 orca/                         OrcaSlicer printer profile + Spoolman -> Orca filament profile script
 bootlogo/                     Plymouth boot logo for the CM4 display
 tools/nozzle_cam.html         browser page for checking tool XY offsets with a nozzle camera
-docs/SPOOLMAN.de.md           Spoolman setup guide (German)
+docs/SPOOLMAN.md              Spoolman setup guide (German: SPOOLMAN.de.md)
 ```
 
 **Not included:** the stock Bondtech INDX files (`indx/indx.cfg`,
@@ -75,7 +75,7 @@ Moonraker follows the tool, so usage is booked to the right spool.
 `orca_lanes.py` publishes the tool → filament mapping as Moonraker
 `lane_data`, so OrcaSlicer (printer agent *Moonraker*) can sync colours and
 profiles. `orca/orca_spoolman_profiles.ps1` creates matching Orca filament
-profiles from Spoolman on Windows. Full guide: [docs/SPOOLMAN.de.md](docs/SPOOLMAN.de.md).
+profiles from Spoolman on Windows. Full guide: [docs/SPOOLMAN.md](docs/SPOOLMAN.md).
 
 ### INDX overrides
 `indx/indx_overrides.cfg` must be included **after** `indx/homing.cfg`. It adds

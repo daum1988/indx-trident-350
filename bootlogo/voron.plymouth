@@ -1,6 +1,6 @@
 [Plymouth Theme]
 Name=Voron
-Description=Logo beim Booten statt Linux-Text
+Description=Logo at boot instead of Linux text
 ModuleName=script
 
 [script]

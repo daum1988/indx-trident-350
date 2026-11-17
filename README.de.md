@@ -38,7 +38,7 @@ moonraker/moonraker.example.conf   die benötigten Abschnitte für moonraker.con
 orca/                         OrcaSlicer-Druckerprofil + Skript Spoolman -> Orca-Filamentprofile
 bootlogo/                     Plymouth-Bootlogo für das CM4-Display
 tools/nozzle_cam.html         Browserseite zum Prüfen der XY-Tool-Offsets mit Düsenkamera
-docs/SPOOLMAN.de.md           Anleitung Spoolman-Einrichtung
+docs/SPOOLMAN.de.md           Anleitung Spoolman-Einrichtung (englisch: SPOOLMAN.md)
 ```
 
 **Nicht enthalten:** die originalen Bondtech-INDX-Dateien (`indx/indx.cfg`,
