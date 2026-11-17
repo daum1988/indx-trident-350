@@ -206,6 +206,7 @@ Base settings live in the Orca template (one per nozzle size). Per-filament devi
 | `filament_max_volumetric_speed` (+ `_d025`, `_d04`, `_d06`) | Max volumetric speed |
 | `filament_retraction_length`, `filament_retraction_speed` | Retraction |
 | `fan_min_speed`, `fan_max_speed` | Cooling fan |
+| `filament_shrink`, `filament_shrinkage_compensation_z` | Shrinkage (XY), Shrinkage (Z), in % (e.g. `99.5`; 100 = no compensation) |
 
 - Empty = template value.
 - Suffix `_d025`/`_d04`/`_d06`: only applies to that nozzle size and takes precedence there over the field without suffix.

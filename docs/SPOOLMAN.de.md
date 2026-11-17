@@ -206,6 +206,7 @@ Grundeinstellungen stehen in der Orca-Vorlage (`SM-Vorlage PLA Basis @… nozzle
 | `filament_max_volumetric_speed` (+ `_d025`, `_d04`, `_d06`) | Max. Volumenstrom |
 | `filament_retraction_length`, `filament_retraction_speed` | Retract |
 | `fan_min_speed`, `fan_max_speed` | Lüfter |
+| `filament_shrink`, `filament_shrinkage_compensation_z` | Schrumpfung (XY), Schrumpfung (Z), in % (z. B. `99.5`; 100 = keine Korrektur) |
 
 - Leer = Wert der Vorlage.
 - Endung `_d025`/`_d04`/`_d06`: gilt nur für diese Düse und hat dort Vorrang vor dem Feld ohne Endung.

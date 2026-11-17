@@ -244,7 +244,11 @@ foreach ($fil in $filaments) {
   $nz = Get-NozzleKey $tpl.Suffix
   $extraVals = Get-ExtraValues $fil.extra $nz
   if ($extraVals.ContainsKey("pressure_advance")) { $extraVals["enable_pressure_advance"] = "1" }
-  foreach ($k in $extraVals.Keys) {
+  # Orca stores shrinkage as percent text ("99.5%"); Spoolman holds the plain number.
+  foreach ($k in "filament_shrink", "filament_shrinkage_compensation_z") {
+    if ($extraVals.ContainsKey($k) -and $extraVals[$k] -notmatch '%$') { $extraVals[$k] = $extraVals[$k] + "%" }
+  }
+  foreach ($k in @($extraVals.Keys)) {
     if (-not $p.PSObject.Properties[$k]) {
       if (-not $warnedKeys.ContainsKey($k)) { Write-Warning "Extra field '$k' does not exist in the Orca template - ignored."; $warnedKeys[$k] = $true }
       continue
