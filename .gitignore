@@ -1,0 +1,15 @@
+# machine specific / generated on the printer
+indx_vars.cfg
+printer-*.cfg
+lc_pa_data/
+__pycache__/
+*.pyc
+*.zip
+*.log
+
+# never publish these
+moonraker.conf
+mobileraker.conf
+KlipperScreen.conf
+secrets*
+.env

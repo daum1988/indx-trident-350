@@ -1,0 +1,25 @@
+// Schwarzer Hintergrund, logo.png zentriert.
+// Ist das Bild groesser als 80 % des Displays, wird es verkleinert.
+
+Window.SetBackgroundTopColor(0, 0, 0);
+Window.SetBackgroundBottomColor(0, 0, 0);
+
+sw = Window.GetWidth();
+sh = Window.GetHeight();
+
+logo.image = Image("logo.png");
+iw = logo.image.GetWidth();
+ih = logo.image.GetHeight();
+
+scale = Math.Min(sw * 0.8 / iw, sh * 0.8 / ih);
+if (scale < 1)
+    logo.image = logo.image.Scale(iw * scale, ih * scale);
+
+logo.sprite = Sprite(logo.image);
+logo.sprite.SetX(sw / 2 - logo.image.GetWidth() / 2);
+logo.sprite.SetY(sh / 2 - logo.image.GetHeight() / 2);
+logo.sprite.SetZ(10);
+
+// Passwort-/Fragedialoge und Meldungen nicht anzeigen
+fun message_callback(text) { }
+Plymouth.SetMessageFunction(message_callback);

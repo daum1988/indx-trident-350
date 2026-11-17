@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INDX Nozzle Cam</title>
+<style>
+  :root {
+    --bg: #14161a; --panel: #1d2026; --line: #2c3038; --text: #e6e8eb;
+    --muted: #9097a1; --accent: #4fa3ff; --ok: #3fbf7f; --warn: #f0b429; --err: #ef5b5b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
+    font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .app { display: grid; grid-template-columns: 1fr 340px; height: 100%; }
+  @media (max-width: 900px) { .app { grid-template-columns: 1fr; height: auto; } .view { height: 70vh; } }
+
+  .view { position: relative; overflow: hidden; background: #000; }
+  .view img { position: absolute; left: 50%; top: 50%; max-width: none;
+    transform-origin: 50% 50%; user-select: none; pointer-events: none; }
+  .view svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .badge { position: absolute; left: 12px; top: 12px; background: rgba(0,0,0,.6);
+    padding: 6px 10px; border-radius: 6px; font: 13px ui-monospace, Consolas, monospace; }
+  .nostream { position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+    color: var(--muted); text-align: center; padding: 24px; }
+
+  .panel { background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto; padding: 14px; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted);
+    margin: 18px 0 8px; font-weight: 600; }
+  h2:first-child { margin-top: 0; }
+  .row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+  label { color: var(--muted); font-size: 13px; }
+  input[type=text], select { background: var(--bg); color: var(--text); border: 1px solid var(--line);
+    border-radius: 6px; padding: 6px 8px; font: inherit; }
+  input[type=text] { width: 100%; }
+  input[type=range] { flex: 1; }
+  button { background: #2a2f38; color: var(--text); border: 1px solid var(--line); border-radius: 6px;
+    padding: 7px 10px; font: inherit; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.on { border-color: var(--accent); color: var(--accent); }
+  .steps button { flex: 1; padding: 6px 0; }
+  .jog { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .jog button { padding: 10px 0; font-weight: 600; }
+  .pos { font: 13px ui-monospace, Consolas, monospace; display: grid; grid-template-columns: auto 1fr 1fr;
+    gap: 2px 10px; }
+  .pos span:nth-child(3n+1) { color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font: 13px ui-monospace, Consolas, monospace; }
+  th, td { text-align: right; padding: 3px 4px; border-bottom: 1px solid var(--line); }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--muted); font-weight: 500; }
+  tr.active td { color: var(--accent); }
+  .log { font: 12px ui-monospace, Consolas, monospace; background: var(--bg); border: 1px solid var(--line);
+    border-radius: 6px; padding: 6px 8px; height: 140px; overflow-y: auto; white-space: pre-wrap; }
+  .log .err { color: var(--err); }
+  .status { font-size: 12px; color: var(--muted); }
+  .status.ok { color: var(--ok); } .status.err { color: var(--err); }
+  .hint { font-size: 12px; color: var(--muted); margin: 4px 0 0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="view" id="view">
+    <img id="cam" alt="">
+    <svg id="cross"></svg>
+    <div class="badge" id="badge">--</div>
+    <div class="nostream" id="nostream">Kein Kamerabild.<br>Stream-URL rechts pruefen.</div>
+  </div>
+
+  <div class="panel">
+    <h2>Verbindung</h2>
+    <label for="host">Drucker (leer = diese Seite liegt auf dem Drucker)</label>
+    <div class="row"><input type="text" id="host" placeholder="http://INDX-Trident.local"></div>
+    <label for="stream">Stream-Pfad</label>
+    <div class="row"><input type="text" id="stream" value="/webcam2/?action=stream"></div>
+    <div class="row"><button id="apply">Uebernehmen</button><span class="status" id="conn">--</span></div>
+
+    <h2>Ansicht</h2>
+    <div class="row"><label style="width:58px">Zoom</label>
+      <input type="range" id="zoom" min="1" max="8" step="0.25" value="2"><span id="zoomv">2x</span></div>
+    <div class="row"><label style="width:58px">Ring</label>
+      <input type="range" id="ring" min="5" max="300" step="1" value="60"><span id="ringv">60</span></div>
+    <div class="row">
+      <button id="flipx">Spiegeln H</button><button id="flipy">Spiegeln V</button>
+      <select id="color" title="Farbe">
+        <option value="#00ff66">Gruen</option><option value="#ff3b3b">Rot</option>
+        <option value="#ffd400">Gelb</option><option value="#4fa3ff">Blau</option>
+        <option value="#ffffff">Weiss</option>
+      </select>
+    </div>
+
+    <h2>Position</h2>
+    <div class="pos">
+      <span></span><span>Maschine</span><span>G-Code</span>
+      <span>X</span><span id="mx">--</span><span id="gx">--</span>
+      <span>Y</span><span id="my">--</span><span id="gy">--</span>
+      <span>Z</span><span id="mz">--</span><span id="gz">--</span>
+    </div>
+
+    <h2>Verfahren</h2>
+    <div class="row steps" id="steps">
+      <button data-s="0.01">0.01</button><button data-s="0.05">0.05</button>
+      <button data-s="0.1">0.1</button><button data-s="0.5">0.5</button><button data-s="1">1</button>
+    </div>
+    <div class="jog">
+      <button data-a="X" data-d="-1">X&minus;</button><button data-a="X" data-d="1">X+</button>
+      <button data-a="Y" data-d="-1">Y&minus;</button><button data-a="Y" data-d="1">Y+</button>
+      <button data-a="Z" data-d="-1">Z&minus;</button><button data-a="Z" data-d="1">Z+</button>
+      <button id="home" style="grid-column: span 2">G28</button>
+    </div>
+    <p class="hint">Tastatur: Pfeile = X/Y, Bild auf/ab = Z, 1&ndash;5 = Schrittweite.</p>
+
+    <h2>INDX XY-Kalibrierung</h2>
+    <div class="row"><button class="primary" id="ref" style="flex:1">1. T0 als Referenz (CAL_ONE)</button></div>
+    <div class="row">
+      <select id="tool"></select>
+      <button id="prep" style="flex:1">2. Tool holen (CAL_TWO)</button>
+    </div>
+    <div class="row"><button class="primary" id="save" style="flex:1">3. Offset speichern (CAL_THREE)</button></div>
+    <div class="row"><button id="check" style="flex:1">CAL_CHECK_OFFSETS</button></div>
+
+    <h2>Gegencheck</h2>
+    <div class="row">
+      <select id="vtool"></select>
+      <button id="verify" style="flex:1">Mit Offset anfahren (CAL_VERIFY_XY)</button>
+    </div>
+    <p class="hint">Die Duese muss ohne Verfahren im Fadenkreuz sitzen. Danach nicht CAL_THREE druecken.</p>
+
+    <h2>Gespeicherte Offsets</h2>
+    <table><thead><tr><th>Tool</th><th>X</th><th>Y</th></tr></thead><tbody id="offs"></tbody></table>
+
+    <h2>Konsole</h2>
+    <div class="log" id="log"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('nozcam_' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('nozcam_' + k, JSON.stringify(v)); } catch (e) {} }
+  };
+
+  const st = {
+    host: store.get('host', location.protocol.startsWith('http') ? '' : 'http://INDX-Trident.local'),
+    stream: store.get('stream', '/webcam2/?action=stream'),
+    zoom: store.get('zoom', 2), ring: store.get('ring', 60),
+    flipx: store.get('flipx', false), flipy: store.get('flipy', false),
+    color: store.get('color', '#00ff66'), step: store.get('step', 0.1),
+    toolCount: 9, lastLog: 0, lastW: 0
+  };
+
+  const base = () => (st.host || '').replace(/\/+$/, '');
+  const api = p => base() + p;
+
+  // ---------- Kamera und Fadenkreuz ----------
+  const img = $('cam'), view = $('view'), svg = $('cross');
+
+  function layout() {
+    const vw = view.clientWidth, vh = view.clientHeight;
+    const iw = img.naturalWidth || 1280, ih = img.naturalHeight || 720;
+    const s = Math.min(vw / iw, vh / ih) * st.zoom;
+    img.style.width = iw + 'px';
+    img.style.height = ih + 'px';
+    img.style.transform = `translate(-50%,-50%) scale(${st.flipx ? -s : s}, ${st.flipy ? -s : s})`;
+    drawCross(vw, vh, s);
+  }
+
+  function drawCross(w, h, s) {
+    const cx = w / 2, cy = h / 2, c = st.color, r = st.ring * s; // Ring in Kamerapixeln, waechst mit dem Zoom
+    const tick = [];
+    for (let i = 1; i <= 4; i++) {
+      const d = r * i / 2;
+      tick.push(`<line x1="${cx + d}" y1="${cy - 5}" x2="${cx + d}" y2="${cy + 5}"/>`,
+                `<line x1="${cx - d}" y1="${cy - 5}" x2="${cx - d}" y2="${cy + 5}"/>`,
+                `<line x1="${cx - 5}" y1="${cy + d}" x2="${cx + 5}" y2="${cy + d}"/>`,
+                `<line x1="${cx - 5}" y1="${cy - d}" x2="${cx + 5}" y2="${cy - d}"/>`);
+    }
+    svg.innerHTML = `
+      <g stroke="#000" stroke-opacity=".55" stroke-width="3" fill="none">
+        <line x1="0" y1="${cy}" x2="${w}" y2="${cy}"/><line x1="${cx}" y1="0" x2="${cx}" y2="${h}"/>
+        <circle cx="${cx}" cy="${cy}" r="${r}"/><circle cx="${cx}" cy="${cy}" r="${r / 2}"/>
+      </g>
+      <g stroke="${c}" stroke-width="1" fill="none">
+        <line x1="0" y1="${cy}" x2="${w}" y2="${cy}"/><line x1="${cx}" y1="0" x2="${cx}" y2="${h}"/>
+        <circle cx="${cx}" cy="${cy}" r="${r}"/><circle cx="${cx}" cy="${cy}" r="${r / 2}" stroke-dasharray="4 4"/>
+        ${tick.join('')}
+      </g>`;
+  }
+
+  function startStream() {
+    $('nostream').style.display = 'none';
+    img.src = api(st.stream) + (st.stream.includes('?') ? '&' : '?') + 't=' + Date.now();
+  }
+  img.addEventListener('load', layout);
+  img.addEventListener('error', () => { $('nostream').style.display = 'flex'; setTimeout(startStream, 3000); });
+  new ResizeObserver(layout).observe(view);
+
+  // ---------- Bedienelemente Ansicht ----------
+  $('host').value = st.host; $('stream').value = st.stream;
+  $('zoom').value = st.zoom; $('ring').value = st.ring; $('color').value = st.color;
+  const syncView = () => {
+    $('zoomv').textContent = st.zoom + 'x'; $('ringv').textContent = st.ring;
+    $('flipx').classList.toggle('on', st.flipx); $('flipy').classList.toggle('on', st.flipy);
+    layout();
+  };
+  $('zoom').oninput = e => { st.zoom = +e.target.value; store.set('zoom', st.zoom); syncView(); };
+  $('ring').oninput = e => { st.ring = +e.target.value; store.set('ring', st.ring); syncView(); };
+  $('color').onchange = e => { st.color = e.target.value; store.set('color', st.color); syncView(); };
+  $('flipx').onclick = () => { st.flipx = !st.flipx; store.set('flipx', st.flipx); syncView(); };
+  $('flipy').onclick = () => { st.flipy = !st.flipy; store.set('flipy', st.flipy); syncView(); };
+  $('apply').onclick = () => {
+    st.host = $('host').value.trim(); st.stream = $('stream').value.trim() || '/webcam2/?action=stream';
+    store.set('host', st.host); store.set('stream', st.stream); st.lastLog = 0; startStream(); poll();
+  };
+  view.addEventListener('wheel', e => {
+    e.preventDefault();
+    st.zoom = Math.min(8, Math.max(1, st.zoom + (e.deltaY < 0 ? 0.25 : -0.25)));
+    $('zoom').value = st.zoom; store.set('zoom', st.zoom); syncView();
+  }, { passive: false });
+
+  // ---------- Moonraker ----------
+  function log(msg, cls) {
+    const el = $('log'), line = document.createElement('div');
+    if (cls) line.className = cls;
+    line.textContent = msg; el.appendChild(line);
+    while (el.childNodes.length > 200) el.removeChild(el.firstChild);
+    el.scrollTop = el.scrollHeight;
+  }
+
+  async function gcode(script) {
+    try {
+      const r = await fetch(api('/printer/gcode/script'), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ script })
+      });
+      if (!r.ok) {
+        let m = r.status + ' ' + r.statusText;
+        try { const j = await r.json(); m = (j.error && j.error.message) || m; } catch (e) {}
+        log('Fehler: ' + m, 'err');
+      }
+    } catch (e) { log('Keine Verbindung zu Moonraker: ' + e.message, 'err'); }
+  }
+
+  const f3 = v => (typeof v === 'number' && isFinite(v) ? v.toFixed(3) : '--');
+
+  async function poll() {
+    // MJPEG-Streams melden 'load' nicht in jedem Browser: Bildgroesse hier nachziehen
+    if (img.naturalWidth && img.naturalWidth !== st.lastW) { st.lastW = img.naturalWidth; layout(); }
+    try {
+      const q = 'toolhead=position,homed_axes&gcode_move=gcode_position&save_variables=variables'
+              + '&gcode_macro%20TOOL_POSITIONS=tool_count';
+      const r = await fetch(api('/printer/objects/query?' + q));
+      if (!r.ok) throw new Error(r.status);
+      const s = (await r.json()).result.status;
+      const p = s.toolhead.position, g = s.gcode_move.gcode_position;
+      $('mx').textContent = f3(p[0]); $('my').textContent = f3(p[1]); $('mz').textContent = f3(p[2]);
+      $('gx').textContent = f3(g[0]); $('gy').textContent = f3(g[1]); $('gz').textContent = f3(g[2]);
+      const sv = (s.save_variables && s.save_variables.variables) || {};
+      const act = Number.isInteger(sv.active_tool) ? sv.active_tool : -1;
+      const tm = s['gcode_macro TOOL_POSITIONS'];
+      if (tm && tm.tool_count && tm.tool_count !== st.toolCount) { st.toolCount = tm.tool_count; fillTools(); }
+      $('badge').textContent = `T${act < 0 ? '?' : act}  X ${f3(p[0])}  Y ${f3(p[1])}  Z ${f3(p[2])}  [${s.toolhead.homed_axes || 'nicht gehomt'}]`;
+      let rows = '';
+      for (let i = 0; i < st.toolCount; i++) {
+        const ox = sv['t' + i + '_offset_x'], oy = sv['t' + i + '_offset_y'];
+        rows += `<tr class="${i === act ? 'active' : ''}"><td>T${i}</td><td>${ox === undefined ? '--' : f3(+ox)}</td><td>${oy === undefined ? '--' : f3(+oy)}</td></tr>`;
+      }
+      $('offs').innerHTML = rows;
+      $('conn').textContent = 'verbunden'; $('conn').className = 'status ok';
+    } catch (e) {
+      $('conn').textContent = 'keine Verbindung'; $('conn').className = 'status err';
+    }
+    try {
+      const r = await fetch(api('/server/gcode_store?count=30'));
+      const items = (await r.json()).result.gcode_store || [];
+      for (const it of items) {
+        if (it.time <= st.lastLog) continue;
+        st.lastLog = it.time;
+        log((it.type === 'command' ? '> ' : '') + it.message, /^!!|error/i.test(it.message) ? 'err' : '');
+      }
+    } catch (e) {}
+  }
+
+  // ---------- Verfahren ----------
+  function setStep(s) {
+    st.step = s; store.set('step', s);
+    document.querySelectorAll('#steps button').forEach(b => b.classList.toggle('on', +b.dataset.s === s));
+  }
+  document.querySelectorAll('#steps button').forEach(b => b.onclick = () => setStep(+b.dataset.s));
+  setStep(st.step);
+
+  function jog(axis, dir) {
+    const d = (st.step * dir).toFixed(3), f = axis === 'Z' ? 300 : 1200;
+    gcode(`SAVE_GCODE_STATE NAME=_nozcam\nG91\nG1 ${axis}${d} F${f}\nRESTORE_GCODE_STATE NAME=_nozcam`);
+  }
+  document.querySelectorAll('.jog button[data-a]').forEach(b => b.onclick = () => jog(b.dataset.a, +b.dataset.d));
+  $('home').onclick = () => { if (confirm('G28 ausfuehren?')) gcode('G28'); };
+
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+    const k = { ArrowLeft: ['X', -1], ArrowRight: ['X', 1], ArrowUp: ['Y', 1], ArrowDown: ['Y', -1],
+                PageUp: ['Z', 1], PageDown: ['Z', -1] }[e.key];
+    if (k) { e.preventDefault(); jog(k[0], k[1]); return; }
+    const n = { '1': 0.01, '2': 0.05, '3': 0.1, '4': 0.5, '5': 1 }[e.key];
+    if (n) setStep(n);
+  });
+
+  // ---------- INDX-Makros ----------
+  function fillTools() {
+    const sel = $('tool'), cur = +sel.value || 1;
+    sel.innerHTML = '';
+    for (let i = 1; i < st.toolCount; i++) sel.add(new Option('T' + i, i));
+    sel.value = Math.min(cur, st.toolCount - 1);
+    const vs = $('vtool'), vcur = +vs.value || 0;
+    vs.innerHTML = '';
+    for (let i = 0; i < st.toolCount; i++) vs.add(new Option('T' + i, i));
+    vs.value = Math.min(vcur, st.toolCount - 1);
+  }
+  fillTools();
+  $('ref').onclick = () => { if (confirm('T0 ist zentriert? Aktuelle Position als Kamera-Referenz speichern.')) gcode('CAL_ONE_SET_CAMERA_REF'); };
+  $('prep').onclick = () => gcode('CAL_TWO_PREP_TOOL_CAL TOOL=' + $('tool').value);
+  $('save').onclick = () => gcode('CAL_THREE_SAVE_XY_OFFSET');
+  $('check').onclick = () => gcode('CAL_CHECK_OFFSETS');
+  $('verify').onclick = () => gcode('CAL_VERIFY_XY TOOL=' + $('vtool').value);
+
+  syncView(); startStream(); poll(); setInterval(poll, 700);
+})();
+</script>
+</body>
+</html>

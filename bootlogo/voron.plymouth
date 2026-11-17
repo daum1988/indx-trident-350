@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Voron
+Description=Logo beim Booten statt Linux-Text
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/voron
+ScriptFile=/usr/share/plymouth/themes/voron/voron.script
