@@ -81,7 +81,8 @@ B=~/printer_data/config.bak-$(date +%Y%m%d-%H%M%S) && cp -r ~/printer_data/confi
 
 The command prints the path of the backup, e.g.
 `/home/pi/printer_data/config.bak-20261118-231500`. Note it; step 4 uses it
-as `<BACKUP>`.
+as `<BACKUP>`: in the commands below replace `<BACKUP>` with this path
+(without the angle brackets).
 
 **Check:** `ls <BACKUP>` shows `printer.cfg`, `indx/` etc.
 

@@ -156,6 +156,10 @@ Preis pro kg. Was in Spoolman leer ist, bleibt wie in der Vorlage.
 Material-Zuordnung: genaue Vorlage, sonst die längste passende
 (`PLA+` → `SM-Vorlage PLA`).
 
+Nach einem OrcaSlicer-Update zuerst einen Probelauf (`-WhatIf`) machen und
+danach ein erzeugtes Profil in Orca öffnen: Das Skript ist mit dem
+Profilformat von 2.5.x getestet.
+
 Erneut ausführen, wenn in Spoolman neue Filamente dazukommen oder sich Werte
 ändern; unveränderte Profile werden nicht angefasst. `-Prune` löscht
 `SM`-Profile, deren Filament es in Spoolman nicht mehr gibt (oder das keine

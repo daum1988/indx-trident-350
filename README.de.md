@@ -109,7 +109,8 @@ verwenden sie durchgehend, etwa „Tool“ statt „Werkzeug“.
 
 | Begriff | Bedeutung |
 |---|---|
-| Tool | einer der neun INDX-Druckköpfe (T0–T8), jeder mit eigener Düse und eigenem Extruder |
+| Tool | eines der neun passiven INDX-Tools (T0–T8), jeweils mit eigener Düse (Hotend) und eigenem Filamentpfad. Angetrieben wird das Filament vom gemeinsamen DX-Extruder im Smart Head |
+| Smart Head | der aktive Kopf am Druckkopfschlitten: DX-Extruder, Load-Cell, Latch, Induktionsheizung, Eddy-Scanner; nimmt jeweils ein Tool auf |
 | Dock | Halter, in dem ein Tool geparkt wird |
 | Pickup / Parken | der Kopf nimmt ein Tool aus seinem Dock auf / stellt es zurück |
 | Latch (Verschluss) | hält das Tool am Kopf; wird vom Extrudermotor bewegt |

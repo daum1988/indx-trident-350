@@ -103,7 +103,8 @@ docs/                         the guides above (German: *.de.md)
 
 | Term | Meaning |
 |---|---|
-| Tool | one of the nine INDX print heads (T0–T8), each with its own nozzle and extruder |
+| Tool | one of the nine passive INDX tools (T0–T8), each with its own nozzle (hotend) and filament path. Filament is driven by the shared DX extruder in the Smart Head |
+| Smart Head | the active head on the carriage: DX extruder, load cell, latch, induction heater, eddy scanner; carries one tool at a time |
 | Dock | the holder a tool is parked in |
 | Pickup / park | the head takes a tool out of its dock / puts it back |
 | Latch | the lock that holds a tool on the head; driven by the extruder motor |

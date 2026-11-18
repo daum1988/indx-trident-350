@@ -81,7 +81,8 @@ B=~/printer_data/config.bak-$(date +%Y%m%d-%H%M%S) && cp -r ~/printer_data/confi
 
 Der Befehl gibt den Pfad der Sicherung aus, z. B.
 `/home/pi/printer_data/config.bak-20261118-231500`. Diesen Pfad notieren; er
-wird in Schritt 4 als `<SICHERUNG>` gebraucht.
+wird in Schritt 4 als `<SICHERUNG>` gebraucht: In den Befehlen unten
+`<SICHERUNG>` jeweils durch diesen Pfad ersetzen (ohne spitze Klammern).
 
 **Kontrolle:** `ls <SICHERUNG>` zeigt `printer.cfg`, `indx/` usw.
 

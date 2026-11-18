@@ -181,7 +181,9 @@ der Load-Cell auf der Plattenoberfläche gemessen.
 
 - **Wo:** Klipper-Doku *Resonance compensation* oder
   [Shake&Tune](https://github.com/Frix-x/klippain-shaketune).
-- **Was:** `SHAPER_CALIBRATE` (oder die Befehle von Shake&Tune),
+- **Was:** unter Druckbedingungen messen: ein Tool am Kopf, Riemen
+  gespannt, nichts Loses auf Bett oder Kopf. Dann `SHAPER_CALIBRATE` (oder
+  die Befehle von Shake&Tune),
   `SAVE_CONFIG`. Der Beschleunigungssensor der INDX-Platine (`[lis2dw]`,
   `[resonance_tester]`) ist in `config/INDX_toolhead.cfg` schon eingerichtet.
 - **Erledigt, wenn:** der `SAVE_CONFIG`-Block `[input_shaper]` enthält.

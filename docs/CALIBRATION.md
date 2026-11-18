@@ -179,7 +179,9 @@ cell on the plate surface.
 
 - **Where:** Klipper's *Resonance compensation* docs or
   [Shake&Tune](https://github.com/Frix-x/klippain-shaketune).
-- **What:** `SHAPER_CALIBRATE` (or the Shake&Tune commands), `SAVE_CONFIG`.
+- **What:** measure under printing conditions: a tool on the head, belts
+  tensioned, nothing loose on the bed or head. Then `SHAPER_CALIBRATE` (or
+  the Shake&Tune commands), `SAVE_CONFIG`.
   The accelerometer on the INDX PCB (`[lis2dw]`, `[resonance_tester]`) is
   already configured in `config/INDX_toolhead.cfg`.
 - **Done when:** the `SAVE_CONFIG` block contains `[input_shaper]`.

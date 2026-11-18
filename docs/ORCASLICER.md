@@ -149,6 +149,10 @@ temperature (the first-layer offset stays as in the template), price per kg.
 Anything empty in Spoolman stays as in the template. Material matching: exact
 template, otherwise the longest matching one (`PLA+` → `SM-Vorlage PLA`).
 
+After an OrcaSlicer update, do a dry run (`-WhatIf`) first and then open a
+generated profile in Orca: the script is tested with the profile format of
+2.5.x.
+
 Run it again whenever new filaments are added or values change in Spoolman;
 unchanged profiles are left alone. `-Prune` deletes `SM` profiles whose
 filament no longer exists in Spoolman (or has no active spool). `-All` also
