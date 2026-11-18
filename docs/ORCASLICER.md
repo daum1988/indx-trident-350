@@ -139,6 +139,8 @@ time, change the default in the `param(...)` block at the top of the script
    area (right of the heading). Orca counts from 1: filament 1 = T0 …
    filament 9 = T8.
 
+   ![Orca: Filament area with the sync button marked](images/orca_filament_sync.png)
+
 **Check:** filament 1–9 get the profile and colour of the spools on T0–T8.
 
 Taken from Spoolman: name, vendor, colour, density, diameter, nozzle and bed

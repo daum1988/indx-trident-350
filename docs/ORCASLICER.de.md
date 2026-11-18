@@ -146,6 +146,8 @@ wer sie nicht jedes Mal tippen will, ändert oben im Skript im Block
    neben der Überschrift) drücken. Orca zählt ab 1: Filament 1 = T0 …
    Filament 9 = T8.
 
+   ![Orca: Bereich Filament mit markiertem Sync-Knopf](images/orca_filament_sync.png)
+
 **Kontrolle:** Filament 1–9 bekommen Profil und Farbe der Spulen auf T0–T8.
 
 Aus Spoolman übernommen: Name, Hersteller, Farbe, Dichte, Durchmesser, Düsen-
