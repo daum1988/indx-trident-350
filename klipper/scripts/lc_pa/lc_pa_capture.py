@@ -26,8 +26,11 @@ import threading
 import time
 import urllib.request
 
-DEFAULT_SOCK = "/home/pi/printer_data/comms/klippy.sock"
-DEFAULT_OUT = "/home/pi/printer_data/config/lc_pa_data"
+# printer_data folder, derived from this file's location
+# (<printer_data>/config/scripts/lc_pa/), so any user name works
+PRINTER_DATA = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
+DEFAULT_SOCK = os.path.join(PRINTER_DATA, "comms", "klippy.sock")
+DEFAULT_OUT = os.path.join(PRINTER_DATA, "config", "lc_pa_data")
 # Feed sequence: (filament mm/s, duration s). 0 = pause (G4).
 DEFAULT_SEQ = "1:5,4:3,1:4,0:6,2:4,0:6,4:2,0:8"
 MOONRAKER = "http://127.0.0.1:7125"

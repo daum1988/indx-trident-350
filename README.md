@@ -5,6 +5,9 @@ Kalico/Klipper configuration, macros and tools for a **Voron Trident 350** with 
 
 [Deutsche Version → README.de.md](README.de.md)
 
+CAD files of the printer (INDX conversion of the Trident):
+[daum1988/Voron-Trident-INDX](https://github.com/daum1988/Voron-Trident-INDX)
+
 > This is a personal machine config shared as a reference. It is **not** a
 > drop-in config: pins, serial IDs, positions and all calibration values must
 > be checked and measured on your own printer. Use at your own risk.
@@ -26,7 +29,7 @@ Kalico/Klipper configuration, macros and tools for a **Voron Trident 350** with 
 ## What is in here
 
 ```
-klipper/
+klipper/                      content goes into ~/printer_data/config/
   printer.cfg                 includes, SAVE_CONFIG block removed
   config/                     M8P board config, INDX toolhead, bed mesh, TMC autotune
   indx/indx_overrides.cfg     overrides on top of the stock Bondtech INDX macros
@@ -42,12 +45,21 @@ tools/nozzle_cam.html         browser page for checking tool XY offsets with a n
 docs/SPOOLMAN.md              Spoolman setup guide (German: SPOOLMAN.de.md)
 ```
 
-**Not included:** the stock Bondtech INDX files (`indx/indx.cfg`,
-`indx-tc-macros.cfg`, `indx-cal.cfg`, `homing.cfg`) – get them from
-[BondtechAB/INDX](https://github.com/BondtechAB/INDX) and configure `indx.cfg`
-for your machine. Also not included: `mainsail.cfg`, `timelapse.cfg`,
-`indx_vars.cfg` (per-machine tool offsets) and anything with network
-addresses or API keys.
+**Not included:**
+- the stock Bondtech INDX files `indx/indx.cfg`, `indx/indx-tc-macros.cfg`,
+  `indx/indx-cal.cfg`, `indx/homing.cfg` – get them from
+  [BondtechAB/INDX](https://github.com/BondtechAB/INDX) and configure
+  `indx.cfg` for your machine. `printer.cfg` includes them; without them
+  Klipper does not start. Several commands used here come from these files,
+  e.g. `PARK_TOOL`, `CHANGE_TOOL` and the startup `INIT_STATE`
+  (`indx-tc-macros.cfg`), `TOOL_POSITIONS` (`indx.cfg`), `SYNC_GLOBAL_Z` and
+  `CAL_CHECK_OFFSETS` (`indx-cal.cfg`);
+- `mainsail.cfg` (from [mainsail-config](https://github.com/mainsail-crew/mainsail-config),
+  already present on MainsailOS) and `timelapse.cfg` (installed by
+  [moonraker-timelapse](https://github.com/mainsail-crew/moonraker-timelapse)).
+  `printer.cfg` includes both; comment the lines out if you do not use them;
+- `indx_vars.cfg` (per-machine tool offsets, created by INDX) and anything with
+  network addresses or API keys.
 
 ## Highlights
 
@@ -70,20 +82,36 @@ nozzle size). Needs `gcode_shell_command` (built into Kalico) and
 `scripts/lc_pa/` in the config folder. `LC_EXTRUDE_TEST` is a quick check that
 your load cell sees the extrusion force at all.
 
-### KlipperScreen: tool selection and load/unload
+### KlipperScreen: INDX panel, tool selection and load/unload
 KlipperScreen only sees one `[extruder]`, so it shows no T0–T8 buttons, and its
-Load/Unload buttons send a bare `LOAD_FILAMENT` / `UNLOAD_FILAMENT`.
-The add-on `klipperscreen/indx_addon.py` adds an *INDX* panel (every tool with its
-spool colour and name, loaded/empty, active tool highlighted; park, load, unload)
-and shows the active tool with its spool colour in the titlebar. Install: copy it to
-`~/printer_data/config/klipperscreen/`, then
-`mkdir -p ~/KlipperScreen/addons && ln -sf ~/printer_data/config/klipperscreen/indx_addon.py ~/KlipperScreen/addons/indx.py`
-and merge `klipperscreen/KlipperScreen.example.conf`. LOAD/UNLOAD_FILAMENT keep
-`t<n>__loaded` up to date; `SET_TOOL_LOADED T=<n> LOADED=<0|1>` corrects it. A bare `LOAD_FILAMENT` or `UNLOAD_FILAMENT` opens a dialog
-(`macros/filament_menu.cfg`, macro prompt) to pick the tool and, for loading, the
-spool from Spoolman (material tiles first, then a scrollable spool list sorted by vendor and name; `scripts/spool_picker/`). The chosen
-spool is assigned to the tool and its nozzle temperature is used. *Without spool*
-falls back to the material presets. The dialog also appears in Mainsail.
+Load/Unload buttons send a bare `LOAD_FILAMENT` / `UNLOAD_FILAMENT`. This repo
+adds:
+
+- **Load/unload dialog** (`macros/filament_menu.cfg`, macro prompt, also shown
+  in Mainsail): a bare `LOAD_FILAMENT` asks for the tool, the material and the
+  spool from Spoolman (`scripts/spool_picker/`, scrollable list sorted by
+  vendor and name). The spool is assigned to the tool and its nozzle
+  temperature is used; *Without spool* falls back to the material presets.
+  A bare `UNLOAD_FILAMENT` asks for the tool.
+- **KlipperScreen add-on** `klipperscreen/indx_addon.py`: an *INDX* panel with
+  every tool (spool colour and name, loaded/empty, active tool highlighted;
+  park, load, unload) and the active tool with its spool colour in the
+  titlebar. `LOAD_FILAMENT` / `UNLOAD_FILAMENT` keep the loaded state
+  (`t<n>__loaded`) up to date; `SET_TOOL_LOADED T=<n> LOADED=<0|1>` corrects it.
+
+Installing the add-on (needs a KlipperScreen version with add-on support,
+setting `enable_addons`):
+
+1. Copy `klipperscreen/indx_addon.py` to `~/printer_data/config/klipperscreen/`.
+2. Via SSH, link it into KlipperScreen's add-on folder (ignored by
+   KlipperScreen's git, so updates keep working):
+   ```bash
+   mkdir -p ~/KlipperScreen/addons && ln -sf ~/printer_data/config/klipperscreen/indx_addon.py ~/KlipperScreen/addons/indx.py
+   ```
+3. Merge `klipperscreen/KlipperScreen.example.conf` into your
+   `KlipperScreen.conf` (`enable_addons: True`, the INDX menu entry, `spool` in
+   the titlebar).
+4. Restart KlipperScreen.
 
 ### Spoolman, one spool per tool
 `SET_TOOL_SPOOL T=3 ID=12` assigns a spool to a tool (same variables the
@@ -109,20 +137,52 @@ time your own machine.
 
 ## Setup
 
-1. Install Kalico and the Bondtech INDX module/configs per Bondtech's docs.
-2. Copy `klipper/` into `~/printer_data/config/`.
-3. Replace the serial IDs (`ls /dev/serial/by-id/`) and check every pin against
-   your wiring.
-4. Merge `moonraker/moonraker.example.conf` into your `moonraker.conf`.
-5. Run all calibrations yourself and `SAVE_CONFIG`: bed PID, input shaper,
-   INDX thermal model, load cell, eddy scanner, tool offsets.
+1. **Kalico and INDX:** install Kalico and the Bondtech INDX module and
+   configs as described by Bondtech, so that `indx/indx.cfg`,
+   `indx/indx-tc-macros.cfg`, `indx/indx-cal.cfg` and `indx/homing.cfg` exist in
+   your config folder.
+2. **Copy the files:** copy the *content* of `klipper/` (not the folder
+   itself) into `~/printer_data/config/`, so you get
+   `~/printer_data/config/printer.cfg`, `.../config/`, `.../macros/`,
+   `.../scripts/` and so on. The macros expect the scripts under
+   `~/printer_data/config/scripts/`.
+3. **Includes:** check `printer.cfg`. The order matters:
+   ```ini
+   [include mainsail.cfg]
+   [include config/*.cfg]
+   [include macros/*.cfg]
+   [include timelapse.cfg]            # only with moonraker-timelapse
+   [include indx/indx.cfg]
+   [include indx/indx-tc-macros.cfg]
+   [include indx/indx-cal.cfg]
+   [include indx/homing.cfg]
+   [include indx/indx_overrides.cfg]  # must come after indx/homing.cfg
+   ```
+4. **Other modules:** `config/autotune_tmc.cfg` needs
+   [klipper_tmc_autotune](https://github.com/andrewmcgr/klipper_tmc_autotune),
+   `macros/shaketune.cfg` needs [Shake&Tune](https://github.com/Frix-x/klippain-shaketune).
+   Install them or delete those files; otherwise Klipper does not start.
+5. **User name:** the three `[gcode_shell_command]` sections
+   (`macros/lc_pa_cal.cfg`, `macros/spoolman.cfg`, `macros/filament_menu.cfg`)
+   call the scripts via `/home/pi/printer_data/...`. If your Linux user is
+   not `pi`, change these three paths, otherwise the PA calibration, the Orca
+   lanes and the spool dialog fail silently. The scripts themselves find
+   `printer_data` on their own.
+6. **Hardware:** replace the serial IDs (`ls /dev/serial/by-id/`) and, if
+   used, the CAN UUID, and check every pin against your wiring.
+7. **Moonraker:** merge `moonraker/moonraker.example.conf` into your
+   `moonraker.conf` (Spoolman address, timelapse, update manager entries).
+8. **Calibrate:** run all calibrations yourself and `SAVE_CONFIG`: bed PID,
+   input shaper, INDX thermal model, load cell, eddy scanner, tool offsets.
+9. **Optional:** Spoolman and OrcaSlicer: [docs/SPOOLMAN.md](docs/SPOOLMAN.md);
+   KlipperScreen add-on: see above; boot logo: [bootlogo/README.md](bootlogo/README.md).
 
 ## Lessons learned
 
 - **Global Z offset is lost after a restart / print start?** Babystepping only
   changes the live offset. `START_PRINT` homes Z, which re-applies the *saved*
   global offset. Run `SYNC_GLOBAL_Z` after babystepping to save it, check with
-  `CAL_CHECK_OFFSETS`. After a restart the live value shows 0 until `G28` or a
+  `CAL_CHECK_OFFSETS` (both from Bondtech's `indx-cal.cfg`). After a restart the live value shows 0 until `G28` or a
   T0 pickup – that is normal.
 - **Different build plates (smooth/textured)** need no Z offset per plate: Z is
   homed with the load cell on the actual plate surface.
