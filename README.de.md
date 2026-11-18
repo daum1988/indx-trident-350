@@ -284,11 +284,19 @@ Anpassungen aus der Einrichtung:
 - Serial-IDs, CAN-UUID und Pins in `config/` (Schritt 7) sind wieder die
   vom Original.
 
-Vorher vergleichen und nur übernehmen, was man will:
+Vorher vergleichen und nur übernehmen, was man will. Dieser Befehl listet nur
+geänderte oder neue Repo-Dateien (Dateien, die nur im eigenen Config-Ordner
+liegen, etwa `moonraker.conf` oder Bondtechs `indx/`-Dateien, werden
+ausgefiltert):
 ```bash
-diff -r ~/indx-trident-350/klipper/ ~/printer_data/config/ | less
+diff -rq ~/indx-trident-350/klipper/ ~/printer_data/config/ | grep -v "^Only in $HOME/printer_data"
 ```
-Wer doch alles kopiert, vorher sichern und danach die Schritte 5–7 wiederholen.
+Danach einzelne Dateien mit `diff` ansehen, z. B.
+`diff ~/indx-trident-350/klipper/macros/filament_menu.cfg ~/printer_data/config/macros/filament_menu.cfg`.
+Wer doch alles kopiert, vorher sichern, danach den `SAVE_CONFIG`-Block aus der
+Sicherung zurückholen (Schritt 2) und die Schritte 5–7 wiederholen. Das
+KlipperScreen-Add-on und die Düsenkamera-Seite sind ebenfalls Kopien: bei
+Änderungen wie in ihren Abschnitten neu kopieren.
 
 ## Erfahrungen / Stolperfallen
 

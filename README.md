@@ -273,11 +273,18 @@ everything again as in step 2: that overwrites your adaptations from the setup:
 - the `/home/pi` paths (step 6) are reset,
 - serial IDs, CAN UUID and pins in `config/` (step 7) are the originals again.
 
-Compare first and take over only what you want:
+Compare first and take over only what you want. This lists only repo files
+that changed or are new (files that exist only in your config folder, such as
+`moonraker.conf` or Bondtech's `indx/` files, are filtered out):
 ```bash
-diff -r ~/indx-trident-350/klipper/ ~/printer_data/config/ | less
+diff -rq ~/indx-trident-350/klipper/ ~/printer_data/config/ | grep -v "^Only in $HOME/printer_data"
 ```
-If you do copy everything, back up first and repeat steps 5–7 afterwards.
+Then look at single files with `diff`, e.g.
+`diff ~/indx-trident-350/klipper/macros/filament_menu.cfg ~/printer_data/config/macros/filament_menu.cfg`.
+If you do copy everything, back up first, then restore the `SAVE_CONFIG` block
+from the backup (step 2) and repeat steps 5–7. The KlipperScreen add-on and the
+nozzle camera page are copies too: copy them again as in their sections if
+they changed.
 
 ## Lessons learned
 
