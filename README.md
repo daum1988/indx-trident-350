@@ -36,6 +36,7 @@ klipper/
 moonraker/moonraker.example.conf   the moonraker.conf sections this repo needs
 orca/                         OrcaSlicer printer profile + Spoolman -> Orca filament profile script
 bootlogo/                     Plymouth boot logo for the CM4 display
+klipperscreen/                INDX menu for KlipperScreen (tool selection, load/unload)
 tools/nozzle_cam.html         browser page for checking tool XY offsets with a nozzle camera
 docs/SPOOLMAN.md              Spoolman setup guide (German: SPOOLMAN.de.md)
 ```
@@ -67,6 +68,14 @@ in the Spoolman filament (extra fields `pressure_advance_d025/_d04/_d06`, one pe
 nozzle size). Needs `gcode_shell_command` (built into Kalico) and
 `scripts/lc_pa/` in the config folder. `LC_EXTRUDE_TEST` is a quick check that
 your load cell sees the extrusion force at all.
+
+### KlipperScreen: tool selection and load/unload
+KlipperScreen only sees one `[extruder]`, so it shows no T0–T8 buttons, and its
+Load/Unload buttons send a bare `LOAD_FILAMENT` / `UNLOAD_FILAMENT`.
+`klipperscreen/KlipperScreen.example.conf` adds an *INDX* main menu (T0–T8, park,
+load, unload). A bare `LOAD_FILAMENT` or `UNLOAD_FILAMENT` opens a dialog
+(`macros/filament_menu.cfg`, macro prompt) to pick the tool and, for loading, the
+material; it also appears in Mainsail.
 
 ### Spoolman, one spool per tool
 `SET_TOOL_SPOOL T=3 ID=12` assigns a spool to a tool (same variables the

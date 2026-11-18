@@ -37,6 +37,7 @@ klipper/
 moonraker/moonraker.example.conf   die benötigten Abschnitte für moonraker.conf
 orca/                         OrcaSlicer-Druckerprofil + Skript Spoolman -> Orca-Filamentprofile
 bootlogo/                     Plymouth-Bootlogo für das CM4-Display
+klipperscreen/                INDX-Menü für KlipperScreen (Toolauswahl, Laden/Entladen)
 tools/nozzle_cam.html         Browserseite zum Prüfen der XY-Tool-Offsets mit Düsenkamera
 docs/SPOOLMAN.de.md           Anleitung Spoolman-Einrichtung (englisch: SPOOLMAN.md)
 ```
@@ -70,6 +71,14 @@ eine Spule zugeordnet ist, auch im Spoolman-Filament (Zusatzfelder
 `gcode_shell_command` (in Kalico enthalten) und `scripts/lc_pa/` im
 Config-Ordner. Mit `LC_EXTRUDE_TEST` lässt sich vorher prüfen, ob die Load-Cell
 den Extrusionsdruck überhaupt sieht.
+
+### KlipperScreen: Toolauswahl und Laden/Entladen
+KlipperScreen sieht nur einen `[extruder]` und zeigt daher keine T0–T8-Knöpfe;
+seine Laden/Entladen-Knöpfe senden ein nacktes `LOAD_FILAMENT` /
+`UNLOAD_FILAMENT`. `klipperscreen/KlipperScreen.example.conf` ergänzt ein
+*INDX*-Hauptmenü (T0–T8, Parken, Laden, Entladen). Ein `LOAD_FILAMENT` oder
+`UNLOAD_FILAMENT` ohne Parameter öffnet einen Dialog (`macros/filament_menu.cfg`,
+Macro-Prompt) zur Wahl von Tool und beim Laden Material; der erscheint auch in Mainsail.
 
 ### Spoolman, eine Spule pro Tool
 `SET_TOOL_SPOOL T=3 ID=12` ordnet einem Tool eine Spule zu (dieselben Variablen
