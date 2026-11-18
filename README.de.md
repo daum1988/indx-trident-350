@@ -34,6 +34,7 @@ klipper/
   macros/                     START_PRINT/END_PRINT, Spoolman, PA-Kalibrierung per Load-Cell, ...
   scripts/lc_pa/              Host-Skript für die PA-Kalibrierung
   scripts/orca_lanes/         schreibt die Tool->Spulen-Zuordnung für OrcaSlicer in Moonraker
+  scripts/spool_picker/       Spulenliste aus Spoolman für den Lade-Dialog
 moonraker/moonraker.example.conf   die benötigten Abschnitte für moonraker.conf
 orca/                         OrcaSlicer-Druckerprofil + Skript Spoolman -> Orca-Filamentprofile
 bootlogo/                     Plymouth-Bootlogo für das CM4-Display
@@ -78,7 +79,10 @@ seine Laden/Entladen-Knöpfe senden ein nacktes `LOAD_FILAMENT` /
 `UNLOAD_FILAMENT`. `klipperscreen/KlipperScreen.example.conf` ergänzt ein
 *INDX*-Hauptmenü (T0–T8, Parken, Laden, Entladen). Ein `LOAD_FILAMENT` oder
 `UNLOAD_FILAMENT` ohne Parameter öffnet einen Dialog (`macros/filament_menu.cfg`,
-Macro-Prompt) zur Wahl von Tool und beim Laden Material; der erscheint auch in Mainsail.
+Macro-Prompt) zur Wahl von Tool und beim Laden der Spule aus Spoolman (erst Material,
+dann Spule; `scripts/spool_picker/`). Die gewählte Spule wird dem Tool zugeordnet und
+ihre Düsentemperatur verwendet. *Without spool* zeigt stattdessen die
+Material-Presets. Der Dialog erscheint auch in Mainsail.
 
 ### Spoolman, eine Spule pro Tool
 `SET_TOOL_SPOOL T=3 ID=12` ordnet einem Tool eine Spule zu (dieselben Variablen

@@ -33,6 +33,7 @@ klipper/
   macros/                     START_PRINT/END_PRINT, Spoolman, load-cell PA calibration, ...
   scripts/lc_pa/              host script for the load-cell PA calibration
   scripts/orca_lanes/         writes the tool->spool mapping to Moonraker for OrcaSlicer
+  scripts/spool_picker/       Spoolman spool list for the load dialog
 moonraker/moonraker.example.conf   the moonraker.conf sections this repo needs
 orca/                         OrcaSlicer printer profile + Spoolman -> Orca filament profile script
 bootlogo/                     Plymouth boot logo for the CM4 display
@@ -75,7 +76,9 @@ Load/Unload buttons send a bare `LOAD_FILAMENT` / `UNLOAD_FILAMENT`.
 `klipperscreen/KlipperScreen.example.conf` adds an *INDX* main menu (T0–T8, park,
 load, unload). A bare `LOAD_FILAMENT` or `UNLOAD_FILAMENT` opens a dialog
 (`macros/filament_menu.cfg`, macro prompt) to pick the tool and, for loading, the
-material; it also appears in Mainsail.
+spool from Spoolman (material first, then spool; `scripts/spool_picker/`). The chosen
+spool is assigned to the tool and its nozzle temperature is used. *Without spool*
+falls back to the material presets. The dialog also appears in Mainsail.
 
 ### Spoolman, one spool per tool
 `SET_TOOL_SPOOL T=3 ID=12` assigns a spool to a tool (same variables the
