@@ -47,6 +47,7 @@ Pi: `~/printer_data/logs/` (`klippy.log`, `moonraker.log`, `KlipperScreen.log`,
 | Rote Meldung beim Pickup, Verbrauch wird nicht gebucht | Tool hat keine Spule | `SET_TOOL_SPOOL T=n ID=x` oder Mainsail-Dialog |
 | `lane_data` bleibt leer | Skriptpfad falsch oder Skript scheitert | `~/printer_data/logs/orca_lanes.log`; `ORCA_LANES_SYNC` |
 | Farbe in Orca veraltet | Spule in Spoolman selbst geändert | `ORCA_LANES_SYNC`, dann in Orca abgleichen |
+| Timelapse ohne Bilder bzw. ohne Video | `TIMELAPSE_TAKE_FRAME` fehlt im G-Code: nicht im Druckerprofil, oder Orca nutzt bei angemeldetem Konto die Profile in `%APPDATA%\OrcaSlicer\user\<Konto-ID>\` statt `user\default\` | im aktiven Druckerprofil unter *Maschinen G-Code → Vor dem Schichtwechsel* `TIMELAPSE_TAKE_FRAME` eintragen ([ORCASLICER.de.md](ORCASLICER.de.md), Abschnitt 1), neu slicen; Kontrolle: Zeile kommt im G-Code vor |
 | Orca zeigt keinen Sync-Knopf | `printer_agent_id` nicht `moonraker` oder `lane_data` leer | [ORCASLICER.de.md](ORCASLICER.de.md), Abschnitte 2 und 3 |
 | Abgleich lässt ein Filament leer oder generisch | kein passendes Profil `PSM<id>` | Profil-Skript erneut ausführen; Profile müssen eigenständig sein |
 | Profil-Skript schreibt nichts | Orca offen, keine Vorlage `SM-Vorlage <Material>` oder Filament ohne aktive Spule | Orca schließen; Vorlagen prüfen; `-WhatIf` zeigt den Plan; `-All` für Filamente ohne Spule |

@@ -47,6 +47,7 @@ see [BondtechAB/INDX](https://github.com/BondtechAB/INDX) and the
 | Red message on pickup, usage not booked | tool has no spool | `SET_TOOL_SPOOL T=n ID=x` or the Mainsail dialog |
 | `lane_data` stays empty | script path wrong or script fails | `~/printer_data/logs/orca_lanes.log`; `ORCA_LANES_SYNC` |
 | Colour in Orca is outdated | spool changed in Spoolman itself | `ORCA_LANES_SYNC`, then sync in Orca |
+| Timelapse has no frames or no video | `TIMELAPSE_TAKE_FRAME` missing from the G-code: not in the printer profile, or Orca (logged in to an account) uses the profiles in `%APPDATA%\OrcaSlicer\user\<account-id>\` instead of `user\default\` | add `TIMELAPSE_TAKE_FRAME` under *Machine G-code → Before layer change* in the active printer profile ([ORCASLICER.md](ORCASLICER.md), section 1), slice again; check: the line appears in the G-code |
 | Orca shows no sync button | `printer_agent_id` not `moonraker`, or `lane_data` empty | [ORCASLICER.md](ORCASLICER.md), sections 2 and 3 |
 | Sync leaves a filament empty or generic | no matching profile `PSM<id>` | run the profile script again; profiles must be standalone |
 | Profile script writes nothing | Orca open, no template `SM-Vorlage <material>`, or filament without active spool | close Orca; check templates; `-WhatIf` shows the plan; `-All` for filaments without spool |
