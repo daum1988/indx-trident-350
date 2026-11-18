@@ -13,7 +13,7 @@
 	"bed_mesh_min": "-99999,-99999",
 	"bed_mesh_probe_distance": "50,50",
 	"bed_temperature_formula": "by_highest_temp",
-	"before_layer_change_gcode": ";BEFORE_LAYER_CHANGE\n;[layer_z]\nRESPOND PREFIX=timelapse MSG=photo\nG92 E0\n",
+	"before_layer_change_gcode": ";BEFORE_LAYER_CHANGE\n;[layer_z]\nRESPOND PREFIX=timelapse MSG=photo\nTIMELAPSE_TAKE_FRAME\nG92 E0\n",
 	"belt_frame_tilt_angle": "45",
 	"belt_frame_tilt_decouple": "0",
 	"belt_printer": "0",
