@@ -135,9 +135,11 @@ expect the scripts in `~/printer_data/config/scripts/`.
   in `config/INDX_toolhead.cfg` instead.
 - **Toolhead:** compare `config/INDX_toolhead.cfg` with your previous toolhead
   config and carry over your values.
-- **Bucket and brush:** positions in `macros/bucket.cfg` (`_BUCKET_VARS`);
-  used for loading, PA calibration and print start.
-- **Park position:** `_global_var` in `macros/trident_macros.cfg`.
+- **Bucket and brush:** this machine uses the
+  [Voron Trident purge bucket & nozzle brush](https://www.printables.com/model/1077344-voron-trident-purge-bucket-nozzle-brush).
+  Positions in `macros/bucket.cfg` (`_BUCKET_VARS`); used for loading,
+  unloading, PA calibration and print start.
+- **Park position, load temperature:** `_global_var` in `macros/common.cfg`.
 - **Bed mesh:** `mesh_min`/`mesh_max` in `config/bed_mesh.cfg`.
 
 ### 6. Optional parts [Optional]
@@ -246,12 +248,15 @@ not the tested path; the dependencies:
 
 | Extension | Files | Also needs |
 |---|---|---|
-| Load/unload dialog | `indx/indx_overrides.cfg`, `macros/filament_menu.cfg`, `macros/bucket.cfg`, `scripts/spool_picker/` | from `macros/trident_macros.cfg`: `UNLOAD_FILAMENT`, `_global_var`, `_ENSURE_HOMED`; `[respond]`, `[save_variables]` |
+| Load/unload dialog | `indx/indx_overrides.cfg`, `macros/filament_menu.cfg`, `macros/bucket.cfg`, `scripts/spool_picker/` | `macros/common.cfg`; `[respond]`, `[save_variables]` |
 | Spoolman per tool | `macros/spoolman.cfg`, `indx/indx_overrides.cfg`, `scripts/orca_lanes/` | `[save_variables]`, `[spoolman]` in Moonraker |
-| PA with the load cell | `macros/lc_pa_cal.cfg`, `scripts/lc_pa/` | `MOVE_TO_BUCKET` from `macros/bucket.cfg` |
-| `LC_EXTRUDE_TEST` | `macros/lc_extrude_test.cfg` | `macros/bucket.cfg` |
+| PA with the load cell | `macros/lc_pa_cal.cfg`, `scripts/lc_pa/` | `macros/bucket.cfg` (`MOVE_TO_BUCKET`), `macros/common.cfg` |
+| `LC_EXTRUDE_TEST` | `macros/lc_extrude_test.cfg` | `macros/bucket.cfg`, `macros/common.cfg` |
 | `CAL_VERIFY_XY`, safe Z hop | `indx/indx_overrides.cfg` | – |
 
-`macros/trident_macros.cfg` also contains `START_PRINT`, `END_PRINT`,
-`PAUSE`, `RESUME` and `CANCEL_PRINT`. If you keep your own print macros, take
-only the three macros named above from that file, not the whole file.
+`macros/common.cfg` holds the helper macros the extensions share with the
+print macros (`_global_var`, `_ENSURE_HOMED`, `UNLOAD_FILAMENT`). The print
+macros themselves (`START_PRINT`, `END_PRINT`, `PAUSE`, `RESUME`,
+`CANCEL_PRINT`) are in `macros/trident_macros.cfg`; leave that file out if you
+keep your own. If your config already has an `UNLOAD_FILAMENT`, remove it:
+the one in `common.cfg` opens the tool dialog.

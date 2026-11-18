@@ -29,6 +29,7 @@ Maschine mit. Die Doku von Bondtech und Kalico ersetzt es nicht.
 | Mainboard | BTT Manta M8P v2.0 + Raspberry Pi CM4 |
 | Z-Messung | INDX-Load-Cell (Standard-Probe) |
 | Bed Mesh | Eddy-Current-Scanner (`[probe_eddy_current scanner]`, Rapid Scan) |
+| Purge-Bucket | [Voron Trident Purge Bucket & Nozzle Brush](https://www.printables.com/model/1077344-voron-trident-purge-bucket-nozzle-brush) |
 | Firmware | [Kalico](https://docs.kalico.gg/INDX.html) |
 | Oberfläche | Mainsail, KlipperScreen |
 | Slicer | OrcaSlicer 2.5.x |

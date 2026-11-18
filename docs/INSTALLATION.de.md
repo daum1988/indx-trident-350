@@ -136,10 +136,11 @@ plus `indx_overrides.cfg`; `ls ~/printer_data/config/scripts/` zeigt
   schaltet stattdessen den `[fan]` in `config/INDX_toolhead.cfg` ein.
 - **Toolhead:** `config/INDX_toolhead.cfg` mit der bisherigen
   Toolhead-Config vergleichen, eigene Werte übernehmen.
-- **Bucket und Bürste:** Positionen in `macros/bucket.cfg`
-  (`_BUCKET_VARS`); werden für Laden, PA-Kalibrierung und Druckstart
-  gebraucht.
-- **Parkposition:** `_global_var` in `macros/trident_macros.cfg`.
+- **Bucket und Bürste:** Diese Maschine nutzt
+  [Voron Trident Purge Bucket & Nozzle Brush](https://www.printables.com/model/1077344-voron-trident-purge-bucket-nozzle-brush).
+  Positionen in `macros/bucket.cfg` (`_BUCKET_VARS`); werden für Laden,
+  Entladen, PA-Kalibrierung und Druckstart gebraucht.
+- **Parkposition, Ladetemperatur:** `_global_var` in `macros/common.cfg`.
 - **Bed Mesh:** `mesh_min`/`mesh_max` in `config/bed_mesh.cfg`.
 
 ### 6. Optionale Teile [Optional]
@@ -248,12 +249,15 @@ nicht der getestete Weg; die Abhängigkeiten:
 
 | Erweiterung | Dateien | braucht außerdem |
 |---|---|---|
-| Lade-/Entlade-Dialog | `indx/indx_overrides.cfg`, `macros/filament_menu.cfg`, `macros/bucket.cfg`, `scripts/spool_picker/` | aus `macros/trident_macros.cfg`: `UNLOAD_FILAMENT`, `_global_var`, `_ENSURE_HOMED`; `[respond]`, `[save_variables]` |
+| Lade-/Entlade-Dialog | `indx/indx_overrides.cfg`, `macros/filament_menu.cfg`, `macros/bucket.cfg`, `scripts/spool_picker/` | `macros/common.cfg`; `[respond]`, `[save_variables]` |
 | Spoolman pro Tool | `macros/spoolman.cfg`, `indx/indx_overrides.cfg`, `scripts/orca_lanes/` | `[save_variables]`, `[spoolman]` in Moonraker |
-| PA per Load-Cell | `macros/lc_pa_cal.cfg`, `scripts/lc_pa/` | `MOVE_TO_BUCKET` aus `macros/bucket.cfg` |
-| `LC_EXTRUDE_TEST` | `macros/lc_extrude_test.cfg` | `macros/bucket.cfg` |
+| PA per Load-Cell | `macros/lc_pa_cal.cfg`, `scripts/lc_pa/` | `macros/bucket.cfg` (`MOVE_TO_BUCKET`), `macros/common.cfg` |
+| `LC_EXTRUDE_TEST` | `macros/lc_extrude_test.cfg` | `macros/bucket.cfg`, `macros/common.cfg` |
 | `CAL_VERIFY_XY`, sicherer Z-Hop | `indx/indx_overrides.cfg` | – |
 
-`macros/trident_macros.cfg` enthält auch `START_PRINT`, `END_PRINT`, `PAUSE`,
-`RESUME` und `CANCEL_PRINT`. Wer eigene Druck-Makros behält, übernimmt aus
-dieser Datei nur die drei genannten Makros, nicht die ganze Datei.
+`macros/common.cfg` enthält die Hilfsmakros, die die Erweiterungen mit den
+Druck-Makros teilen (`_global_var`, `_ENSURE_HOMED`, `UNLOAD_FILAMENT`). Die
+Druck-Makros selbst (`START_PRINT`, `END_PRINT`, `PAUSE`, `RESUME`,
+`CANCEL_PRINT`) stehen in `macros/trident_macros.cfg`; wer eigene behält,
+lässt diese Datei weg. Hat die eigene Config schon ein `UNLOAD_FILAMENT`, das
+entfernen: das aus `common.cfg` öffnet den Tool-Dialog.
