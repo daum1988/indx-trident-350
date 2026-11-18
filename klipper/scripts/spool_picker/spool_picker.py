@@ -10,7 +10,7 @@ spool_picker_launch.sh:
 Reads the non-archived spools via Moonraker's Spoolman proxy and sends a
 macro prompt back to Klipper:
   - several materials and no --material: one button per material
-  - otherwise: one button per spool (12 per page), which runs
+  - otherwise: a list with one row per spool (up to 40 per page), which runs
     LOAD_FILAMENT TOOL=<t> SPOOL=<id> [TYPE=<preset>] [TEMP=<filament temp>]
 Spools already in another tool are marked with that tool. If Spoolman is not
 reachable, the material preset dialog is shown instead.
@@ -25,8 +25,8 @@ import urllib.request
 
 MOONRAKER = "http://127.0.0.1:7125"
 TIMEOUT = 10
-PER_PAGE = 12
-PER_ROW = 3
+PER_PAGE = 40   # spool list (scrollable in KlipperScreen and Mainsail)
+PER_ROW = 3     # material tiles
 
 
 def call(method, path, body=None):
@@ -82,12 +82,15 @@ def cmd(text):
     return 'RESPOND TYPE=command MSG="action:%s"' % text
 
 
-def rows(buttons):
-    """buttons: list of (label, gcode, colour) -> prompt lines, 3 per row."""
+def rows(buttons, per_row=PER_ROW):
+    """buttons: list of (label, gcode, colour) -> prompt lines.
+    per_row=None: no button groups, one full-width row per button (list)."""
+    if not per_row:
+        return [cmd("prompt_button %s|%s|%s" % b) for b in buttons]
     out = []
-    for i in range(0, len(buttons), PER_ROW):
+    for i in range(0, len(buttons), per_row):
         out.append(cmd("prompt_button_group_start"))
-        for label, gc, colour in buttons[i:i + PER_ROW]:
+        for label, gc, colour in buttons[i:i + per_row]:
             out.append(cmd("prompt_button %s|%s|%s" % (label, gc, colour)))
         out.append(cmd("prompt_button_group_end"))
     return out
@@ -171,9 +174,10 @@ def main():
             vendor = (fil.get("vendor") or {}).get("name") or ""
             name = fil.get("name") or material_of(s)
             weight = s.get("remaining_weight")
-            label = "%s %s" % (name, ("- " + vendor) if vendor else "")
+            parts = [name] + ([vendor] if vendor else [])
             if weight is not None:
-                label += " %d g" % round(weight)
+                parts.append("%d g" % round(weight))
+            label = " - ".join(parts)
             colour = "primary"
             if s["id"] in cur:
                 label += " (in T%d)" % t
@@ -190,8 +194,8 @@ def main():
                 gc += " TEMP=%d" % int(ftemp)
             elif not preset:
                 gc += " TEMP=%d" % a.temp
-            buttons.append(("ID%d %s" % (s["id"], clean(label)), gc, colour))
-        lines += rows(buttons)
+            buttons.append(("ID%d  %s" % (s["id"], clean(label)), gc, colour))
+        lines += rows(buttons, per_row=None)
         if pages > 1:
             nxt = (page + 1) % pages
             lines.append(cmd("prompt_footer_button More|_SPOOL_PICKER TOOL=%d MATERIAL=%s PAGE=%d|secondary"

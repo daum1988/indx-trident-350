@@ -81,7 +81,7 @@ and shows the active tool with its spool colour in the titlebar. Install: copy i
 and merge `klipperscreen/KlipperScreen.example.conf`. LOAD/UNLOAD_FILAMENT keep
 `t<n>__loaded` up to date; `SET_TOOL_LOADED T=<n> LOADED=<0|1>` corrects it. A bare `LOAD_FILAMENT` or `UNLOAD_FILAMENT` opens a dialog
 (`macros/filament_menu.cfg`, macro prompt) to pick the tool and, for loading, the
-spool from Spoolman (material first, then spool; `scripts/spool_picker/`). The chosen
+spool from Spoolman (material tiles first, then a scrollable spool list; `scripts/spool_picker/`). The chosen
 spool is assigned to the tool and its nozzle temperature is used. *Without spool*
 falls back to the material presets. The dialog also appears in Mainsail.
 
