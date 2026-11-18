@@ -53,10 +53,10 @@ PowerShell script.
 
 ## 2. Once in OrcaSlicer
 
-1. Preferences → tab *Developer*: tick **Developer mode** and **Use printer
-   agents instead of print hosts** (screenshot: German UI).
+1. Preferences → tab *Developer*: tick **Developer mode** (screenshot: German
+   UI). Leave the other options there as they are.
 
-   ![Orca preferences, Developer tab: tick both options](images/orca_developer_settings.png)
+   ![Orca preferences, Developer tab: tick developer mode](images/orca_developer_settings.png)
 
 2. Edit your printer profile (*Printer settings → Basic information*),
    *Advanced* view: **Printer agent = Moonraker**. Enter `<PRINTER-IP>` as

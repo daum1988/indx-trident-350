@@ -55,11 +55,11 @@ Filamenten in Spoolman.
 
 ## 2. Einmalig in OrcaSlicer
 
-1. Einstellungen → Reiter *Entwickler*: **Entwicklermodus** und **Drucker-Agenten
-   anstelle von Druck-Hosts verwenden** anhaken (englisch: *Developer mode*,
-   *Use printer agents instead of print hosts*).
+1. Einstellungen → Reiter *Entwickler*: **Entwicklermodus** anhaken
+   (englisch: *Developer mode*). Die übrigen Optionen dort bleiben, wie sie
+   sind.
 
-   ![Orca-Einstellungen, Reiter Entwickler: beide Optionen anhaken](images/orca_developer_settings.png)
+   ![Orca-Einstellungen, Reiter Entwickler: Entwicklermodus anhaken](images/orca_developer_settings.png)
 
 2. Eigenes Druckerprofil bearbeiten (*Drucker-Einstellungen → Grundlegende
    Informationen*), Ansicht *Erweitert*: **Drucker-Agent = Moonraker**. Als
