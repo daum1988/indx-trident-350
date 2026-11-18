@@ -129,10 +129,10 @@ passenden Orca-Filamentprofile aus Spoolman. Ausführliche Anleitung:
 
 ### INDX-Overrides
 `indx/indx_overrides.cfg` muss **nach** `indx/homing.cfg` eingebunden werden.
-Enthält einen sicheren Z-Hop, wenn das Bett ganz unten steht, das Speichern der
-gemessenen Filamentwerte aus `INDX_LOAD_FILAMENT` (INDX-Modul von Kalico) pro Tool, eine XY-Prüfung mit
-Düsenkamera (`CAL_VERIFY_XY`) und den Spoolman-Hook beim Toolwechsel – ohne die
-Bondtech-Dateien zu ändern.
+Enthält einen sicheren Z-Hop, wenn das Bett ganz unten steht, das Speichern
+der gemessenen Filamentwerte aus `INDX_LOAD_FILAMENT` (INDX-Modul von Kalico)
+pro Tool, eine XY-Prüfung mit Düsenkamera (`CAL_VERIFY_XY`) und den
+Spoolman-Hook beim Toolwechsel – ohne die Bondtech-Dateien zu ändern.
 
 ### Düsenkamera für die XY-Tool-Offsets
 `tools/nozzle_cam.html` ist eine Browserseite für Bondtechs Kamera-Methode zur
@@ -143,15 +143,22 @@ Verfahrknöpfe, die Kalibrierschritte als Knöpfe und eine Konsole.
    Kamera in crowsnest eingerichtet. Die Seite erwartet einen MJPEG-Stream;
    der Standardpfad `/webcam2/?action=stream` stammt von dieser Maschine
    (zweite crowsnest-Kamera).
-2. **Seite öffnen:** `nozzle_cam.html` in den Config-Ordner hochladen
-   (Mainsail → *Maschine*) und
-   `http://<DRUCKER-IP>/server/files/config/nozzle_cam.html` öffnen. Moonraker
-   liefert die Seite selbst aus; die Anfragen kommen also von derselben
-   Adresse, CORS-Einstellungen sind nicht nötig. Der Browser muss Moonraker
-   nur benutzen dürfen, wie bei Mainsail (`trusted_clients` oder Login). Das
-   Feld *Printer* bleibt dann leer. Die Datei lokal öffnen (`file://`) oder
-   von einem anderen Webserver aus braucht `cors_domains` in
-   `moonraker.conf` und ist nicht getestet.
+2. **Seite öffnen:** nginx muss sie neben Mainsail ausliefern. Per SSH in
+   den Mainsail-Ordner kopieren und `http://<DRUCKER-IP>/nozzle_cam.html`
+   öffnen:
+   ```bash
+   cp ~/printer_data/config/nozzle_cam.html ~/mainsail/
+   ```
+   (vorher `nozzle_cam.html` in den Config-Ordner hochladen, Mainsail →
+   *Maschine*). Die Seite kommt dann von derselben Adresse wie Moonraker,
+   CORS-Einstellungen sind nicht nötig; das Feld *Printer* bleibt leer. Ein
+   Mainsail-Update ersetzt `~/mainsail/`; damit die Seite bleibt, sie in
+   `persistent_files` des vorhandenen Abschnitts `[update_manager mainsail]`
+   eintragen (siehe `moonraker/moonraker.example.conf`).
+   Funktioniert nicht: der Link `/server/files/config/nozzle_cam.html`
+   (Moonraker schickt Dateien als Download) und die Datei lokal öffnen
+   (`file://`): mit den üblichen `cors_domains` beantwortet Moonraker solche
+   Anfragen nicht.
 3. **Einstellungen:** Stream-Pfad prüfen; Spiegeln, Zoom und Fadenkreuz-Ring
    nach Bedarf. Die Seite merkt sich die Einstellungen im Browser.
 4. **Kalibrieren** (Makros aus Bondtechs `indx-cal.cfg`, außer dem letzten):
