@@ -274,11 +274,21 @@ eigenen Maschine stoppen.
     KlipperScreen-Add-on, Düsenkamera: siehe oben; Bootlogo:
     [bootlogo/README.md](bootlogo/README.md).
 
-**Spätere Updates:** `cd ~/indx-trident-350 && git pull`, dann wie in Schritt 2
-erneut kopieren. Das Kopieren überschreibt gleichnamige Dateien: eigene
-Änderungen vorher sichern und nach dem Kopieren von `printer.cfg` den eigenen
-`SAVE_CONFIG`-Block wieder ans Ende setzen (oder `printer.cfg` weglassen und
-nur die benötigten Ordner kopieren).
+**Spätere Updates:** `cd ~/indx-trident-350 && git pull`. Danach **nicht**
+einfach wie in Schritt 2 alles erneut kopieren, denn das überschreibt die
+Anpassungen aus der Einrichtung:
+- `printer.cfg` verliert ihren `SAVE_CONFIG`-Block,
+- ohne Spoolman (Schritt 5) ist `macros/spoolman.cfg` wieder da und
+  `variable_use_spoolman` wieder `1`, dann bricht jeder Toolwechsel ab,
+- die `/home/pi`-Pfade (Schritt 6) stehen wieder auf `pi`,
+- Serial-IDs, CAN-UUID und Pins in `config/` (Schritt 7) sind wieder die
+  vom Original.
+
+Vorher vergleichen und nur übernehmen, was man will:
+```bash
+diff -r ~/indx-trident-350/klipper/ ~/printer_data/config/ | less
+```
+Wer doch alles kopiert, vorher sichern und danach die Schritte 5–7 wiederholen.
 
 ## Erfahrungen / Stolperfallen
 

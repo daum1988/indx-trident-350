@@ -265,10 +265,19 @@ time your own machine.
     KlipperScreen add-on, nozzle camera: see above; boot logo:
     [bootlogo/README.md](bootlogo/README.md).
 
-**Updates later:** `cd ~/indx-trident-350 && git pull`, then copy again as in
-step 2. Copying overwrites files with the same name: back up your own changes
-first, and after copying `printer.cfg` put your `SAVE_CONFIG` block back at its
-end (or leave `printer.cfg` out and copy only the folders you need).
+**Updates later:** `cd ~/indx-trident-350 && git pull`. Do **not** simply copy
+everything again as in step 2: that overwrites your adaptations from the setup:
+- `printer.cfg` loses its `SAVE_CONFIG` block,
+- without Spoolman (step 5) `macros/spoolman.cfg` is back and
+  `variable_use_spoolman` is `1` again, so every tool change aborts,
+- the `/home/pi` paths (step 6) are reset,
+- serial IDs, CAN UUID and pins in `config/` (step 7) are the originals again.
+
+Compare first and take over only what you want:
+```bash
+diff -r ~/indx-trident-350/klipper/ ~/printer_data/config/ | less
+```
+If you do copy everything, back up first and repeat steps 5–7 afterwards.
 
 ## Lessons learned
 
