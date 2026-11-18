@@ -152,9 +152,9 @@ buttons, the calibration steps as buttons and a console.
    from the same address as Moonraker, so no CORS settings are needed; leave
    *Printer* empty. A Mainsail update replaces `~/mainsail/`. To keep the
    page, list it under `persistent_files` in your existing
-   `[update_manager mainsail]` section. Keep entries that are already there
-   (MainsailOS lists Mainsail's own `config.json`); if the option is missing,
-   add it with only `nozzle_cam.html`:
+   `[update_manager mainsail]` section. If `persistent_files` is already
+   there (e.g. with `config.json`), keep its entries and add
+   `nozzle_cam.html`; otherwise add it with only `nozzle_cam.html`:
    ```ini
    persistent_files:
        nozzle_cam.html
@@ -248,10 +248,13 @@ time your own machine.
 9. **Calibrate**, then `SAVE_CONFIG` where the command asks for it. Suggested
    order; details in the [Kalico INDX docs](https://docs.kalico.gg/INDX.html)
    and the comments in Bondtech's `indx-cal.cfg`:
-   1. load cell (`CALIBRATE_LOAD_CELL`, before the first Z homing),
+   1. load cell, before the first Z homing: `CALIBRATE_LOAD_CELL` with an
+      empty head, then insert an empty tool by hand and run
+      `CALIBRATE_LOAD_CELL_APPLY GRAMS=1600`, then `SAVE_CONFIG`,
    2. INDX thermal model (Kalico INDX docs) and bed PID
       (`PID_CALIBRATE HEATER=heater_bed TARGET=100`),
-   3. dock positions (`indx-cal.cfg`, section 1),
+   3. dock positions (`indx-cal.cfg`: section 1 for Y, `CALIBRATE_DOCK_X`
+      for X; enter the X value in `indx.cfg`),
    4. eddy scanner (Kalico docs for `probe_eddy_current`),
    5. XY tool offsets: see [Nozzle camera](#nozzle-camera-for-xy-tool-offsets),
    6. Z tool offsets (`CAL_Z`), check with `CAL_CHECK_OFFSETS`,
@@ -261,6 +264,11 @@ time your own machine.
 10. **Optional:** Spoolman and OrcaSlicer: [docs/SPOOLMAN.md](docs/SPOOLMAN.md);
     KlipperScreen add-on, nozzle camera: see above; boot logo:
     [bootlogo/README.md](bootlogo/README.md).
+
+**Updates later:** `cd ~/indx-trident-350 && git pull`, then copy again as in
+step 2. Copying overwrites files with the same name: back up your own changes
+first, and after copying `printer.cfg` put your `SAVE_CONFIG` block back at its
+end (or leave `printer.cfg` out and copy only the folders you need).
 
 ## Lessons learned
 

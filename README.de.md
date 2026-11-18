@@ -156,10 +156,10 @@ Verfahrknöpfe, die Kalibrierschritte als Knöpfe und eine Konsole.
    kommt von derselben Adresse wie Moonraker, CORS-Einstellungen sind nicht
    nötig; das Feld *Printer* bleibt leer. Ein Mainsail-Update ersetzt
    `~/mainsail/`. Damit die Seite bleibt, sie unter `persistent_files` im
-   vorhandenen Abschnitt `[update_manager mainsail]` eintragen. Vorhandene
-   Einträge stehen lassen (MainsailOS trägt dort Mainsails eigene
-   `config.json` ein); fehlt die Option, sie nur mit `nozzle_cam.html`
-   ergänzen:
+   vorhandenen Abschnitt `[update_manager mainsail]` eintragen. Steht dort
+   schon `persistent_files` (z. B. mit `config.json`), die Einträge stehen
+   lassen und `nozzle_cam.html` ergänzen; sonst die Option nur mit
+   `nozzle_cam.html` anlegen:
    ```ini
    persistent_files:
        nozzle_cam.html
@@ -257,10 +257,13 @@ eigenen Maschine stoppen.
    Vorgeschlagene Reihenfolge; Details in der
    [Kalico-INDX-Doku](https://docs.kalico.gg/INDX.html) und in den Kommentaren
    von Bondtechs `indx-cal.cfg`:
-   1. Load-Cell (`CALIBRATE_LOAD_CELL`, vor dem ersten Z-Homing),
+   1. Load-Cell, vor dem ersten Z-Homing: `CALIBRATE_LOAD_CELL` mit leerem
+      Kopf, dann ein leeres Tool von Hand einsetzen und
+      `CALIBRATE_LOAD_CELL_APPLY GRAMS=1600`, danach `SAVE_CONFIG`,
    2. INDX-Thermalmodell (Kalico-INDX-Doku) und Bett-PID
       (`PID_CALIBRATE HEATER=heater_bed TARGET=100`),
-   3. Dock-Positionen (`indx-cal.cfg`, Abschnitt 1),
+   3. Dock-Positionen (`indx-cal.cfg`: Abschnitt 1 für Y, `CALIBRATE_DOCK_X`
+      für X; den X-Wert in `indx.cfg` eintragen),
    4. Eddy-Scanner (Kalico-Doku zu `probe_eddy_current`),
    5. XY-Tool-Offsets: siehe [Düsenkamera](#düsenkamera-für-die-xy-tool-offsets),
    6. Z-Tool-Offsets (`CAL_Z`), prüfen mit `CAL_CHECK_OFFSETS`,
@@ -270,6 +273,12 @@ eigenen Maschine stoppen.
 10. **Optional:** Spoolman und OrcaSlicer: [docs/SPOOLMAN.de.md](docs/SPOOLMAN.de.md);
     KlipperScreen-Add-on, Düsenkamera: siehe oben; Bootlogo:
     [bootlogo/README.md](bootlogo/README.md).
+
+**Spätere Updates:** `cd ~/indx-trident-350 && git pull`, dann wie in Schritt 2
+erneut kopieren. Das Kopieren überschreibt gleichnamige Dateien: eigene
+Änderungen vorher sichern und nach dem Kopieren von `printer.cfg` den eigenen
+`SAVE_CONFIG`-Block wieder ans Ende setzen (oder `printer.cfg` weglassen und
+nur die benötigten Ordner kopieren).
 
 ## Erfahrungen / Stolperfallen
 
