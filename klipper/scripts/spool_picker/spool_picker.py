@@ -100,6 +100,11 @@ def material_of(spool):
     return ((spool.get("filament") or {}).get("material") or "").strip() or "?"
 
 
+def vendor_of(spool):
+    fil = spool.get("filament") or {}
+    return ((fil.get("vendor") or {}).get("name") or "").strip()
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tool", type=int, required=True)
@@ -156,12 +161,12 @@ def main():
         # Step: spool
         sel = [s for s in spools
                if not a.material or mat_key(material_of(s)) == a.material.upper()]
-        # spool of this tool first, then free spools, then those in other tools;
-        # within that the most recently used first
         cur = [sid for sid, tool in assigned.items() if tool == t]
-        sel.sort(key=lambda s: (s.get("last_used") or "", s["id"]), reverse=True)
-        sel.sort(key=lambda s: (s["id"] not in cur,
-                                s["id"] in assigned and s["id"] not in cur))
+        # grouped by vendor: alphabetical by vendor, then by filament name
+        # (spools without vendor last)
+        sel.sort(key=lambda s: (not vendor_of(s), vendor_of(s).casefold(),
+                                ((s.get("filament") or {}).get("name") or "").casefold(),
+                                s["id"]))
         pages = max(1, (len(sel) + PER_PAGE - 1) // PER_PAGE)
         page = min(max(a.page, 0), pages - 1)
         part = sel[page * PER_PAGE:(page + 1) * PER_PAGE]
@@ -171,13 +176,12 @@ def main():
         buttons = []
         for s in part:
             fil = s.get("filament") or {}
-            vendor = (fil.get("vendor") or {}).get("name") or ""
+            vendor = vendor_of(s)
             name = fil.get("name") or material_of(s)
             weight = s.get("remaining_weight")
-            parts = [name] + ([vendor] if vendor else [])
+            label = "%s: %s" % (vendor or "?", name)
             if weight is not None:
-                parts.append("%d g" % round(weight))
-            label = " - ".join(parts)
+                label += " - %d g" % round(weight)
             colour = "primary"
             if s["id"] in cur:
                 label += " (in T%d)" % t

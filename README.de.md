@@ -85,7 +85,7 @@ und `klipperscreen/KlipperScreen.example.conf` übernehmen. LOAD/UNLOAD_FILAMENT
 führen `t<n>__loaded` mit; `SET_TOOL_LOADED T=<n> LOADED=<0|1>` korrigiert es. Ein `LOAD_FILAMENT` oder
 `UNLOAD_FILAMENT` ohne Parameter öffnet einen Dialog (`macros/filament_menu.cfg`,
 Macro-Prompt) zur Wahl von Tool und beim Laden der Spule aus Spoolman (erst Material als Kacheln,
-dann Spulen als scrollbare Liste; `scripts/spool_picker/`). Die gewählte Spule wird dem Tool zugeordnet und
+dann Spulen als scrollbare Liste nach Hersteller und Name; `scripts/spool_picker/`). Die gewählte Spule wird dem Tool zugeordnet und
 ihre Düsentemperatur verwendet. *Without spool* zeigt stattdessen die
 Material-Presets. Der Dialog erscheint auch in Mainsail.
 
