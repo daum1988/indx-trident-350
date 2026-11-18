@@ -9,9 +9,10 @@ CAD-Daten des Druckers (INDX-Umbau des Trident):
 [daum1988/Voron-Trident-INDX](https://github.com/daum1988/Voron-Trident-INDX)
 
 > Das ist die Config einer einzelnen Maschine, geteilt als Vorlage. Sie ist
-> **nicht** direkt übernehmbar: Pins, Serial-IDs, Positionen und alle
-> Kalibrierwerte müssen am eigenen Drucker geprüft und gemessen werden.
-> Nutzung auf eigene Gefahr.
+> **nicht** direkt übernehmbar: Pins, Serial-IDs und Positionen müssen am
+> eigenen Drucker geprüft werden. Kalibrierwerte müssen für die eigene
+> Maschine gültig sein; die Werte einer funktionierenden INDX-Installation
+> werden übernommen. Nutzung auf eigene Gefahr.
 
 **Ausgangspunkt:** eine funktionierende Bondtech-INDX-Installation auf Kalico
 (Bondtechs Anleitung durchgearbeitet, Toolwechsel und Z-Homing

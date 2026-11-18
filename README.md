@@ -9,8 +9,9 @@ CAD files of the printer (INDX conversion of the Trident):
 [daum1988/Voron-Trident-INDX](https://github.com/daum1988/Voron-Trident-INDX)
 
 > This is a personal machine config shared as a reference. It is **not** a
-> drop-in config: pins, serial IDs, positions and all calibration values must
-> be checked and measured on your own printer. Use at your own risk.
+> drop-in config: pins, serial IDs and positions must be checked on your own
+> printer. Calibration values must be valid for your machine; the values of a
+> working INDX installation are carried over. Use at your own risk.
 
 **Starting point:** a working Bondtech INDX installation on Kalico (Bondtech's
 guide completed, tool changes and Z homing work). This repo adds Spoolman,

@@ -42,7 +42,14 @@ Raspberry Pi, or a different OS), do not run the script.
 
 1. Put `logo.png` into this folder.
 2. Copy the folder to the Pi, e.g. `~/printer_data/config/bootlogo/`.
-3. Via SSH: `bash ~/printer_data/config/bootlogo/install.sh`, then `sudo reboot`.
+3. Via SSH: `bash ~/printer_data/config/bootlogo/install.sh`.
+4. **Before rebooting**, check that the script saved the original boot files
+   (the undo below needs them):
+   ```bash
+   ls -l /boot/firmware/*.vor_bootlogo /boot/*.vor_bootlogo 2>/dev/null
+   ```
+   Both `cmdline.txt.vor_bootlogo` and `config.txt.vor_bootlogo` must be
+   listed. Then `sudo reboot`.
 
 ## What the script changes
 
@@ -124,7 +131,14 @@ kein Raspberry Pi oder ein anderes System), das Skript nicht ausführen.
 
 1. `logo.png` in diesen Ordner legen.
 2. Den Ordner auf den Pi kopieren, z. B. nach `~/printer_data/config/bootlogo/`.
-3. Per SSH: `bash ~/printer_data/config/bootlogo/install.sh`, danach `sudo reboot`.
+3. Per SSH: `bash ~/printer_data/config/bootlogo/install.sh`.
+4. **Vor dem Neustart** prüfen, ob das Skript die originalen Bootdateien
+   gesichert hat (das Rückgängigmachen unten braucht sie):
+   ```bash
+   ls -l /boot/firmware/*.vor_bootlogo /boot/*.vor_bootlogo 2>/dev/null
+   ```
+   Es müssen `cmdline.txt.vor_bootlogo` und `config.txt.vor_bootlogo`
+   erscheinen. Dann `sudo reboot`.
 
 ### Was das Skript ändert
 

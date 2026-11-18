@@ -10,6 +10,8 @@ Für alle, die Bondtechs INDX-Anleitung schon durchgearbeitet haben und eine
 
 - Kalico mit INDX-Modul ist installiert. Eine Mindestversion ist nicht
   bekannt; diese Maschine läuft mit Kalico `v2026.11.00-30-g991e1823`.
+  Andere Versionen sind nicht getestet; das INDX-Modul muss die hier
+  verwendeten Befehle kennen (z. B. `INDX_LOAD_FILAMENT`, `[load_cell_probe]`).
 - Bondtechs Dateien liegen in `~/printer_data/config/indx/` (`indx.cfg`,
   `indx-tc-macros.cfg`, `indx-cal.cfg`, `homing.cfg`).
 - Klipper startet mit dieser Config ohne Fehler.
@@ -74,10 +76,14 @@ andere bleibt liegen.
 ### 1. Sichern [Allgemein]
 
 ```bash
-cp -r ~/printer_data/config ~/printer_data/config.bak-$(date +%F)
+B=~/printer_data/config.bak-$(date +%Y%m%d-%H%M%S) && cp -r ~/printer_data/config "$B" && echo "$B"
 ```
 
-**Kontrolle:** `ls ~/printer_data/` zeigt den Ordner `config.bak-<Datum>`.
+Der Befehl gibt den Pfad der Sicherung aus, z. B.
+`/home/pi/printer_data/config.bak-20261118-231500`. Diesen Pfad notieren; er
+wird in Schritt 4 als `<SICHERUNG>` gebraucht.
+
+**Kontrolle:** `ls <SICHERUNG>` zeigt `printer.cfg`, `indx/` usw.
 
 ### 2. Repo klonen [Allgemein]
 
@@ -108,7 +114,7 @@ plus `indx_overrides.cfg`; `ls ~/printer_data/config/scripts/` zeigt
    (Load-Cell, Thermalmodell, PID, Input Shaper, Scanner). Den ganzen Block
    aus der Sicherung ans Ende der neuen `printer.cfg` kopieren:
    ```bash
-   sed -n '/^#\*# <---------------------- SAVE_CONFIG/,$p' ~/printer_data/config.bak-*/printer.cfg
+   sed -n '/^#\*# <---------------------- SAVE_CONFIG/,$p' <SICHERUNG>/printer.cfg
    ```
    zeigt den Block. **Ohne diesen Block ist die Load-Cell nicht kalibriert,
    Z-Homing ist dann gefährlich.** Kontrolle nach dem Kopieren:
@@ -126,8 +132,11 @@ plus `indx_overrides.cfg`; `ls ~/printer_data/config/scripts/` zeigt
    geladen. Enthalten sie Abschnitte, die jetzt auch in den Repo-Dateien
    stehen (z. B. eine eigene Board- oder Toolhead-Config mit `[mcu]`,
    `[indx]`, `[extruder]`, oder eigene `START_PRINT`-Makros), führt Klipper
-   gleichnamige Abschnitte stillschweigend zusammen. Solche Dateien aus
-   `config/` und `macros/` herausnehmen (sie liegen ja in der Sicherung).
+   gleichnamige Abschnitte zusammen: Die zuletzt geladene Option gewinnt,
+   meist ohne Fehlermeldung. Das Ergebnis ist dann eine Mischung aus alter
+   und neuer Config. Solche Dateien aus `config/` und `macros/`
+   herausnehmen (sie liegen ja in der Sicherung) oder gezielt
+   zusammenführen.
 
 ### 5. Hardware anpassen [Maschinenspezifisch]
 
@@ -214,7 +223,10 @@ Motoren falsch ansteuern.
       am Notaus.
 - [ ] Erst danach `G28` (mit Z), die Hand am Notaus: Die Düse berührt das Bett
       sanft, Z ist gehomt.
-- [ ] `T1`, danach `PARK_TOOL`: Das Tool wird aufgenommen und geparkt.
+- [ ] Toolwechsel: **Mit Spoolman** erst, wenn [SPOOLMAN.de.md](SPOOLMAN.de.md)
+      erledigt ist (sonst bricht der Toolwechsel ab); bis dahin diesen Punkt
+      überspringen. **Ohne Spoolman** (`spoolman.cfg` gelöscht) sofort:
+      `T1`, danach `PARK_TOOL`. Das Tool wird aufgenommen und geparkt.
 - [ ] `LOAD_FILAMENT` ohne Parameter öffnet den Tool-Dialog; *Cancel*
       schließt ihn.
 

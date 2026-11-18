@@ -9,7 +9,9 @@ For anyone who has already worked through Bondtech's INDX guide and has a
 **working INDX installation**. Starting point:
 
 - Kalico with its INDX module is installed. No minimum version is known;
-  this machine runs Kalico `v2026.11.00-30-g991e1823`.
+  this machine runs Kalico `v2026.11.00-30-g991e1823`. Other versions are
+  not tested; the INDX module must know the commands used here (e.g.
+  `INDX_LOAD_FILAMENT`, `[load_cell_probe]`).
 - Bondtech's files are in `~/printer_data/config/indx/` (`indx.cfg`,
   `indx-tc-macros.cfg`, `indx-cal.cfg`, `homing.cfg`).
 - Klipper starts with that config without errors.
@@ -74,10 +76,14 @@ Everything else stays.
 ### 1. Back up [General]
 
 ```bash
-cp -r ~/printer_data/config ~/printer_data/config.bak-$(date +%F)
+B=~/printer_data/config.bak-$(date +%Y%m%d-%H%M%S) && cp -r ~/printer_data/config "$B" && echo "$B"
 ```
 
-**Check:** `ls ~/printer_data/` shows the folder `config.bak-<date>`.
+The command prints the path of the backup, e.g.
+`/home/pi/printer_data/config.bak-20261118-231500`. Note it; step 4 uses it
+as `<BACKUP>`.
+
+**Check:** `ls <BACKUP>` shows `printer.cfg`, `indx/` etc.
 
 ### 2. Clone the repo [General]
 
@@ -108,7 +114,7 @@ expect the scripts in `~/printer_data/config/scripts/`.
    thermal model, PID, input shaper, scanner). Copy the whole block from the
    backup to the end of the new `printer.cfg`;
    ```bash
-   sed -n '/^#\*# <---------------------- SAVE_CONFIG/,$p' ~/printer_data/config.bak-*/printer.cfg
+   sed -n '/^#\*# <---------------------- SAVE_CONFIG/,$p' <BACKUP>/printer.cfg
    ```
    shows it. **Without this block the load cell is not calibrated and Z
    homing is dangerous.** Check after copying:
@@ -125,8 +131,10 @@ expect the scripts in `~/printer_data/config/scripts/`.
    repo's stay and are still loaded by the wildcard includes. If they contain
    sections that are now also in the repo files (e.g. your own board or
    toolhead config with `[mcu]`, `[indx]`, `[extruder]`, or your own
-   `START_PRINT`), Klipper silently merges sections with the same name. Move
-   such files out of `config/` and `macros/` (they are in the backup).
+   `START_PRINT`), Klipper merges sections with the same name: the option
+   loaded last wins, usually without an error. The result is a mix of old and
+   new config. Move such files out of `config/` and `macros/` (they are in
+   the backup) or merge them deliberately.
 
 ### 5. Adapt the hardware [Machine-specific]
 
@@ -212,7 +220,10 @@ can drive heaters or motors incorrectly.
       on the emergency stop.
 - [ ] Only then `G28` (with Z), hand on the emergency stop: the nozzle touches
       the bed gently, Z is homed.
-- [ ] `T1`, then `PARK_TOOL`: the tool is picked up and parked.
+- [ ] Tool change: **with Spoolman** only once [SPOOLMAN.md](SPOOLMAN.md) is
+      done (otherwise the tool change aborts); skip this item until then.
+      **Without Spoolman** (`spoolman.cfg` deleted) right away: `T1`, then
+      `PARK_TOOL`. The tool is picked up and parked.
 - [ ] `LOAD_FILAMENT` without parameters opens the tool dialog; *Cancel*
       closes it.
 
