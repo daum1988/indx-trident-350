@@ -52,8 +52,10 @@ docs/SPOOLMAN.md              Spoolman setup guide (German: SPOOLMAN.de.md)
   `indx.cfg` for your machine. `printer.cfg` includes them; without them
   Klipper does not start. Several commands used here come from these files,
   e.g. `PARK_TOOL`, `CHANGE_TOOL` and the startup `INIT_STATE`
-  (`indx-tc-macros.cfg`), `TOOL_POSITIONS` (`indx.cfg`), `SYNC_GLOBAL_Z` and
-  `CAL_CHECK_OFFSETS` (`indx-cal.cfg`);
+  (`indx-tc-macros.cfg`), `TOOL_POSITIONS` (`indx.cfg`), `SYNC_GLOBAL_Z`,
+  `CAL_CHECK_OFFSETS`, `CAL_ONE_SET_CAMERA_REF`, `CAL_TWO_PREP_TOOL_CAL` and
+  `CAL_THREE_SAVE_XY_OFFSET` (`indx-cal.cfg`). `INDX_LOAD_FILAMENT` is a
+  command of Kalico's INDX module;
 - `mainsail.cfg` (from [mainsail-config](https://github.com/mainsail-crew/mainsail-config),
   already present on MainsailOS) and `timelapse.cfg` (installed by
   [moonraker-timelapse](https://github.com/mainsail-crew/moonraker-timelapse)).
@@ -125,8 +127,37 @@ profiles from Spoolman on Windows. Full guide: [docs/SPOOLMAN.md](docs/SPOOLMAN.
 ### INDX overrides
 `indx/indx_overrides.cfg` must be included **after** `indx/homing.cfg`. It adds
 a safe Z hop when the bed is at the bottom, stores measured filament values
-from `INDX_LOAD_FILAMENT` per tool, a nozzle-camera XY check (`CAL_VERIFY_XY`)
+from `INDX_LOAD_FILAMENT` (Kalico INDX module) per tool, a nozzle-camera XY check (`CAL_VERIFY_XY`)
 and the Spoolman hook on tool changes, without editing Bondtech's files.
+
+### Nozzle camera for XY tool offsets
+`tools/nozzle_cam.html` is a browser page for Bondtech's camera method of
+calibrating the XY tool offsets: camera image with crosshair and zoom, jog
+buttons, the calibration steps as buttons and a console.
+
+1. **Camera:** a camera looking up at the nozzle, set up as a second camera
+   in crowsnest. The page expects an MJPEG stream; the default path
+   `/webcam2/?action=stream` is from this machine (second crowsnest camera).
+2. **Open the page:** upload `nozzle_cam.html` to the config folder (Mainsail →
+   *Machine*) and open `http://<PRINTER-IP>/server/files/config/nozzle_cam.html`.
+   Moonraker serves the page itself, so the requests come from the same
+   address and no CORS settings are needed; the browser only has to be
+   allowed to use Moonraker, like Mainsail (`trusted_clients` or login).
+   Leave *Printer* empty in that case. Opening the file locally (`file://`)
+   or from another web server needs `cors_domains` in `moonraker.conf`
+   and is not tested.
+3. **Settings:** check the stream path; mirror, zoom and the crosshair ring
+   as needed. The page stores its settings in the browser.
+4. **Calibrate** (macros from Bondtech's `indx-cal.cfg`, except the last one):
+   1. *T0 as reference*: pick up T0, jog the nozzle into the crosshair, then
+      `CAL_ONE_SET_CAMERA_REF`.
+   2. *Fetch tool*: `CAL_TWO_PREP_TOOL_CAL TOOL=n` picks up the tool and moves
+      it to the camera; jog it into the crosshair.
+   3. *Save offset*: `CAL_THREE_SAVE_XY_OFFSET`. Repeat 2–3 for every tool.
+   4. *Cross-check*: `CAL_VERIFY_XY TOOL=n` (this repo,
+      `indx/indx_overrides.cfg`) moves the tool to the reference with its
+      stored offset; the nozzle must sit in the crosshair without jogging.
+      Do not run `CAL_THREE_SAVE_XY_OFFSET` afterwards.
 
 ### OrcaSlicer printer profile
 `orca/Voron Trident 350 INDX.json` has machine limits matching the Klipper

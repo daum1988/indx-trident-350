@@ -53,8 +53,10 @@ docs/SPOOLMAN.de.md           Anleitung Spoolman-Einrichtung (englisch: SPOOLMAN
   eigene Maschine anpassen. `printer.cfg` bindet sie ein; fehlen sie, startet
   Klipper nicht. Mehrere hier verwendete Befehle stammen aus diesen Dateien,
   z. B. `PARK_TOOL`, `CHANGE_TOOL` und das Start-Makro `INIT_STATE`
-  (`indx-tc-macros.cfg`), `TOOL_POSITIONS` (`indx.cfg`), `SYNC_GLOBAL_Z` und
-  `CAL_CHECK_OFFSETS` (`indx-cal.cfg`);
+  (`indx-tc-macros.cfg`), `TOOL_POSITIONS` (`indx.cfg`), `SYNC_GLOBAL_Z`,
+  `CAL_CHECK_OFFSETS`, `CAL_ONE_SET_CAMERA_REF`, `CAL_TWO_PREP_TOOL_CAL` und
+  `CAL_THREE_SAVE_XY_OFFSET` (`indx-cal.cfg`). `INDX_LOAD_FILAMENT` ist ein
+  Befehl des INDX-Moduls von Kalico;
 - `mainsail.cfg` (aus [mainsail-config](https://github.com/mainsail-crew/mainsail-config),
   bei MainsailOS schon vorhanden) und `timelapse.cfg` (kommt mit
   [moonraker-timelapse](https://github.com/mainsail-crew/moonraker-timelapse)).
@@ -128,9 +130,41 @@ passenden Orca-Filamentprofile aus Spoolman. Ausführliche Anleitung:
 ### INDX-Overrides
 `indx/indx_overrides.cfg` muss **nach** `indx/homing.cfg` eingebunden werden.
 Enthält einen sicheren Z-Hop, wenn das Bett ganz unten steht, das Speichern der
-gemessenen Filamentwerte aus `INDX_LOAD_FILAMENT` pro Tool, eine XY-Prüfung mit
+gemessenen Filamentwerte aus `INDX_LOAD_FILAMENT` (INDX-Modul von Kalico) pro Tool, eine XY-Prüfung mit
 Düsenkamera (`CAL_VERIFY_XY`) und den Spoolman-Hook beim Toolwechsel – ohne die
 Bondtech-Dateien zu ändern.
+
+### Düsenkamera für die XY-Tool-Offsets
+`tools/nozzle_cam.html` ist eine Browserseite für Bondtechs Kamera-Methode zur
+Kalibrierung der XY-Tool-Offsets: Kamerabild mit Fadenkreuz und Zoom,
+Verfahrknöpfe, die Kalibrierschritte als Knöpfe und eine Konsole.
+
+1. **Kamera:** eine Kamera, die von unten auf die Düse schaut, als zweite
+   Kamera in crowsnest eingerichtet. Die Seite erwartet einen MJPEG-Stream;
+   der Standardpfad `/webcam2/?action=stream` stammt von dieser Maschine
+   (zweite crowsnest-Kamera).
+2. **Seite öffnen:** `nozzle_cam.html` in den Config-Ordner hochladen
+   (Mainsail → *Maschine*) und
+   `http://<DRUCKER-IP>/server/files/config/nozzle_cam.html` öffnen. Moonraker
+   liefert die Seite selbst aus; die Anfragen kommen also von derselben
+   Adresse, CORS-Einstellungen sind nicht nötig. Der Browser muss Moonraker
+   nur benutzen dürfen, wie bei Mainsail (`trusted_clients` oder Login). Das
+   Feld *Printer* bleibt dann leer. Die Datei lokal öffnen (`file://`) oder
+   von einem anderen Webserver aus braucht `cors_domains` in
+   `moonraker.conf` und ist nicht getestet.
+3. **Einstellungen:** Stream-Pfad prüfen; Spiegeln, Zoom und Fadenkreuz-Ring
+   nach Bedarf. Die Seite merkt sich die Einstellungen im Browser.
+4. **Kalibrieren** (Makros aus Bondtechs `indx-cal.cfg`, außer dem letzten):
+   1. *T0 als Referenz*: T0 aufnehmen, Düse ins Fadenkreuz fahren, dann
+      `CAL_ONE_SET_CAMERA_REF`.
+   2. *Tool holen*: `CAL_TWO_PREP_TOOL_CAL TOOL=n` nimmt das Tool auf und
+      fährt es zur Kamera; ins Fadenkreuz verfahren.
+   3. *Offset speichern*: `CAL_THREE_SAVE_XY_OFFSET`. Schritte 2–3 für jedes
+      Tool wiederholen.
+   4. *Gegencheck*: `CAL_VERIFY_XY TOOL=n` (dieses Repo,
+      `indx/indx_overrides.cfg`) fährt das Tool mit gespeichertem Offset zur
+      Referenz; die Düse muss ohne Verfahren im Fadenkreuz sitzen. Danach
+      kein `CAL_THREE_SAVE_XY_OFFSET` ausführen.
 
 ### OrcaSlicer-Druckerprofil
 `orca/Voron Trident 350 INDX.json` hat Maschinenlimits passend zur
