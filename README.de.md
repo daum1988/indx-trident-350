@@ -51,7 +51,7 @@ In dieser Reihenfolge abarbeiten:
 | Anleitung | Inhalt | Pflicht? |
 |---|---|---|
 | [Installation](docs/INSTALLATION.de.md) | Voraussetzungen, Kopieren, Anpassen, erster Start, Updates | **ja** |
-| [Kalibrierung](docs/CALIBRATION.de.md) | Load-Cell, Thermalmodell, Docks, Scanner, XY/Z-Offsets, Input Shaper, PA | **ja** |
+| [Kalibrierung](docs/CALIBRATION.de.md) | Reihenfolge mit Links zu Bondtech/Kalico; Teile dieses Repos: Eddy-Scanner, Düsenkamera, globaler Z-Offset, PA per Load-Cell | **ja** |
 | [Spoolman](docs/SPOOLMAN.de.md) | eine Spule pro Tool, Verbrauch buchen | optional |
 | [OrcaSlicer](docs/ORCASLICER.de.md) | Druckerprofil, Filamentprofile aus Spoolman | optional |
 | [KlipperScreen](docs/KLIPPERSCREEN.de.md) | Lade-/Entlade-Dialog, INDX-Add-on | Dialog: Teil der Grundinstallation; Add-on optional |
@@ -117,7 +117,7 @@ verwenden sie durchgehend, etwa „Tool“ statt „Werkzeug“.
 
 - **Globaler Z-Offset beim nächsten Druck weg?** Babystepping ändert nur den
   Live-Offset; mit `SYNC_GLOBAL_Z` speichern
-  ([Kalibrierung, Schritt 7](docs/CALIBRATION.de.md#7-z-tool-offsets)).
+  ([Kalibrierung, Schritt 6](docs/CALIBRATION.de.md#6-z-tool-offsets-globaler-z-offset)).
 - **Verschiedene Druckplatten** brauchen keinen eigenen Z-Offset: Z wird mit
   der Load-Cell direkt auf der Plattenoberfläche gemessen.
 - **Bauteillüfter tauschen (4010-Blower ↔ CPAP):** das Thermalmodell neu

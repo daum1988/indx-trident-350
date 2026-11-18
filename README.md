@@ -50,7 +50,7 @@ Work through them in this order:
 | Guide | Contents | Required? |
 |---|---|---|
 | [Installation](docs/INSTALLATION.md) | prerequisites, copying, adapting, first start, updates | **yes** |
-| [Calibration](docs/CALIBRATION.md) | load cell, thermal model, docks, scanner, XY/Z offsets, input shaper, PA | **yes** |
+| [Calibration](docs/CALIBRATION.md) | order with links to Bondtech/Kalico; this repo's parts: eddy scanner, nozzle camera, global Z offset, PA with the load cell | **yes** |
 | [Spoolman](docs/SPOOLMAN.md) | one spool per tool, usage tracking | optional |
 | [OrcaSlicer](docs/ORCASLICER.md) | printer profile, filament profiles from Spoolman | optional |
 | [KlipperScreen](docs/KLIPPERSCREEN.md) | load/unload dialog, INDX add-on | dialog: part of the base; add-on optional |
@@ -112,7 +112,7 @@ docs/                         the guides above (German: *.de.md)
 
 - **Global Z offset lost at the next print?** Babystepping only changes the
   live offset; save it with `SYNC_GLOBAL_Z`
-  ([Calibration, step 7](docs/CALIBRATION.md#7-z-tool-offsets)).
+  ([Calibration, step 6](docs/CALIBRATION.md#6-z-tool-offsets-global-z-offset)).
 - **Different build plates** need no Z offset per plate: Z is homed with the
   load cell on the actual plate surface.
 - **Part cooling fan swap (4010 blowers ↔ CPAP):** re-measure the thermal

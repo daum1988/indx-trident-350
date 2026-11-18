@@ -48,7 +48,7 @@ calibration steps that are already done.
 | Spoolman | one spool per tool, usage tracking, spool list in the load dialog | [SPOOLMAN.md](SPOOLMAN.md) |
 | OrcaSlicer integration | printer profile, filament profiles and colours from Spoolman | [ORCASLICER.md](ORCASLICER.md) |
 | KlipperScreen add-on | INDX panel, active tool in the titlebar | [KLIPPERSCREEN.md](KLIPPERSCREEN.md) |
-| Nozzle camera | XY tool offsets | [CALIBRATION.md, step 6](CALIBRATION.md#6-xy-tool-offsets-nozzle-camera) |
+| Nozzle camera | XY tool offsets | [CALIBRATION.md, step 5](CALIBRATION.md#5-xy-tool-offsets-nozzle-camera) |
 | Boot logo (optional) | logo on the display while booting | [bootlogo/README.md](../bootlogo/README.md) |
 
 The load/unload dialog (`macros/filament_menu.cfg`) is part of the base
@@ -186,7 +186,7 @@ notifications); with Spoolman the Spoolman panel appears on the dashboard.
 
 **Do not home Z yet.** Z is homed with the load cell (the nozzle is the
 probe), and it has to be calibrated first:
-[CALIBRATION.md](CALIBRATION.md), step 1.
+[CALIBRATION.md](CALIBRATION.md), step 1 (load cell, by Bondtech/Kalico).
 
 ## Updates later
 

@@ -3,7 +3,10 @@
 [Deutsche Version → TROUBLESHOOTING.de.md](TROUBLESHOOTING.de.md) ·
 [README](../README.md)
 
-Typical problems with this config, their cause and the fix. Logs on the Pi:
+Typical problems with this repo's additions, their cause and the fix.
+Problems of the INDX itself (load cell, docks, thermal model, `CAL_Z`):
+see [BondtechAB/INDX](https://github.com/BondtechAB/INDX) and the
+[Kalico INDX docs](https://docs.kalico.gg/INDX.html). Logs on the Pi:
 `~/printer_data/logs/` (`klippy.log`, `moonraker.log`, `KlipperScreen.log`,
 `orca_lanes.log`, `spool_picker.log`); in Mainsail under *Machine*.
 
@@ -18,22 +21,17 @@ Typical problems with this config, their cause and the fix. Logs on the Pi:
 | `mcu ... Unable to connect` | wrong serial ID | `ls /dev/serial/by-id/` (step 7) |
 | Calibration values gone after copying | `SAVE_CONFIG` block overwritten | copy it back from the backup (step 2) |
 
-## Tool change and homing
+## Tool change
 
 | Symptom | Cause | Fix |
 |---|---|---|
 | Tool change stops with *Remote method ... not registered* | `macros/spoolman.cfg` present, but no `[spoolman]` in Moonraker | set up Spoolman, or delete `spoolman.cfg` and set `variable_use_spoolman: 0` (step 5) |
-| Z homing refused | no tool on the head, or a tool seated by hand that is not registered |  first time: `MANUAL_TOOL_SEAT TOOL=0` ([CALIBRATION.md](CALIBRATION.md), step 2) |
-| Bed presses against the nozzle when homing Z | load cell not calibrated | emergency stop, [CALIBRATION.md](CALIBRATION.md), step 1 |
-| Tool catches on the dock | dock position wrong | measure again ([CALIBRATION.md](CALIBRATION.md), step 4) |
-| Thermal model error / shutdown | model values do not fit (e.g. after a fan swap) | measure again ([CALIBRATION.md](CALIBRATION.md), step 3) |
-| Global Z offset lost at the next print | babystep not saved | `SYNC_GLOBAL_Z` after babystepping |
+| Global Z offset lost at the next print | babystep not saved | `SYNC_GLOBAL_Z` after babystepping ([CALIBRATION.md](CALIBRATION.md#6-z-tool-offsets-global-z-offset)) |
 
 ## Calibration
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `CALIBRATE_LOAD_CELL` refuses | a tool may be on the head | remove the tool; only with a very wrong old calibration `HEAD_EMPTY=1` |
 | `Sample rate is not high enough` during the mesh | scan too fast | lower `speed` in `[bed_mesh]` or `SCAN_SPEED=` |
 | Mesh with a hot nozzle looks wrong | induction heater disturbs the scanner | scan with a cold nozzle |
 | `PA_CAL_LOADCELL` gives no value, no message | wrong `/home/pi` path | [INSTALLATION.md](INSTALLATION.md), step 6; log `~/printer_data/config/lc_pa_data/last_run.log` |
@@ -68,7 +66,7 @@ Typical problems with this config, their cause and the fix. Logs on the Pi:
 | Symptom | Cause | Fix |
 |---|---|---|
 | Page is downloaded instead of shown | opened via `/server/files/...` | copy to `~/mainsail/`, open `http://<PRINTER-IP>/nozzle_cam.html` |
-| Page gone after a Mainsail update | not in `persistent_files` | [CALIBRATION.md](CALIBRATION.md), step 6 |
+| Page gone after a Mainsail update | not in `persistent_files` | [CALIBRATION.md](CALIBRATION.md#5-xy-tool-offsets-nozzle-camera) |
 | No image | wrong stream path | default `/webcam2/?action=stream`; check the crowsnest camera |
 | Buttons do nothing (page opened as a file) | Moonraker rejects `file://` | open it from the printer address |
 

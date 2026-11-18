@@ -52,7 +52,7 @@ Kalibrierschritte kann man dann überspringen.
 | Spoolman | eine Spule pro Tool, Verbrauch buchen, Spulenliste im Lade-Dialog | [SPOOLMAN.de.md](SPOOLMAN.de.md) |
 | OrcaSlicer-Anbindung | Druckerprofil, Filamentprofile und Farben aus Spoolman | [ORCASLICER.de.md](ORCASLICER.de.md) |
 | KlipperScreen-Add-on | INDX-Panel, aktives Tool in der Titelleiste | [KLIPPERSCREEN.de.md](KLIPPERSCREEN.de.md) |
-| Düsenkamera | XY-Tool-Offsets | [CALIBRATION.de.md, Schritt 6](CALIBRATION.de.md#6-xy-tool-offsets-düsenkamera) |
+| Düsenkamera | XY-Tool-Offsets | [CALIBRATION.de.md, Schritt 5](CALIBRATION.de.md#5-xy-tool-offsets-düsenkamera) |
 | Bootlogo (optional) | Logo auf dem Display beim Booten | [bootlogo/README.md](../bootlogo/README.md#deutsch) |
 
 Der Lade-/Entlade-Dialog (`macros/filament_menu.cfg`) gehört zur
@@ -191,7 +191,7 @@ Dashboard.
 
 **Z noch nicht homen.** Z wird mit der Load-Cell gemessen (die Düse ist der
 Taster), und die muss zuerst kalibriert werden:
-[CALIBRATION.de.md](CALIBRATION.de.md), Schritt 1.
+[CALIBRATION.de.md](CALIBRATION.de.md), Schritt 1 (Load-Cell, nach Bondtech/Kalico).
 
 ## Spätere Updates
 

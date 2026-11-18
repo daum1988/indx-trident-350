@@ -3,7 +3,10 @@
 [English version → TROUBLESHOOTING.md](TROUBLESHOOTING.md) ·
 [README](../README.de.md)
 
-Typische Probleme mit dieser Config, ihre Ursache und die Lösung. Logs auf dem
+Typische Probleme mit den Ergänzungen dieses Repos, ihre Ursache und die
+Lösung. Probleme des INDX selbst (Load-Cell, Docks, Thermalmodell, `CAL_Z`):
+siehe [BondtechAB/INDX](https://github.com/BondtechAB/INDX) und die
+[Kalico-INDX-Doku](https://docs.kalico.gg/INDX.html). Logs auf dem
 Pi: `~/printer_data/logs/` (`klippy.log`, `moonraker.log`, `KlipperScreen.log`,
 `orca_lanes.log`, `spool_picker.log`); in Mainsail unter *Maschine*.
 
@@ -18,22 +21,17 @@ Pi: `~/printer_data/logs/` (`klippy.log`, `moonraker.log`, `KlipperScreen.log`,
 | `mcu ... Unable to connect` | falsche Serial-ID | `ls /dev/serial/by-id/` (Schritt 7) |
 | Kalibrierwerte nach dem Kopieren weg | `SAVE_CONFIG`-Block überschrieben | aus der Sicherung zurückkopieren (Schritt 2) |
 
-## Toolwechsel und Homing
+## Toolwechsel
 
 | Symptom | Ursache | Lösung |
 |---|---|---|
 | Toolwechsel bricht ab mit *Remote method ... not registered* | `macros/spoolman.cfg` vorhanden, aber kein `[spoolman]` in Moonraker | Spoolman einrichten oder `spoolman.cfg` löschen und `variable_use_spoolman: 0` setzen (Schritt 5) |
-| Z-Homing verweigert | kein Tool am Kopf, oder ein von Hand eingesetztes Tool ist nicht eingetragen | beim ersten Mal: `MANUAL_TOOL_SEAT TOOL=0` ([CALIBRATION.de.md](CALIBRATION.de.md), Schritt 2) |
-| Bett drückt beim Z-Homing gegen die Düse | Load-Cell nicht kalibriert | Notaus, [CALIBRATION.de.md](CALIBRATION.de.md), Schritt 1 |
-| Tool bleibt am Dock hängen | Dock-Position falsch | neu messen ([CALIBRATION.de.md](CALIBRATION.de.md), Schritt 4) |
-| Thermalmodell-Fehler / Abschaltung | Modellwerte passen nicht (z. B. nach Lüftertausch) | neu messen ([CALIBRATION.de.md](CALIBRATION.de.md), Schritt 3) |
-| Globaler Z-Offset beim nächsten Druck weg | Babystep nicht gespeichert | nach dem Babystepping `SYNC_GLOBAL_Z` |
+| Globaler Z-Offset beim nächsten Druck weg | Babystep nicht gespeichert | nach dem Babystepping `SYNC_GLOBAL_Z` ([CALIBRATION.de.md](CALIBRATION.de.md#6-z-tool-offsets-globaler-z-offset)) |
 
 ## Kalibrierung
 
 | Symptom | Ursache | Lösung |
 |---|---|---|
-| `CALIBRATE_LOAD_CELL` verweigert | vielleicht sitzt ein Tool am Kopf | Tool abnehmen; nur bei einer sehr falschen alten Kalibrierung `HEAD_EMPTY=1` |
 | `Sample rate is not high enough` beim Mesh | Scan zu schnell | `speed` in `[bed_mesh]` senken oder `SCAN_SPEED=` |
 | Mesh mit heißer Düse sieht falsch aus | Induktionsheizung stört den Scanner | mit kalter Düse scannen |
 | `PA_CAL_LOADCELL` liefert keinen Wert, keine Meldung | falscher `/home/pi`-Pfad | [INSTALLATION.de.md](INSTALLATION.de.md), Schritt 6; Log `~/printer_data/config/lc_pa_data/last_run.log` |
@@ -68,7 +66,7 @@ Pi: `~/printer_data/logs/` (`klippy.log`, `moonraker.log`, `KlipperScreen.log`,
 | Symptom | Ursache | Lösung |
 |---|---|---|
 | Seite wird heruntergeladen statt angezeigt | über `/server/files/...` geöffnet | nach `~/mainsail/` kopieren, `http://<DRUCKER-IP>/nozzle_cam.html` öffnen |
-| Seite nach Mainsail-Update weg | nicht in `persistent_files` | [CALIBRATION.de.md](CALIBRATION.de.md), Schritt 6 |
+| Seite nach Mainsail-Update weg | nicht in `persistent_files` | [CALIBRATION.de.md](CALIBRATION.de.md#5-xy-tool-offsets-düsenkamera) |
 | Kein Bild | falscher Stream-Pfad | Standard `/webcam2/?action=stream`; crowsnest-Kamera prüfen |
 | Knöpfe tun nichts (Seite als Datei geöffnet) | Moonraker lehnt `file://` ab | über die Druckeradresse öffnen |
 
