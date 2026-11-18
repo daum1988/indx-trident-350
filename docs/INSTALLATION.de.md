@@ -153,7 +153,10 @@ plus `indx_overrides.cfg`; `ls ~/printer_data/config/scripts/` zeigt
    `_INDX_SAFE_Z_HOP`, `_INDX_SET_ACTIVE_TOOL`), `T0`–`T8` (`indx/indx.cfg`
    und `macros/spoolman.cfg`), `PAUSE`/`RESUME`/`CANCEL_PRINT` (`mainsail.cfg`
    und `macros/trident_macros.cfg`), `[respond]` und `[heater_bed]`. Jede
-   andere Zeile, vor allem mit einer eigenen alten Datei, prüfen.
+   andere Zeile, vor allem mit einer eigenen alten Datei, prüfen. Die Ausgabe
+   ist eine Prüfliste, keine vollständige Analyse der geladenen Config: Der
+   Befehl durchsucht die genannten Dateien, auch solche, die gar nicht
+   eingebunden sind (z. B. `timelapse.cfg` bei auskommentiertem Include).
 
 ### 5. Hardware anpassen [Maschinenspezifisch]
 

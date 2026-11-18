@@ -151,7 +151,10 @@ expect the scripts in `~/printer_data/config/scripts/`.
    `_INDX_SET_ACTIVE_TOOL`), `T0`–`T8` (`indx/indx.cfg` and
    `macros/spoolman.cfg`), `PAUSE`/`RESUME`/`CANCEL_PRINT` (`mainsail.cfg` and
    `macros/trident_macros.cfg`), `[respond]` and `[heater_bed]`. Check every
-   other line, especially one with an old file of your own.
+   other line, especially one with an old file of your own. The output is a
+   checklist, not a full analysis of the loaded config: the command searches
+   the files named, including ones that are not included at all (e.g.
+   `timelapse.cfg` with its include commented out).
 
 ### 5. Adapt the hardware [Machine-specific]
 

@@ -43,13 +43,21 @@ extruded filament to it in Spoolman. OrcaSlicer reads the tool → spool mapping
 ## 0. Check first: is Spoolman already running?
 
 If your `moonraker.conf` already contains a `[spoolman]` section, open the
-address from its `server:` line in a browser.
+address from its `server:` line in a browser on your PC:
 
+- `server: http://localhost:7912`: `localhost` means the Pi here. In the
+  browser on your PC use the Pi's IP instead, e.g.
+  `http://192.168.1.100:7912`. `hostname -I` via SSH on the Pi shows the IP.
+- Any other address: open it directly.
+
+Result:
 - **The Spoolman UI shows up:** Spoolman already runs (on the Pi or on another
   device such as a NAS). Skip step 1.
-- **No page:** install Spoolman, e.g. on the Pi as in step 1. To find out
-  whether the address in `server:` is the Pi itself, run `hostname -I` on the
-  Pi and compare.
+- **No page:** do not install anything yet. First check whether the service
+  runs: `systemctl status Spoolman` on the Pi, or on the NAS. If it runs, the
+  problem is the address or the network. Only if there is no Spoolman
+  anywhere, install it as in step 1; otherwise you end up with two Spoolman
+  instances with separate data.
 
 Without a `[spoolman]` section: install Spoolman (step 1) and add the section
 in step 2.
@@ -66,7 +74,16 @@ cd ~ && sudo apt-get update && sudo apt-get install -y curl jq unzip
 ```
 
 ```bash
-mkdir -p ~/Spoolman && cd ~ && source_url=$(curl -s https://api.github.com/repos/Donkie/Spoolman/releases/latest | jq -r '.assets[] | select(.name == "spoolman.zip").browser_download_url') && curl -sSL "$source_url" -o temp.zip && unzip temp.zip -d ./Spoolman && rm temp.zip
+source_url=$(curl -s https://api.github.com/repos/Donkie/Spoolman/releases/latest | jq -r '.assets[] | select(.name == "spoolman.zip").browser_download_url'); echo "$source_url"
+```
+
+It must print an address ending in `spoolman.zip`. If the output is empty,
+GitHub was not reachable or the rate limit was hit; try again later. Then, in
+the same SSH session,
+download and unpack:
+
+```bash
+[ -n "$source_url" ] && mkdir -p ~/Spoolman && cd ~ && curl -fsSL "$source_url" -o temp.zip && unzip temp.zip -d ./Spoolman && rm temp.zip || echo "Download failed"
 ```
 
 ```bash

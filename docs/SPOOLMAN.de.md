@@ -44,13 +44,21 @@ die Zuordnung Tool → Spule (siehe [ORCASLICER.de.md](ORCASLICER.de.md)).
 ## 0. Vorher prüfen: läuft Spoolman schon?
 
 Steht in `moonraker.conf` schon ein Abschnitt `[spoolman]`, die Adresse aus
-dessen Zeile `server:` im Browser öffnen.
+dessen Zeile `server:` im Browser am PC öffnen:
 
+- `server: http://localhost:7912`: `localhost` ist aus Sicht des Pi gemeint.
+  Im Browser am PC stattdessen die IP des Pi verwenden, z. B.
+  `http://192.168.1.100:7912`. Die IP zeigt `hostname -I` per SSH auf dem Pi.
+- Eine andere Adresse: direkt öffnen.
+
+Ergebnis:
 - **Spoolman-Oberfläche erscheint:** Spoolman läuft schon (auf dem Pi oder auf
   einem anderen Gerät, z. B. einem NAS). Schritt 1 entfällt.
-- **Keine Seite:** Spoolman installieren, z. B. auf dem Pi wie in Schritt 1.
-  Ob die Adresse aus `server:` der Pi selbst ist, zeigt `hostname -I` auf
-  dem Pi.
+- **Keine Seite:** noch nichts installieren. Erst prüfen, ob der Dienst läuft:
+  auf dem Pi `systemctl status Spoolman`, bei einem NAS dort. Läuft er, liegt
+  es an Adresse oder Netzwerk. Nur wenn es Spoolman nirgends gibt, wie in
+  Schritt 1 installieren; sonst entstehen zwei Spoolman-Instanzen mit
+  getrennten Daten.
 
 Ohne Abschnitt `[spoolman]`: Spoolman installieren (Schritt 1) und den
 Abschnitt in Schritt 2 ergänzen.
@@ -67,7 +75,16 @@ cd ~ && sudo apt-get update && sudo apt-get install -y curl jq unzip
 ```
 
 ```bash
-mkdir -p ~/Spoolman && cd ~ && source_url=$(curl -s https://api.github.com/repos/Donkie/Spoolman/releases/latest | jq -r '.assets[] | select(.name == "spoolman.zip").browser_download_url') && curl -sSL "$source_url" -o temp.zip && unzip temp.zip -d ./Spoolman && rm temp.zip
+source_url=$(curl -s https://api.github.com/repos/Donkie/Spoolman/releases/latest | jq -r '.assets[] | select(.name == "spoolman.zip").browser_download_url'); echo "$source_url"
+```
+
+Es muss eine Adresse ausgegeben werden, die auf `spoolman.zip` endet. Ist die
+Ausgabe leer, war GitHub nicht erreichbar oder das Abfragelimit erreicht;
+später erneut versuchen. Dann im selben SSH-Fenster herunterladen und
+entpacken:
+
+```bash
+[ -n "$source_url" ] && mkdir -p ~/Spoolman && cd ~ && curl -fsSL "$source_url" -o temp.zip && unzip temp.zip -d ./Spoolman && rm temp.zip || echo "Download fehlgeschlagen"
 ```
 
 ```bash
