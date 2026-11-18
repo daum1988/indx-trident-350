@@ -38,7 +38,7 @@ klipper/
 moonraker/moonraker.example.conf   die benötigten Abschnitte für moonraker.conf
 orca/                         OrcaSlicer-Druckerprofil + Skript Spoolman -> Orca-Filamentprofile
 bootlogo/                     Plymouth-Bootlogo für das CM4-Display
-klipperscreen/                INDX-Menü für KlipperScreen (Toolauswahl, Laden/Entladen)
+klipperscreen/                KlipperScreen-Add-on: INDX-Panel und aktives Tool in der Titelleiste
 tools/nozzle_cam.html         Browserseite zum Prüfen der XY-Tool-Offsets mit Düsenkamera
 docs/SPOOLMAN.de.md           Anleitung Spoolman-Einrichtung (englisch: SPOOLMAN.md)
 ```
@@ -76,8 +76,13 @@ den Extrusionsdruck überhaupt sieht.
 ### KlipperScreen: Toolauswahl und Laden/Entladen
 KlipperScreen sieht nur einen `[extruder]` und zeigt daher keine T0–T8-Knöpfe;
 seine Laden/Entladen-Knöpfe senden ein nacktes `LOAD_FILAMENT` /
-`UNLOAD_FILAMENT`. `klipperscreen/KlipperScreen.example.conf` ergänzt ein
-*INDX*-Hauptmenü (T0–T8, Parken, Laden, Entladen). Ein `LOAD_FILAMENT` oder
+`UNLOAD_FILAMENT`. Das Add-on `klipperscreen/indx_addon.py` ergänzt ein
+*INDX*-Panel (jedes Tool mit Spulenfarbe und -name, geladen/leer, aktives Tool
+hervorgehoben; Parken, Laden, Entladen) und zeigt das aktive Tool mit Spulenfarbe in
+der Titelleiste. Installation: nach `~/printer_data/config/klipperscreen/` kopieren,
+dann `mkdir -p ~/KlipperScreen/addons && ln -sf ~/printer_data/config/klipperscreen/indx_addon.py ~/KlipperScreen/addons/indx.py`
+und `klipperscreen/KlipperScreen.example.conf` übernehmen. LOAD/UNLOAD_FILAMENT
+führen `t<n>__loaded` mit; `SET_TOOL_LOADED T=<n> LOADED=<0|1>` korrigiert es. Ein `LOAD_FILAMENT` oder
 `UNLOAD_FILAMENT` ohne Parameter öffnet einen Dialog (`macros/filament_menu.cfg`,
 Macro-Prompt) zur Wahl von Tool und beim Laden der Spule aus Spoolman (erst Material,
 dann Spule; `scripts/spool_picker/`). Die gewählte Spule wird dem Tool zugeordnet und

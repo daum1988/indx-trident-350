@@ -37,7 +37,7 @@ klipper/
 moonraker/moonraker.example.conf   the moonraker.conf sections this repo needs
 orca/                         OrcaSlicer printer profile + Spoolman -> Orca filament profile script
 bootlogo/                     Plymouth boot logo for the CM4 display
-klipperscreen/                INDX menu for KlipperScreen (tool selection, load/unload)
+klipperscreen/                KlipperScreen add-on: INDX panel and active tool in the titlebar
 tools/nozzle_cam.html         browser page for checking tool XY offsets with a nozzle camera
 docs/SPOOLMAN.md              Spoolman setup guide (German: SPOOLMAN.de.md)
 ```
@@ -73,8 +73,13 @@ your load cell sees the extrusion force at all.
 ### KlipperScreen: tool selection and load/unload
 KlipperScreen only sees one `[extruder]`, so it shows no T0–T8 buttons, and its
 Load/Unload buttons send a bare `LOAD_FILAMENT` / `UNLOAD_FILAMENT`.
-`klipperscreen/KlipperScreen.example.conf` adds an *INDX* main menu (T0–T8, park,
-load, unload). A bare `LOAD_FILAMENT` or `UNLOAD_FILAMENT` opens a dialog
+The add-on `klipperscreen/indx_addon.py` adds an *INDX* panel (every tool with its
+spool colour and name, loaded/empty, active tool highlighted; park, load, unload)
+and shows the active tool with its spool colour in the titlebar. Install: copy it to
+`~/printer_data/config/klipperscreen/`, then
+`mkdir -p ~/KlipperScreen/addons && ln -sf ~/printer_data/config/klipperscreen/indx_addon.py ~/KlipperScreen/addons/indx.py`
+and merge `klipperscreen/KlipperScreen.example.conf`. LOAD/UNLOAD_FILAMENT keep
+`t<n>__loaded` up to date; `SET_TOOL_LOADED T=<n> LOADED=<0|1>` corrects it. A bare `LOAD_FILAMENT` or `UNLOAD_FILAMENT` opens a dialog
 (`macros/filament_menu.cfg`, macro prompt) to pick the tool and, for loading, the
 spool from Spoolman (material first, then spool; `scripts/spool_picker/`). The chosen
 spool is assigned to the tool and its nozzle temperature is used. *Without spool*
