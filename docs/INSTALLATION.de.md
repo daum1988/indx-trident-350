@@ -137,7 +137,7 @@ plus `indx_overrides.cfg`; `ls ~/printer_data/config/scripts/` zeigt
 - **Toolhead:** `config/INDX_toolhead.cfg` mit der bisherigen
   Toolhead-Config vergleichen, eigene Werte übernehmen.
 - **Bucket und Bürste:** Diese Maschine nutzt
-  [Voron Trident Purge Bucket & Nozzle Brush](https://www.printables.com/model/1077344-voron-trident-purge-bucket-nozzle-brush).
+  [Voron Trident Purge Bucket & Nozzle Brush, INDX-Remix](https://www.printables.com/model/1921254-voron-trident-purge-bucket-nozzle-brush-indx).
   Positionen in `macros/bucket.cfg` (`_BUCKET_VARS`); werden für Laden,
   Entladen, PA-Kalibrierung und Druckstart gebraucht.
 - **Parkposition, Ladetemperatur:** `_global_var` in `macros/common.cfg`.

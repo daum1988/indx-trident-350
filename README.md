@@ -27,7 +27,7 @@ print macros. It does not replace Bondtech's or Kalico's documentation.
 | Mainboard | BTT Manta M8P v2.0 + Raspberry Pi CM4 |
 | Z probing | INDX load cell (default probe) |
 | Bed mesh | Eddy current scanner (`[probe_eddy_current scanner]`, rapid scan) |
-| Purge bucket | [Voron Trident purge bucket & nozzle brush](https://www.printables.com/model/1077344-voron-trident-purge-bucket-nozzle-brush) |
+| Purge bucket | [Voron Trident purge bucket & nozzle brush, INDX remix](https://www.printables.com/model/1921254-voron-trident-purge-bucket-nozzle-brush-indx) (based on [this model](https://www.printables.com/model/1077344-voron-trident-purge-bucket-nozzle-brush)) |
 | Firmware | [Kalico](https://docs.kalico.gg/INDX.html) |
 | UI | Mainsail, KlipperScreen |
 | Slicer | OrcaSlicer 2.5.x |

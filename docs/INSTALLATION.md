@@ -136,7 +136,7 @@ expect the scripts in `~/printer_data/config/scripts/`.
 - **Toolhead:** compare `config/INDX_toolhead.cfg` with your previous toolhead
   config and carry over your values.
 - **Bucket and brush:** this machine uses the
-  [Voron Trident purge bucket & nozzle brush](https://www.printables.com/model/1077344-voron-trident-purge-bucket-nozzle-brush).
+  [Voron Trident purge bucket & nozzle brush, INDX remix](https://www.printables.com/model/1921254-voron-trident-purge-bucket-nozzle-brush-indx).
   Positions in `macros/bucket.cfg` (`_BUCKET_VARS`); used for loading,
   unloading, PA calibration and print start.
 - **Park position, load temperature:** `_global_var` in `macros/common.cfg`.
