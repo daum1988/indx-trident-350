@@ -136,7 +136,18 @@ plus `indx_overrides.cfg`; `ls ~/printer_data/config/scripts/` zeigt
    meist ohne Fehlermeldung. Das Ergebnis ist dann eine Mischung aus alter
    und neuer Config. Solche Dateien aus `config/` und `macros/`
    herausnehmen (sie liegen ja in der Sicherung) oder gezielt
-   zusammenführen.
+   zusammenführen. Dass Klipper danach ohne Fehler startet, reicht deshalb
+   als Kontrolle nicht. Dieser Befehl listet jeden Abschnitt, der in mehr als
+   einer geladenen Datei steht, mit den Dateien dazu:
+   ```bash
+   cd ~/printer_data/config && grep -Ho "^\[[^]]*\]" printer.cfg mainsail.cfg timelapse.cfg config/*.cfg macros/*.cfg indx/*.cfg 2>/dev/null | awk -F: '{f[$2]=f[$2]" "$1; n[$2]++} END {for (s in n) if (n[s]>1) print s f[s]}' | sort
+   ```
+   Bei dieser Config sind diese Doppelungen gewollt: Bondtech-Makros, die
+   `indx/indx_overrides.cfg` ersetzt (`LOAD_FILAMENT`, `CAL_Z`,
+   `_INDX_SAFE_Z_HOP`, `_INDX_SET_ACTIVE_TOOL`), `T0`–`T8` (`indx/indx.cfg`
+   und `macros/spoolman.cfg`), `PAUSE`/`RESUME`/`CANCEL_PRINT` (`mainsail.cfg`
+   und `macros/trident_macros.cfg`), `[respond]` und `[heater_bed]`. Jede
+   andere Zeile, vor allem mit einer eigenen alten Datei, prüfen.
 
 ### 5. Hardware anpassen [Maschinenspezifisch]
 

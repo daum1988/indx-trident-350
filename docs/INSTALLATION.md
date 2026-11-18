@@ -134,7 +134,18 @@ expect the scripts in `~/printer_data/config/scripts/`.
    `START_PRINT`), Klipper merges sections with the same name: the option
    loaded last wins, usually without an error. The result is a mix of old and
    new config. Move such files out of `config/` and `macros/` (they are in
-   the backup) or merge them deliberately.
+   the backup) or merge them deliberately. So Klipper starting without errors is not
+   enough as a check. This command lists every section that is in more than
+   one loaded file, with the files:
+   ```bash
+   cd ~/printer_data/config && grep -Ho "^\[[^]]*\]" printer.cfg mainsail.cfg timelapse.cfg config/*.cfg macros/*.cfg indx/*.cfg 2>/dev/null | awk -F: '{f[$2]=f[$2]" "$1; n[$2]++} END {for (s in n) if (n[s]>1) print s f[s]}' | sort
+   ```
+   With this config these duplicates are intended: Bondtech macros replaced
+   by `indx/indx_overrides.cfg` (`LOAD_FILAMENT`, `CAL_Z`, `_INDX_SAFE_Z_HOP`,
+   `_INDX_SET_ACTIVE_TOOL`), `T0`–`T8` (`indx/indx.cfg` and
+   `macros/spoolman.cfg`), `PAUSE`/`RESUME`/`CANCEL_PRINT` (`mainsail.cfg` and
+   `macros/trident_macros.cfg`), `[respond]` and `[heater_bed]`. Check every
+   other line, especially one with an old file of your own.
 
 ### 5. Adapt the hardware [Machine-specific]
 
