@@ -107,7 +107,10 @@ seine Laden/Entladen-Knöpfe senden ein nacktes `LOAD_FILAMENT` /
 Add-on installieren (braucht eine KlipperScreen-Version mit Add-on-Unterstützung,
 Einstellung `enable_addons`):
 
-1. `klipperscreen/indx_addon.py` nach `~/printer_data/config/klipperscreen/` kopieren.
+1. Das Add-on in den Config-Ordner kopieren (aus dem Klon, siehe Einrichtung Schritt 2):
+   ```bash
+   mkdir -p ~/printer_data/config/klipperscreen && cp ~/indx-trident-350/klipperscreen/indx_addon.py ~/printer_data/config/klipperscreen/
+   ```
 2. Per SSH in den Add-on-Ordner von KlipperScreen verlinken (wird von
    KlipperScreens Git ignoriert, Updates funktionieren also weiter):
    ```bash
@@ -144,17 +147,23 @@ Verfahrknöpfe, die Kalibrierschritte als Knöpfe und eine Konsole.
    der Standardpfad `/webcam2/?action=stream` stammt von dieser Maschine
    (zweite crowsnest-Kamera).
 2. **Seite öffnen:** nginx muss sie neben Mainsail ausliefern. Per SSH in
-   den Mainsail-Ordner kopieren und `http://<DRUCKER-IP>/nozzle_cam.html`
-   öffnen:
+   den Mainsail-Ordner kopieren (aus dem Klon, siehe Einrichtung Schritt 2)
+   und `http://<DRUCKER-IP>/nozzle_cam.html` öffnen:
    ```bash
-   cp ~/printer_data/config/nozzle_cam.html ~/mainsail/
+   cp ~/indx-trident-350/tools/nozzle_cam.html ~/mainsail/
    ```
-   (vorher `nozzle_cam.html` in den Config-Ordner hochladen, Mainsail →
-   *Maschine*). Die Seite kommt dann von derselben Adresse wie Moonraker,
-   CORS-Einstellungen sind nicht nötig; das Feld *Printer* bleibt leer. Ein
-   Mainsail-Update ersetzt `~/mainsail/`; damit die Seite bleibt, sie in
-   `persistent_files` des vorhandenen Abschnitts `[update_manager mainsail]`
-   eintragen (siehe `moonraker/moonraker.example.conf`).
+   Das ist eine Kopie: Nach Änderungen an der Datei erneut kopieren. Die Seite
+   kommt von derselben Adresse wie Moonraker, CORS-Einstellungen sind nicht
+   nötig; das Feld *Printer* bleibt leer. Ein Mainsail-Update ersetzt
+   `~/mainsail/`. Damit die Seite bleibt, sie unter `persistent_files` im
+   vorhandenen Abschnitt `[update_manager mainsail]` eintragen. Vorhandene
+   Einträge stehen lassen (MainsailOS trägt dort Mainsails eigene
+   `config.json` ein); fehlt die Option, sie nur mit `nozzle_cam.html`
+   ergänzen:
+   ```ini
+   persistent_files:
+       nozzle_cam.html
+   ```
    Funktioniert nicht: der Link `/server/files/config/nozzle_cam.html`
    (Moonraker schickt Dateien als Download) und die Datei lokal öffnen
    (`file://`): mit den üblichen `cors_domains` beantwortet Moonraker solche
@@ -182,15 +191,30 @@ eigenen Maschine stoppen.
 
 ## Einrichtung
 
-1. **Kalico und INDX:** Kalico und das Bondtech-INDX-Modul samt Configs nach
-   Bondtech-Anleitung installieren, sodass `indx/indx.cfg`,
-   `indx/indx-tc-macros.cfg`, `indx/indx-cal.cfg` und `indx/homing.cfg` im
-   Config-Ordner liegen.
-2. **Dateien kopieren:** den *Inhalt* von `klipper/` (nicht den Ordner selbst)
-   nach `~/printer_data/config/` kopieren, sodass dort
-   `~/printer_data/config/printer.cfg`, `.../config/`, `.../macros/`,
-   `.../scripts/` usw. liegen. Die Makros erwarten die Skripte unter
-   `~/printer_data/config/scripts/`.
+1. **Kalico und INDX:** [Kalico](https://docs.kalico.gg/INDX.html) und das
+   Bondtech-INDX-Modul samt Configs nach
+   [BondtechAB/INDX](https://github.com/BondtechAB/INDX) installieren, sodass
+   `indx/indx.cfg`, `indx/indx-tc-macros.cfg`, `indx/indx-cal.cfg` und
+   `indx/homing.cfg` im Config-Ordner liegen.
+2. **Dateien kopieren** (per SSH). Zuerst den ganzen Config-Ordner sichern:
+   Das Kopieren überschreibt gleichnamige Dateien, auch `printer.cfg`, in der
+   eventuell schon der eigene `SAVE_CONFIG`-Block steht.
+   ```bash
+   cp -r ~/printer_data/config ~/printer_data/config.bak-$(date +%F)
+   ```
+   ```bash
+   cd ~ && git clone https://github.com/daum1988/indx-trident-350
+   ```
+   ```bash
+   cp -r ~/indx-trident-350/klipper/. ~/printer_data/config/
+   ```
+   Das kopiert den *Inhalt* von `klipper/` (nicht den Ordner selbst); danach
+   liegen `~/printer_data/config/printer.cfg`, `.../config/`, `.../macros/`,
+   `.../scripts/` dort, wo die Makros die Skripte erwarten. Hatte die alte
+   `printer.cfg` einen `SAVE_CONFIG`-Block (Zeilen mit `#*#`), ihn aus der
+   Sicherung ans Ende der neuen `printer.cfg` kopieren. Die übrigen Teile
+   (`klipperscreen/`, `tools/`, `bootlogo/`, `orca/`) werden in ihren eigenen
+   Abschnitten unten aus `~/indx-trident-350/` kopiert.
 3. **Includes:** `printer.cfg` prüfen. Die Reihenfolge ist wichtig:
    ```ini
    [include mainsail.cfg]
@@ -207,21 +231,45 @@ eigenen Maschine stoppen.
    [klipper_tmc_autotune](https://github.com/andrewmcgr/klipper_tmc_autotune),
    `macros/shaketune.cfg` braucht [Shake&Tune](https://github.com/Frix-x/klippain-shaketune).
    Installieren oder die Dateien löschen, sonst startet Klipper nicht.
-5. **Benutzername:** Die drei Abschnitte `[gcode_shell_command]`
+5. **Mit oder ohne Spoolman:** `macros/spoolman.cfg` schaltet bei jedem
+   Toolwechsel die aktive Spoolman-Spule um. Das braucht einen
+   funktionierenden Abschnitt `[spoolman]` in `moonraker.conf`; ohne ihn
+   bricht Kalico den Toolwechsel mit einem Fehler ab (*Remote method ... not
+   registered*), im Druck damit auch den Druck.
+   - Mit Spoolman: wie in [docs/SPOOLMAN.de.md](docs/SPOOLMAN.de.md) einrichten.
+   - Ohne Spoolman: `macros/spoolman.cfg` löschen und in
+     `macros/filament_menu.cfg` `variable_use_spoolman: 0` setzen (der
+     Lade-Dialog bietet dann Material-Presets statt Spulen an).
+6. **Benutzername:** Die drei Abschnitte `[gcode_shell_command]`
    (`macros/lc_pa_cal.cfg`, `macros/spoolman.cfg`, `macros/filament_menu.cfg`)
    rufen die Skripte über `/home/pi/printer_data/...` auf. Heißt der
    Linux-Benutzer nicht `pi`, diese drei Pfade anpassen, sonst schlagen
    PA-Kalibrierung, Orca-Lanes und Spulen-Dialog ohne Meldung fehl. Die
    Skripte selbst finden `printer_data` von allein.
-6. **Hardware:** Serial-IDs (`ls /dev/serial/by-id/`) und, falls genutzt, die
+7. **Hardware:** Serial-IDs (`ls /dev/serial/by-id/`) und, falls genutzt, die
    CAN-UUID ersetzen und alle Pins mit der eigenen Verkabelung abgleichen.
-7. **Moonraker:** `moonraker/moonraker.example.conf` in die eigene
-   `moonraker.conf` übernehmen (Spoolman-Adresse, Timelapse, Update-Manager).
-8. **Kalibrieren:** alle Kalibrierungen selbst durchführen und `SAVE_CONFIG`:
-   Bett-PID, Input Shaper, INDX-Thermalmodell, Load-Cell, Eddy-Scanner,
-   Tool-Offsets.
-9. **Optional:** Spoolman und OrcaSlicer: [docs/SPOOLMAN.de.md](docs/SPOOLMAN.de.md);
-   KlipperScreen-Add-on: siehe oben; Bootlogo: [bootlogo/README.md](bootlogo/README.md).
+8. **Moonraker:** `moonraker/moonraker.example.conf` in die eigene
+   `moonraker.conf` übernehmen, aber nur die Abschnitte für Installiertes:
+   `[spoolman]` nur mit Spoolman (Schritt 5), `[timelapse]` nur mit
+   moonraker-timelapse, jeden `[update_manager ...]` nur, wenn das Modul
+   installiert ist. Danach Moonraker neu starten.
+9. **Kalibrieren**, danach jeweils `SAVE_CONFIG`, wo der Befehl es verlangt.
+   Vorgeschlagene Reihenfolge; Details in der
+   [Kalico-INDX-Doku](https://docs.kalico.gg/INDX.html) und in den Kommentaren
+   von Bondtechs `indx-cal.cfg`:
+   1. Load-Cell (`CALIBRATE_LOAD_CELL`, vor dem ersten Z-Homing),
+   2. INDX-Thermalmodell (Kalico-INDX-Doku) und Bett-PID
+      (`PID_CALIBRATE HEATER=heater_bed TARGET=100`),
+   3. Dock-Positionen (`indx-cal.cfg`, Abschnitt 1),
+   4. Eddy-Scanner (Kalico-Doku zu `probe_eddy_current`),
+   5. XY-Tool-Offsets: siehe [Düsenkamera](#düsenkamera-für-die-xy-tool-offsets),
+   6. Z-Tool-Offsets (`CAL_Z`), prüfen mit `CAL_CHECK_OFFSETS`,
+   7. Input Shaper (Shake&Tune),
+   8. Pressure Advance pro Tool: siehe
+      [Pressure Advance](#pressure-advance-mit-der-indx-load-cell).
+10. **Optional:** Spoolman und OrcaSlicer: [docs/SPOOLMAN.de.md](docs/SPOOLMAN.de.md);
+    KlipperScreen-Add-on, Düsenkamera: siehe oben; Bootlogo:
+    [bootlogo/README.md](bootlogo/README.md).
 
 ## Erfahrungen / Stolperfallen
 
