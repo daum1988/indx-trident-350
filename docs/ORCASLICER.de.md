@@ -63,9 +63,14 @@ Filamenten in Spoolman.
    `"moonraker"` sein. Das ist die einzige Handarbeit in einer Datei:
    1. **OrcaSlicer schließen** (Orca schreibt die Datei beim Beenden neu).
    2. **Sicherung** von `%APPDATA%\OrcaSlicer\OrcaSlicer.conf` anlegen (Datei kopieren).
-   3. In einem Texteditor öffnen, unter `local_machines` den eigenen Drucker
-      suchen und `"printer_agent_id": "orca"` in
-      `"printer_agent_id": "moonraker"` ändern. Sonst nichts ändern.
+   3. In einem Texteditor öffnen und nach `printer_agent_id` suchen (Strg+F).
+      Unter `local_machines` den Eintrag des eigenen Druckers nehmen (er
+      enthält dessen Namen bzw. IP) und genau diese eine Zeile ändern:
+      ```
+      vorher:   "printer_agent_id": "orca",
+      nachher:  "printer_agent_id": "moonraker",
+      ```
+      Sonst nichts ändern.
    4. Speichern, Orca starten. Startet Orca nicht oder fehlen Einstellungen,
       die Sicherung zurückkopieren.
 

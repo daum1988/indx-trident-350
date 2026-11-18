@@ -8,7 +8,8 @@
 For anyone who has already worked through Bondtech's INDX guide and has a
 **working INDX installation**. Starting point:
 
-- Kalico with its INDX module is installed.
+- Kalico with its INDX module is installed. No minimum version is known;
+  this machine runs Kalico `v2026.11.00-30-g991e1823`.
 - Bondtech's files are in `~/printer_data/config/indx/` (`indx.cfg`,
   `indx-tc-macros.cfg`, `indx-cal.cfg`, `homing.cfg`).
 - Klipper starts with that config without errors.
@@ -110,7 +111,12 @@ expect the scripts in `~/printer_data/config/scripts/`.
    sed -n '/^#\*# <---------------------- SAVE_CONFIG/,$p' ~/printer_data/config.bak-*/printer.cfg
    ```
    shows it. **Without this block the load cell is not calibrated and Z
-   homing is dangerous.**
+   homing is dangerous.** Check after copying:
+   ```bash
+   grep -n "^#\*# \[" ~/printer_data/config/printer.cfg
+   ```
+   lists the sections in the block; `[load_cell_probe]` and `[indx]` must be
+   there. The block must be at the very end of the file.
 2. **Includes:** the new `printer.cfg` loads `mainsail.cfg`, `config/*.cfg`,
    `macros/*.cfg`, `timelapse.cfg` and Bondtech's files;
    `indx_overrides.cfg` must come after `indx/homing.cfg`. If your old
@@ -188,6 +194,11 @@ sudo systemctl restart moonraker
 
 ### 9. First start [General]
 
+**Before the first restart:** after copying, `config/` holds the board and
+toolhead config of *this* machine, not yours. Only restart once steps 4 and 5
+are done (serial IDs, pins, toolhead values, `SAVE_CONFIG` block). Wrong pins
+can drive heaters or motors incorrectly.
+
 `FIRMWARE_RESTART` in the Mainsail console, then check in this order:
 
 - [ ] Klipper is *ready*, no config error. An error names the file and
@@ -197,7 +208,8 @@ sudo systemctl restart moonraker
       and `indx_vars.cfg` are intact.
 - [ ] The `SAVE_CONFIG` block at the end of `printer.cfg` contains
       `[load_cell_probe]` and `[indx]`.
-- [ ] `G28 X Y` homes X and Y.
+- [ ] `G28 X Y` homes X and Y. Before: nothing in the way, bed clear, hand
+      on the emergency stop.
 - [ ] Only then `G28` (with Z), hand on the emergency stop: the nozzle touches
       the bed gently, Z is homed.
 - [ ] `T1`, then `PARK_TOOL`: the tool is picked up and parked.

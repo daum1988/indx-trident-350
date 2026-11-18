@@ -15,7 +15,15 @@ T0–T8-Knöpfe; seine Laden/Entladen-Knöpfe senden ein nacktes `LOAD_FILAMENT`
 ## Lade-/Entlade-Dialog
 
 Ein *Macro-Prompt* ist ein Dialog, den ein Makro in Mainsail und KlipperScreen
-öffnet. Die Knöpfe darin sind englisch beschriftet.
+öffnet. Dialog und Add-on sind englisch beschriftet:
+
+| Beschriftung | Bedeutung |
+|---|---|
+| *Without spool* | ohne Spule: Material-Preset statt Spoolman-Spule wählen |
+| *Back* / *Cancel* | zurück / abbrechen |
+| *Loaded* / *Empty* | Tool hat Filament / ist leer |
+| *Park* | aktives Tool ins Dock zurückstellen |
+| *Load* / *Unload* | Filament laden / entladen (öffnet den Dialog) |
 
 - **`LOAD_FILAMENT` ohne Parameter** (auch KlipperScreens Knopf *Laden*):
   1. Tool wählen (das aktive Tool ist hervorgehoben),

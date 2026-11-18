@@ -86,19 +86,20 @@ the scanner only provides the bed shape.
 - **Where:** Kalico docs for `probe_eddy_current`; the commands are also in
   the header of `config/bed_mesh.cfg`.
 - **What:** once, T0 on the head, **nozzle cold** (the induction heater
-  disturbs the scanner):
-  ```
-  G28
-  LDC_CALIBRATE_DRIVE_CURRENT CHIP=scanner
-  SAVE_CONFIG
-  G28
-  PROBE_EDDY_CURRENT_CALIBRATE CHIP=scanner
-  SAVE_CONFIG
-  ```
+  disturbs the scanner), the commands below in order.
   `PROBE_EDDY_CURRENT_CALIBRATE` asks you to lower the nozzle onto the bed
   step by step (paper test).
 - **Done when:** `BED_MESH_CALIBRATE PROBE=scanner METHOD=rapid_scan` creates a
   mesh in one pass over the bed.
+
+```
+G28
+LDC_CALIBRATE_DRIVE_CURRENT CHIP=scanner
+SAVE_CONFIG
+G28
+PROBE_EDDY_CURRENT_CALIBRATE CHIP=scanner
+SAVE_CONFIG
+```
 
 Every mesh call has to select the scanner; `START_PRINT` does this, adaptive
 to the print area. Without `PROBE=scanner` the load cell taps every point one

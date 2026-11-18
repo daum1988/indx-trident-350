@@ -87,19 +87,20 @@ Load-Cell, der Scanner liefert nur die Bettform.
 - **Wo:** Kalico-Doku zu `probe_eddy_current`; die Befehle stehen auch im Kopf
   von `config/bed_mesh.cfg`.
 - **Was:** einmalig, T0 am Kopf, **Düse kalt** (die Induktionsheizung stört
-  den Scanner):
-  ```
-  G28
-  LDC_CALIBRATE_DRIVE_CURRENT CHIP=scanner
-  SAVE_CONFIG
-  G28
-  PROBE_EDDY_CURRENT_CALIBRATE CHIP=scanner
-  SAVE_CONFIG
-  ```
+  den Scanner), die Befehle unten der Reihe nach.
   `PROBE_EDDY_CURRENT_CALIBRATE` lässt die Düse schrittweise bis aufs Bett
   absenken (Papiertest).
 - **Erledigt, wenn:** `BED_MESH_CALIBRATE PROBE=scanner METHOD=rapid_scan` ein
   Mesh in einer Fahrt über das Bett erzeugt.
+
+```
+G28
+LDC_CALIBRATE_DRIVE_CURRENT CHIP=scanner
+SAVE_CONFIG
+G28
+PROBE_EDDY_CURRENT_CALIBRATE CHIP=scanner
+SAVE_CONFIG
+```
 
 Jeder Mesh-Aufruf muss den Scanner wählen; `START_PRINT` macht das, angepasst
 an die Druckfläche. Ohne `PROBE=scanner` tippt die Load-Cell jeden Punkt

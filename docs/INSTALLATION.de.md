@@ -8,7 +8,8 @@
 Für alle, die Bondtechs INDX-Anleitung schon durchgearbeitet haben und eine
 **funktionierende INDX-Installation** besitzen. Ausgangszustand:
 
-- Kalico mit INDX-Modul ist installiert.
+- Kalico mit INDX-Modul ist installiert. Eine Mindestversion ist nicht
+  bekannt; diese Maschine läuft mit Kalico `v2026.11.00-30-g991e1823`.
 - Bondtechs Dateien liegen in `~/printer_data/config/indx/` (`indx.cfg`,
   `indx-tc-macros.cfg`, `indx-cal.cfg`, `homing.cfg`).
 - Klipper startet mit dieser Config ohne Fehler.
@@ -110,7 +111,12 @@ plus `indx_overrides.cfg`; `ls ~/printer_data/config/scripts/` zeigt
    sed -n '/^#\*# <---------------------- SAVE_CONFIG/,$p' ~/printer_data/config.bak-*/printer.cfg
    ```
    zeigt den Block. **Ohne diesen Block ist die Load-Cell nicht kalibriert,
-   Z-Homing ist dann gefährlich.**
+   Z-Homing ist dann gefährlich.** Kontrolle nach dem Kopieren:
+   ```bash
+   grep -n "^#\*# \[" ~/printer_data/config/printer.cfg
+   ```
+   listet die Abschnitte im Block; `[load_cell_probe]` und `[indx]` müssen
+   dabei sein. Der Block muss ganz am Ende der Datei stehen.
 2. **Includes:** Die neue `printer.cfg` lädt `mainsail.cfg`, `config/*.cfg`,
    `macros/*.cfg`, `timelapse.cfg` und Bondtechs Dateien; `indx_overrides.cfg`
    muss nach `indx/homing.cfg` stehen. Hat die alte `printer.cfg` weitere
@@ -189,6 +195,12 @@ sudo systemctl restart moonraker
 
 ### 9. Erster Start [Allgemein]
 
+**Vor dem ersten Neustart:** Nach dem Kopieren enthält `config/` die
+Board- und Toolhead-Config *dieser* Maschine, nicht mehr die eigene. Erst
+neu starten, wenn die Schritte 4 und 5 erledigt sind (Serial-IDs, Pins,
+Toolhead-Werte, `SAVE_CONFIG`-Block). Falsche Pins können Heizungen oder
+Motoren falsch ansteuern.
+
 `FIRMWARE_RESTART` in der Mainsail-Konsole, dann der Reihe nach prüfen:
 
 - [ ] Klipper ist *ready*, kein Config-Fehler. Ein Fehler nennt Datei und
@@ -198,7 +210,8 @@ sudo systemctl restart moonraker
       und `indx_vars.cfg` sind erhalten.
 - [ ] Der `SAVE_CONFIG`-Block am Ende von `printer.cfg` enthält
       `[load_cell_probe]` und `[indx]`.
-- [ ] `G28 X Y` homt X und Y.
+- [ ] `G28 X Y` homt X und Y. Vorher: nichts im Fahrweg, Bett frei, Hand
+      am Notaus.
 - [ ] Erst danach `G28` (mit Z), die Hand am Notaus: Die Düse berührt das Bett
       sanft, Z ist gehomt.
 - [ ] `T1`, danach `PARK_TOOL`: Das Tool wird aufgenommen und geparkt.

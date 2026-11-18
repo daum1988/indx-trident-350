@@ -15,6 +15,15 @@ adds two parts:
 ## Load/unload dialog
 
 A *macro prompt* is a dialog that a macro opens in Mainsail and KlipperScreen.
+Labels in the dialog and the add-on:
+
+| Label | Meaning |
+|---|---|
+| *Without spool* | choose a material preset instead of a Spoolman spool |
+| *Back* / *Cancel* | back / cancel |
+| *Loaded* / *Empty* | tool has filament / is empty |
+| *Park* | put the active tool back into its dock |
+| *Load* / *Unload* | load / unload filament (opens the dialog) |
 
 - **`LOAD_FILAMENT` without parameters** (also KlipperScreen's *Load* button):
   1. choose the tool (the active tool is highlighted),

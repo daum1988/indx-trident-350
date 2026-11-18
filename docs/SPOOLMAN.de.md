@@ -74,6 +74,11 @@ mkdir -p ~/Spoolman && cd ~ && source_url=$(curl -s https://api.github.com/repos
 cd ~/Spoolman && bash ./scripts/install.sh
 ```
 
+Das ist das Installationsskript aus dem offiziellen Spoolman-Release
+([Donkie/Spoolman](https://github.com/Donkie/Spoolman)); es läuft mit
+`sudo`-Rechten. Wer mag, sieht es sich vorher an
+(`less ~/Spoolman/scripts/install.sh`).
+
 Das Skript fragt nach Port (Standard 7912) und ob ein systemd-Dienst angelegt
 werden soll: **ja**. Danach prüfen:
 
@@ -113,8 +118,9 @@ server: http://localhost:7912
 sync_rate: 5
 ```
 
-`server:` ist `http://localhost:7912`, wenn Spoolman auf dem Pi läuft, sonst
-die Adresse des anderen Geräts, z. B. `http://<SPOOLMAN-IP>:7912`.
+> **`server:` anpassen:** `http://localhost:7912` gilt nur, wenn Spoolman
+> auf dem Pi selbst läuft. Läuft es auf einem NAS oder anderen Rechner, dessen
+> Adresse eintragen, z. B. `http://<SPOOLMAN-IP>:7912`.
 
 Optional, nur bei Standalone auf dem Pi, für Updates über Mainsail:
 

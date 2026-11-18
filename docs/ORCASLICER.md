@@ -61,8 +61,13 @@ PowerShell script.
    be `"moonraker"`. This is the only manual file edit:
    1. **Close OrcaSlicer** (it rewrites the file on exit).
    2. **Back up** `%APPDATA%\OrcaSlicer\OrcaSlicer.conf` (copy it).
-   3. Open it in a text editor, find your printer under `local_machines` and
-      change `"printer_agent_id": "orca"` to `"printer_agent_id": "moonraker"`.
+   3. Open it in a text editor and search for `printer_agent_id` (Ctrl+F).
+      Take the entry of your printer under `local_machines` (it contains its
+      name or IP) and change exactly this one line:
+      ```
+      before:  "printer_agent_id": "orca",
+      after:   "printer_agent_id": "moonraker",
+      ```
       Leave everything else as it is.
    4. Save and start Orca. If Orca does not start or loses settings, put the
       backup back.
