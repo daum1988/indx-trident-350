@@ -53,10 +53,16 @@ PowerShell script.
 
 ## 2. Once in OrcaSlicer
 
-1. Preferences: developer mode on, *Developer → "Use printer agents instead of
-   print hosts"* on.
-2. Your printer profile: *Advanced* view, **Printer Agent = Moonraker**,
-   address `<PRINTER-IP>` (without port; "Device (Web)" then shows Mainsail).
+1. Preferences → tab *Developer*: tick **Developer mode** and **Use printer
+   agents instead of print hosts** (screenshot: German UI).
+
+   ![Orca preferences, Developer tab: tick both options](images/orca_developer_settings.png)
+
+2. Edit your printer profile (*Printer settings → Basic information*),
+   *Advanced* view: **Printer agent = Moonraker**. Enter `<PRINTER-IP>` as
+   address, without port ("Device (Web)" then shows Mainsail).
+
+   ![Orca printer settings: printer agent set to Moonraker](images/orca_printer_agent.png)
 3. Orca creates the printer entry with `"printer_agent_id": "orca"`; it must
    be `"moonraker"`. This is the only manual file edit:
    1. **Close OrcaSlicer** (it rewrites the file on exit).
@@ -129,7 +135,9 @@ time, change the default in the `param(...)` block at the top of the script
    ```
    Then start Orca. The profiles are named `<Vendor> <Name> (SM<id>)` and
    have filament ID `PSM<id>`.
-4. **Sync:** select the printer, press the sync button.
+4. **Sync:** select the printer, press the sync button in the *Filament*
+   area (right of the heading). Orca counts from 1: filament 1 = T0 …
+   filament 9 = T8.
 
 **Check:** filament 1–9 get the profile and colour of the spools on T0–T8.
 

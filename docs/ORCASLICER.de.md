@@ -55,10 +55,18 @@ Filamenten in Spoolman.
 
 ## 2. Einmalig in OrcaSlicer
 
-1. Einstellungen: Entwicklermodus an, *Entwickler → „Use printer agents
-   instead of print hosts“* an.
-2. Eigenes Druckerprofil: Ansicht *Erweitert*, **Printer Agent = Moonraker**,
-   Adresse `<DRUCKER-IP>` (ohne Port; „Gerät (Web)“ zeigt dann Mainsail).
+1. Einstellungen → Reiter *Entwickler*: **Entwicklermodus** und **Drucker-Agenten
+   anstelle von Druck-Hosts verwenden** anhaken (englisch: *Developer mode*,
+   *Use printer agents instead of print hosts*).
+
+   ![Orca-Einstellungen, Reiter Entwickler: beide Optionen anhaken](images/orca_developer_settings.png)
+
+2. Eigenes Druckerprofil bearbeiten (*Drucker-Einstellungen → Grundlegende
+   Informationen*), Ansicht *Erweitert*: **Drucker-Agent = Moonraker**. Als
+   Adresse `<DRUCKER-IP>` ohne Port eintragen („Gerät (Web)“ zeigt dann
+   Mainsail).
+
+   ![Orca-Drucker-Einstellungen: Drucker-Agent auf Moonraker](images/orca_printer_agent.png)
 3. Orca legt den Drucker mit `"printer_agent_id": "orca"` an; es muss
    `"moonraker"` sein. Das ist die einzige Handarbeit in einer Datei:
    1. **OrcaSlicer schließen** (Orca schreibt die Datei beim Beenden neu).
@@ -134,7 +142,9 @@ wer sie nicht jedes Mal tippen will, ändert oben im Skript im Block
    Danach Orca starten. Die Profile heißen `<Hersteller> <Name> (SM<id>)`,
    z. B. „Sunlu High Speed Matte Pri-White (SM11)“, und haben die Filament-ID
    `PSM<id>`.
-4. **Abgleich:** Drucker wählen, Sync-Knopf drücken.
+4. **Abgleich:** Drucker wählen, im Bereich *Filament* den Sync-Knopf (rechts
+   neben der Überschrift) drücken. Orca zählt ab 1: Filament 1 = T0 …
+   Filament 9 = T8.
 
 **Kontrolle:** Filament 1–9 bekommen Profil und Farbe der Spulen auf T0–T8.
 
