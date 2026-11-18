@@ -17,6 +17,27 @@ with `MISSING: .../logo.png` if there is none.
 - The image is shown exactly as it is: if your display is mounted rotated,
   rotate the PNG (see below).
 
+## Check first
+
+The script expects the Raspberry Pi boot files `cmdline.txt` and
+`config.txt` in `/boot/firmware/` (current Raspberry Pi OS / MainsailOS) or
+`/boot/` (older versions):
+
+```bash
+ls -l /boot/firmware/cmdline.txt /boot/firmware/config.txt /boot/cmdline.txt /boot/config.txt 2>/dev/null
+```
+
+Expected: both files in one of the two folders. Then check that
+`cmdline.txt` is a single line (the Pi only reads the first line; the script
+keeps only that one):
+
+```bash
+F=/boot/firmware/cmdline.txt; [ -f $F ] || F=/boot/cmdline.txt; wc -l < $F; cat $F
+```
+
+`wc -l` prints `0` or `1`. If neither folder has the files (e.g. not a
+Raspberry Pi, or a different OS), do not run the script.
+
 ## Install
 
 1. Put `logo.png` into this folder.
@@ -77,6 +98,27 @@ Fehlt es, bricht `install.sh` mit `MISSING: .../logo.png` ab.
   auf 80 % des Bildschirms verkleinert.
 - Das Bild wird genau so angezeigt, wie es ist: Ist das Display gedreht
   eingebaut, das PNG drehen (siehe unten).
+
+### Vorher prüfen
+
+Das Skript erwartet die Raspberry-Pi-Bootdateien `cmdline.txt` und
+`config.txt` in `/boot/firmware/` (aktuelles Raspberry Pi OS / MainsailOS)
+oder `/boot/` (ältere Versionen):
+
+```bash
+ls -l /boot/firmware/cmdline.txt /boot/firmware/config.txt /boot/cmdline.txt /boot/config.txt 2>/dev/null
+```
+
+Erwartet: beide Dateien in einem der beiden Ordner. Dann prüfen, ob
+`cmdline.txt` aus einer einzigen Zeile besteht (der Pi liest nur die erste
+Zeile; das Skript behält nur diese):
+
+```bash
+F=/boot/firmware/cmdline.txt; [ -f $F ] || F=/boot/cmdline.txt; wc -l < $F; cat $F
+```
+
+`wc -l` gibt `0` oder `1` aus. Liegen die Dateien in keinem der Ordner (z. B.
+kein Raspberry Pi oder ein anderes System), das Skript nicht ausführen.
 
 ### Installation
 

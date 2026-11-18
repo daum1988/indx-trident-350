@@ -13,8 +13,25 @@ colour and profile of every tool.
 
 **Requirements:** the INDX config from Bondtech, `[save_variables]` with
 `indx_vars.cfg` (in this repo in `config/INDX_toolhead.cfg`), this repo's
-`klipper/` content in your config folder (see the
-[README](../README.md#setup)), Moonraker with network access to Spoolman.
+`klipper/` content in your config folder (see
+[INSTALLATION.md](INSTALLATION.md)), Moonraker with network access to Spoolman.
+
+## How it fits together
+
+```mermaid
+flowchart LR
+    I[INDX tool change<br/>T0 … T8] -->|_INDX_SET_ACTIVE_TOOL<br/>calls _SPOOL_SYNC| K[Klipper<br/>t0__spool_id … t8__spool_id]
+    K -->|SET_ACTIVE_SPOOL| M[Moonraker]
+    M -->|books usage<br/>to the active spool| S[(Spoolman)]
+    S -->|spool list| D[Load dialog]
+    D -->|SET_TOOL_SPOOL| K
+    K -->|lane_data| O[OrcaSlicer]
+```
+
+Simplified: each tool has a spool ID stored in Klipper. When a tool is picked
+up, its spool becomes the active spool in Moonraker, and Moonraker books the
+extruded filament to it in Spoolman. OrcaSlicer reads the tool → spool mapping
+(see [ORCASLICER.md](ORCASLICER.md)).
 
 ## 0. Check first: is Spoolman already running?
 
@@ -128,7 +145,7 @@ place:
 
 | File | Purpose |
 |---|---|
-| `macros/spoolman.cfg` | Assignment, sync, restore on startup, `spool_id` on T0–T8, OrcaSlicer lanes (step 5.2) |
+| `macros/spoolman.cfg` | Assignment, sync, restore on startup, `spool_id` on T0–T8, OrcaSlicer lanes ([ORCASLICER.md](ORCASLICER.md), section 3) |
 | `indx/indx_overrides.cfg` | Overrides Bondtech's `_INDX_SET_ACTIVE_TOOL` with one extra line `_SPOOL_SYNC` at the end |
 
 Check in `printer.cfg`:
@@ -175,139 +192,19 @@ print continues, but usage is not tracked.
 1. Create two spools in Spoolman, e.g. ID 1 and 2.
 2. `SET_TOOL_SPOOL T=0 ID=1` and `SET_TOOL_SPOOL T=1 ID=2`, then `SHOW_TOOL_SPOOLS`.
 3. `T0` → console reports "Spoolman: T0 -> spool 1", the Spoolman panel shows spool 1.
-4. Heat, `G1 E50 F300` → after about 5 s the remaining weight of spool 1 drops.
+4. With filament loaded in T0, heat to its printing temperature (e.g.
+   `M109 S220`), move the head over the purge bucket or raise Z so the
+   filament can come out freely, then `G1 E50 F300` → after about 5 s the
+   remaining weight of spool 1 drops. Do not extrude with a cold nozzle.
 5. `T1` → spool 2 active, extrude again, only spool 2 decreases.
 6. `PARK_TOOL` (Bondtech macro) → no active spool.
 7. `FIRMWARE_RESTART` with T1 on the head → `SHOW_TOOL_SPOOLS` shows the assignments again, spool 2 is active.
 
-## 5. OrcaSlicer: colours and profiles from Spoolman
+## 5. OrcaSlicer
 
-Flow: per tool, the printer writes the spool's material, colour and filament
-ID into Moonraker's `lane_data` (one entry per tool, called a *lane*:
-`lane0` = T0 … `lane8` = T8). OrcaSlicer reads it when syncing filaments and
-picks the matching profile for filament 1–9 (= T0–T8). The profiles are
-generated on the PC from the filaments in Spoolman by a PowerShell script.
+Colours and filament profiles from Spoolman in OrcaSlicer:
+[ORCASLICER.md](ORCASLICER.md).
 
-### 5.1 Once in OrcaSlicer (2.5.x)
+## Problems
 
-1. Preferences: developer mode on, *Developer → "Use printer agents instead of
-   print hosts"* on.
-2. Your printer profile (in this repo: `orca/Voron Trident 350 INDX.json`):
-   *Advanced* view, **Printer Agent = Moonraker**, address `<PRINTER-IP>`
-   (without port; "Device (Web)" then shows Mainsail).
-3. Orca creates the printer entry with `"printer_agent_id": "orca"`; it must
-   be `"moonraker"`. This is the only manual file edit:
-   1. **Close OrcaSlicer** (it rewrites the file on exit).
-   2. **Back up** `%APPDATA%\OrcaSlicer\OrcaSlicer.conf` (copy it).
-   3. Open it in a text editor, find your printer under `local_machines` and
-      change `"printer_agent_id": "orca"` to `"printer_agent_id": "moonraker"`.
-      Leave everything else as it is.
-   4. Save and start Orca. If Orca does not start or loses settings, put the
-      backup back.
-
-The sync button only appears once `lane_data` contains at least one lane
-(step 5.2).
-
-### 5.2 Printer: write the lanes automatically
-
-Nothing extra to upload: `macros/spoolman.cfg` from step 3 already contains
-this part, together with the scripts from this repo:
-
-| File | Purpose |
-|---|---|
-| `scripts/orca_lanes/orca_lanes.py` | Fetches the spools via Moonraker's Spoolman proxy, writes `lane0`–`lane8` |
-| `scripts/orca_lanes/orca_lanes_launch.sh` | Starts the script in the background (never blocks a print) |
-| `macros/spoolman.cfg` | `[gcode_shell_command orca_lanes]`, `_ORCA_LANES`, `ORCA_LANES_SYNC`; `_SPOOL_WATCH` calls `_ORCA_LANES` |
-
-Requires `gcode_shell_command` (built into Kalico). The path in
-`[gcode_shell_command orca_lanes]` contains the user name `pi`; adjust it if
-yours differs.
-
-About 10 s after startup the console shows e.g.
-"Orca-Lanes: 9 tools sent, 3 with spool". The script runs again whenever an
-assignment changes (`SET_TOOL_SPOOL`, Mainsail dialog). After changing a spool
-in Spoolman itself (e.g. corrected colour): `ORCA_LANES_SYNC`. Log:
-`logs/orca_lanes.log`.
-
-Check via SSH:
-
-```bash
-curl -s "http://localhost:7125/server/database/item?namespace=lane_data"
-```
-
-A lane looks like `{"lane": "0", "material": "PLA", "spool_id": 11, "filament_id": "PSM11", "color": "#F9FDFF"}`.
-Tools without a spool have `"material": ""` and are empty in Orca.
-
-### 5.3 PC: generate profiles from Spoolman
-
-The script is `orca/orca_spoolman_profiles.ps1` in this repo. It runs with
-the Windows PowerShell 5.1 that ships with Windows 10/11 (no install needed)
-and only needs network access to Spoolman. Copy it anywhere on the PC.
-Spoolman's address is passed with `-SpoolmanUrl`; to avoid typing it every
-time, change the default in the `param(...)` block at the top of the script
-(`http://spoolman.local:7912`).
-
-1. **Create templates (once):** in Orca, create a *standalone* filament per
-   material (Filament → *Create filament*, not "copy" of a system profile),
-   compatible with your printer, with your proven settings. Name:
-   `SM-Vorlage PLA`, `SM-Vorlage PETG`, … (the default prefix is
-   `SM-Vorlage`; to use another one, e.g. `SM-Template PLA`, add
-   `-TemplatePrefix "SM-Template"` to every call). **No** `SET_ACTIVE_SPOOL`
-   in the filament start G-code. Save, **close Orca**.
-2. **Dry run** (only shows what would happen):
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File .\orca_spoolman_profiles.ps1 -SpoolmanUrl http://<SPOOLMAN-IP>:7912 -WhatIf
-   ```
-3. **Write** (Orca must be closed; the script refuses to run otherwise):
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File .\orca_spoolman_profiles.ps1 -SpoolmanUrl http://<SPOOLMAN-IP>:7912
-   ```
-   Then start Orca. The profiles are named `<Vendor> <Name> (SM<id>)` and
-   have filament ID `PSM<id>`.
-4. **Sync:** select the printer, press the sync button → filament 1–9 get the
-   profile and colour of the spools on T0–T8.
-
-Taken from Spoolman: name, vendor, colour, density, diameter, nozzle and bed
-temperature (the first-layer offset stays as in the template), price per kg.
-Anything empty in Spoolman stays as in the template. Material matching: exact
-template, otherwise the longest matching one (`PLA+` → `SM-Vorlage PLA`).
-
-Run it again whenever new filaments are added or values change in Spoolman;
-unchanged profiles are left alone. `-Prune` deletes `SM` profiles whose
-filament no longer exists in Spoolman (or has no active spool). `-All` also
-creates filaments without an active spool.
-
-**Notes**
-- Orca matches the filament ID only against standalone profiles (without
-  "inherits"). That is why spoolman2slicer is not used here: its profiles
-  inherit from "Voron Generic …".
-- Ignore the "Device" tab (Bambu view); keep controlling the printer through Mainsail.
-- Usage is tracked independently of the slicer; Orca only has to emit `T0`…`T8`.
-
-### 5.4 Per-filament settings stored in Spoolman
-
-Base settings live in the Orca template (one per nozzle size). Per-filament
-deviations go into the filament's extra fields in Spoolman; the script
-applies them to the profiles on the next run. Do not edit the SM profiles in
-Orca, they are regenerated on every run.
-
-| Extra field | Orca setting |
-|---|---|
-| `filament_flow_ratio` | Flow ratio |
-| `filament_max_volumetric_speed` (+ `_d025`, `_d04`, `_d06`) | Max volumetric speed |
-| `filament_retraction_length`, `filament_retraction_speed` | Retraction |
-| `fan_min_speed`, `fan_max_speed` | Cooling fan |
-| `filament_shrink`, `filament_shrinkage_compensation_z` | Shrinkage (XY), Shrinkage (Z), in % (e.g. `99.5`; 100 = no compensation) |
-
-- Empty = template value.
-- Suffix `_d025`/`_d04`/`_d06`: only applies to that nozzle size and takes
-  precedence there over the field without suffix.
-- More settings: create a field in Spoolman (Settings → Extra fields →
-  Filament) whose key matches the Orca setting exactly. Unknown keys are
-  reported by the script as a warning.
-- `pressure_advance*` is written to Spoolman by the load cell calibration
-  (`PA_CAL_LOADCELL`). The profile script copies it to Orca
-  (`pressure_advance`, the nozzle field takes precedence) and turns on
-  `enable_pressure_advance`. Orca then sets PA on every filament change in the G-code.
-
-Afterwards: close Orca, run `orca_spoolman_profiles.ps1`, start Orca.
+See [TROUBLESHOOTING.md](TROUBLESHOOTING.md#spoolman-and-orcaslicer).
