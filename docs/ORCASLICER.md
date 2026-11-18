@@ -82,7 +82,7 @@ step 3) already contains this part, together with the scripts from this repo:
 | `macros/spoolman.cfg` | `[gcode_shell_command orca_lanes]`, `_ORCA_LANES`, `ORCA_LANES_SYNC`; `_SPOOL_WATCH` calls `_ORCA_LANES` |
 
 Requires `gcode_shell_command` (built into Kalico) and the correct user name
-in the path (see [INSTALLATION.md](INSTALLATION.md), step 6).
+in the path (see [INSTALLATION.md](INSTALLATION.md), step 7).
 
 The script runs again whenever an assignment changes (`SET_TOOL_SPOOL`,
 Mainsail dialog). After changing a spool in Spoolman itself (e.g. corrected
@@ -167,7 +167,7 @@ Orca, they are regenerated on every run.
   Filament) whose key matches the Orca setting exactly. Unknown keys are
   reported by the script as a warning.
 - `pressure_advance*` is written to Spoolman by the load cell calibration
-  (`PA_CAL_LOADCELL`, see [CALIBRATION.md](CALIBRATION.md), step 9). The
+  (`PA_CAL_LOADCELL`, see [CALIBRATION.md](CALIBRATION.md), step 8). The
   profile script copies it to Orca (`pressure_advance`, the nozzle field takes
   precedence) and turns on `enable_pressure_advance`. Orca then sets PA on
   every filament change in the G-code.

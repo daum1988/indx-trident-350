@@ -33,6 +33,13 @@ up, its spool becomes the active spool in Moonraker, and Moonraker books the
 extruded filament to it in Spoolman. OrcaSlicer reads the tool → spool mapping
 (see [ORCASLICER.md](ORCASLICER.md)).
 
+**Which steps?**
+- Spoolman already runs (on the Pi or a NAS) and Moonraker knows it: check
+  step 0, then steps 3 and 4.
+- Spoolman runs, but `moonraker.conf` has no `[spoolman]` section: steps 0, 2,
+  3, 4.
+- No Spoolman yet: steps 0–4.
+
 ## 0. Check first: is Spoolman already running?
 
 If your `moonraker.conf` already contains a `[spoolman]` section, open the

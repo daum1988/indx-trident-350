@@ -1,6 +1,6 @@
 # INDX Trident 350
 
-Kalico/Klipper-Konfiguration, Makros und Werkzeuge für einen **Voron Trident 350**
+Kalico/Klipper-Konfiguration, Makros und Hilfsprogramme für einen **Voron Trident 350**
 mit **Bondtech INDX**-Werkzeugwechsler (9 Tools, T0–T8).
 
 [English version → README.md](README.md)
@@ -12,6 +12,13 @@ CAD-Daten des Druckers (INDX-Umbau des Trident):
 > **nicht** direkt übernehmbar: Pins, Serial-IDs, Positionen und alle
 > Kalibrierwerte müssen am eigenen Drucker geprüft und gemessen werden.
 > Nutzung auf eigene Gefahr.
+
+**Ausgangspunkt:** eine funktionierende Bondtech-INDX-Installation auf Kalico
+(Bondtechs Anleitung durchgearbeitet, Toolwechsel und Z-Homing
+funktionieren). Dieses Repo ergänzt die Anbindung von Spoolman, OrcaSlicer und
+KlipperScreen, einen Lade-/Entlade-Dialog, eine PA-Kalibrierung per Load-Cell
+und eine Düsenkamera-Seite und bringt Board-Config und Druck-Makros dieser
+Maschine mit. Die Doku von Bondtech und Kalico ersetzt es nicht.
 
 ## Hardware / Software
 
@@ -117,7 +124,7 @@ verwenden sie durchgehend, etwa „Tool“ statt „Werkzeug“.
 
 - **Globaler Z-Offset beim nächsten Druck weg?** Babystepping ändert nur den
   Live-Offset; mit `SYNC_GLOBAL_Z` speichern
-  ([Kalibrierung, Schritt 6](docs/CALIBRATION.de.md#6-z-tool-offsets-globaler-z-offset)).
+  ([Kalibrierung, Schritt 6](docs/CALIBRATION.de.md#6-z-tool-offsets)).
 - **Verschiedene Druckplatten** brauchen keinen eigenen Z-Offset: Z wird mit
   der Load-Cell direkt auf der Plattenoberfläche gemessen.
 - **Bauteillüfter tauschen (4010-Blower ↔ CPAP):** das Thermalmodell neu

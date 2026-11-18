@@ -12,6 +12,12 @@ CAD files of the printer (INDX conversion of the Trident):
 > drop-in config: pins, serial IDs, positions and all calibration values must
 > be checked and measured on your own printer. Use at your own risk.
 
+**Starting point:** a working Bondtech INDX installation on Kalico (Bondtech's
+guide completed, tool changes and Z homing work). This repo adds Spoolman,
+OrcaSlicer and KlipperScreen integration, a load/unload dialog, a load-cell PA
+calibration and a nozzle camera page, and brings this machine's board and
+print macros. It does not replace Bondtech's or Kalico's documentation.
+
 ## Hardware / software
 
 | | |
@@ -112,7 +118,7 @@ docs/                         the guides above (German: *.de.md)
 
 - **Global Z offset lost at the next print?** Babystepping only changes the
   live offset; save it with `SYNC_GLOBAL_Z`
-  ([Calibration, step 6](docs/CALIBRATION.md#6-z-tool-offsets-global-z-offset)).
+  ([Calibration, step 6](docs/CALIBRATION.md#6-z-tool-offsets)).
 - **Different build plates** need no Z offset per plate: Z is homed with the
   load cell on the actual plate surface.
 - **Part cooling fan swap (4010 blowers ↔ CPAP):** re-measure the thermal

@@ -3,80 +3,92 @@
 [Deutsche Version → INSTALLATION.de.md](INSTALLATION.de.md) ·
 [README](../README.md)
 
-This guide covers the **base installation**: at the end Klipper starts without
-errors with this repo's config, and X/Y can be homed. Calibration follows in
-[CALIBRATION.md](CALIBRATION.md); extensions (Spoolman, OrcaSlicer,
-KlipperScreen, nozzle camera, boot logo) have their own guides.
+## Who is this for?
 
-> This is a personal machine config. Pins, serial IDs, positions and all
-> calibration values must be checked and measured on your own printer.
+For anyone who has already worked through Bondtech's INDX guide and has a
+**working INDX installation**. Starting point:
 
-## Before you start
+- Kalico with its INDX module is installed.
+- Bondtech's files are in `~/printer_data/config/indx/` (`indx.cfg`,
+  `indx-tc-macros.cfg`, `indx-cal.cfg`, `homing.cfg`).
+- Klipper starts with that config without errors.
+- Tools are picked up and parked, Z homes with the load cell.
 
-**Must already work:**
-- The printer is mechanically finished and wired: Voron Trident with Bondtech
-  INDX, docks, toolhead board, mainboard. This repo uses a BTT Manta M8P v2.0
-  with CM4; with other boards you rewrite `config/Trident_M8P_v2.0_config.cfg`.
-- MainsailOS (or Klipper/Kalico + Moonraker + Mainsail installed by hand),
-  network access and SSH to the Pi, `git` installed.
-- [Kalico](https://docs.kalico.gg/INDX.html) with its INDX module. No minimum
-  version is known; use the one Bondtech's INDX guide asks for.
-- Bondtech's INDX configs from [BondtechAB/INDX](https://github.com/BondtechAB/INDX),
-  with `indx/indx.cfg` adapted to your machine (tool count, dock direction,
-  probe position).
+If you are not there yet, work through
+[BondtechAB/INDX](https://github.com/BondtechAB/INDX) and the
+[Kalico INDX docs](https://docs.kalico.gg/INDX.html) first.
 
-**Does not have to be done yet:** calibration. If your printer already runs
-on Bondtech's stock config and is calibrated, the values are kept:
-`indx/indx.cfg` and `indx_vars.cfg` are not touched by this repo, and the
-`SAVE_CONFIG` block is copied back in step 2. You can then skip the
-calibration steps that are already done.
+**What this guide does:** the files from this repo replace the board and
+toolhead config, `printer.cfg` and the macros. Bondtech's files and your
+calibration values are kept. At the end Klipper starts with this repo's
+config and the INDX functions work as before.
 
-**Who provides what:**
+> **Important:** this is not an add-on you simply copy over your existing
+> config. The repo is the complete config of one machine (Voron Trident 350,
+> BTT Manta M8P v2.0, 9 tools). The board config and the machine-specific
+> values have to be adapted to your printer.
 
-| Comes from | Contents |
+## Labels
+
+| Label | Meaning |
 |---|---|
-| Kalico | firmware, INDX module (`[indx]`, `INDX_LOAD_FILAMENT`, thermal model, load cell) |
-| Bondtech | `indx/indx.cfg`, `indx/indx-tc-macros.cfg` (tool change, `PARK_TOOL`, `CHANGE_TOOL`), `indx/indx-cal.cfg` (calibration macros), `indx/homing.cfg` |
-| this repo | board and toolhead config, print macros, `indx/indx_overrides.cfg`, Spoolman/Orca/KlipperScreen integration, load-cell PA calibration |
+| **[General]** | applies to every matching INDX installation, run as written |
+| **[Machine-specific]** | values of this machine; adapt them to your printer |
+| **[Optional]** | only if you use that feature |
 
-## Base installation and extensions
+## Decide first
 
-| Part | Needed for | Guide |
+Answer these before copying; they decide what you adapt afterwards:
+
+| Question | If "no" | Step |
 |---|---|---|
-| **Base installation** | printer starts, tool changes work | this guide |
-| **Calibration** | printing | [CALIBRATION.md](CALIBRATION.md) |
-| Spoolman | one spool per tool, usage tracking, spool list in the load dialog | [SPOOLMAN.md](SPOOLMAN.md) |
-| OrcaSlicer integration | printer profile, filament profiles and colours from Spoolman | [ORCASLICER.md](ORCASLICER.md) |
-| KlipperScreen add-on | INDX panel, active tool in the titlebar | [KLIPPERSCREEN.md](KLIPPERSCREEN.md) |
-| Nozzle camera | XY tool offsets | [CALIBRATION.md, step 5](CALIBRATION.md#5-xy-tool-offsets-nozzle-camera) |
-| Boot logo (optional) | logo on the display while booting | [bootlogo/README.md](../bootlogo/README.md) |
+| Same hardware (Trident, Manta M8P v2.0)? | replace `config/Trident_M8P_v2.0_config.cfg` with your own board config | 5 |
+| Spoolman installed or planned? | delete `macros/spoolman.cfg`, `variable_use_spoolman: 0` | 6 |
+| moonraker-timelapse installed? | comment out the `timelapse.cfg` include | 6 |
+| [Shake&Tune](https://github.com/Frix-x/klippain-shaketune) installed? | delete `macros/shaketune.cfg` | 6 |
+| [klipper_tmc_autotune](https://github.com/andrewmcgr/klipper_tmc_autotune) installed? | delete `config/autotune_tmc.cfg` | 6 |
+| Is the Linux user `pi` (`whoami`)? | change three paths | 7 |
 
-The load/unload dialog (`macros/filament_menu.cfg`) is part of the base
-installation; it works with or without Spoolman.
+## What copying changes
+
+`cp` in step 3 overwrites files with the same name and adds new ones.
+Everything else stays.
+
+| File / folder | What happens | Afterwards |
+|---|---|---|
+| `printer.cfg` | **replaced** | restore your `SAVE_CONFIG` block (step 4) |
+| `config/Trident_M8P_v2.0_config.cfg` | added or replaced | **[Machine-specific]** board, pins, serial ID |
+| `config/INDX_toolhead.cfg` | added or replaced; contains `[mcu indxmcu]`, `[indx]`, `[extruder]`, `[load_cell_probe]`, `[save_variables]`, scanner | **[Machine-specific]** compare with your previous toolhead config |
+| `config/bed_mesh.cfg`, `config/autotune_tmc.cfg` | added or replaced | check the mesh area |
+| `indx/indx_overrides.cfg` | added | – |
+| `macros/*.cfg` | added; your macro files with the same name are replaced | adapt the bucket positions |
+| `scripts/` | added | – |
+| `indx/indx.cfg`, `indx-tc-macros.cfg`, `indx-cal.cfg`, `homing.cfg` | **unchanged** | do not replace them with other versions |
+| `indx_vars.cfg` (tool offsets, active tool) | **unchanged** | – |
+| `moonraker.conf`, `mainsail.cfg`, `KlipperScreen.conf` | unchanged | – |
+| your files with other names in `config/` and `macros/` | **stay and are still loaded** (`[include config/*.cfg]`) | check them, see step 4 |
 
 ## Steps
 
-### 1. Kalico and INDX
-
-Install Kalico and set up the INDX module and configs as described by
-Bondtech, so that these files exist in `~/printer_data/config/indx/`:
-`indx.cfg`, `indx-tc-macros.cfg`, `indx-cal.cfg`, `homing.cfg`.
-
-**Expected result:** Klipper starts with Bondtech's stock config; the Mainsail
-console shows the INDX status on startup.
-
-### 2. Back up and copy the files (SSH)
-
-The copy overwrites files with the same name, including `printer.cfg`, which
-may already contain your `SAVE_CONFIG` block. Back up the whole config folder
-first:
+### 1. Back up [General]
 
 ```bash
 cp -r ~/printer_data/config ~/printer_data/config.bak-$(date +%F)
 ```
+
+**Check:** `ls ~/printer_data/` shows the folder `config.bak-<date>`.
+
+### 2. Clone the repo [General]
+
 ```bash
 cd ~ && git clone https://github.com/daum1988/indx-trident-350
 ```
+
+The clone in `~/indx-trident-350/` is only the source. Klipper keeps reading
+from `~/printer_data/config/`; step 3 brings the files there.
+
+### 3. Copy the files [General]
+
 ```bash
 cp -r ~/indx-trident-350/klipper/. ~/printer_data/config/
 ```
@@ -84,62 +96,70 @@ cp -r ~/indx-trident-350/klipper/. ~/printer_data/config/
 This copies the *content* of `klipper/` (not the folder itself). The macros
 expect the scripts in `~/printer_data/config/scripts/`.
 
-If your old `printer.cfg` had a `SAVE_CONFIG` block (the lines starting with
-`#*#` at the end; Klipper writes calibration results there), copy it from the
-backup to the end of the new `printer.cfg`.
+**Check:** `ls ~/printer_data/config/indx/` shows Bondtech's four files plus
+`indx_overrides.cfg`; `ls ~/printer_data/config/scripts/` shows `lc_pa`,
+`orca_lanes`, `spool_picker`.
 
-**Expected result:** `ls ~/printer_data/config` shows `printer.cfg`,
-`config/`, `macros/`, `scripts/` and `indx/` (Bondtech's files plus
-`indx_overrides.cfg`).
+### 4. Carry over your previous config [Machine-specific]
 
-### 3. Includes
+1. **`SAVE_CONFIG` block:** the old `printer.cfg` ends with lines starting
+   with `#*#`. That is where Klipper stored the calibration values (load cell,
+   thermal model, PID, input shaper, scanner). Copy the whole block from the
+   backup to the end of the new `printer.cfg`;
+   ```bash
+   sed -n '/^#\*# <---------------------- SAVE_CONFIG/,$p' ~/printer_data/config.bak-*/printer.cfg
+   ```
+   shows it. **Without this block the load cell is not calibrated and Z
+   homing is dangerous.**
+2. **Includes:** the new `printer.cfg` loads `mainsail.cfg`, `config/*.cfg`,
+   `macros/*.cfg`, `timelapse.cfg` and Bondtech's files;
+   `indx_overrides.cfg` must come after `indx/homing.cfg`. If your old
+   `printer.cfg` included other files, check whether you still need them.
+3. **Old files in `config/` and `macros/`:** files with names other than the
+   repo's stay and are still loaded by the wildcard includes. If they contain
+   sections that are now also in the repo files (e.g. your own board or
+   toolhead config with `[mcu]`, `[indx]`, `[extruder]`, or your own
+   `START_PRINT`), Klipper silently merges sections with the same name. Move
+   such files out of `config/` and `macros/` (they are in the backup).
 
-`printer.cfg` loads the other files with `[include ...]` lines. The order
-matters:
+### 5. Adapt the hardware [Machine-specific]
 
-```ini
-[include mainsail.cfg]
-[include config/*.cfg]
-[include macros/*.cfg]
-[include timelapse.cfg]            # only with moonraker-timelapse
-[include indx/indx.cfg]
-[include indx/indx-tc-macros.cfg]
-[include indx/indx-cal.cfg]
-[include indx/homing.cfg]
-[include indx/indx_overrides.cfg]  # must come after indx/homing.cfg
-```
+- **Board:** `config/Trident_M8P_v2.0_config.cfg` only fits a Manta M8P v2.0
+  in a Trident. With other hardware use your own board config.
+- **Serial IDs:** `ls /dev/serial/by-id/` and replace the `serial:` lines in
+  `config/Trident_M8P_v2.0_config.cfg` and `config/INDX_toolhead.cfg`. With
+  CAN, the `canbus_uuid`.
+- **Pins:** check against your wiring (steppers, bed heater, thermistors,
+  fans, LEDs). This machine's part cooling fan is a CPAP on the M8P (`[fan]`,
+  `max_power 0.6`); if you use the fans on the INDX head, enable the `[fan]`
+  in `config/INDX_toolhead.cfg` instead.
+- **Toolhead:** compare `config/INDX_toolhead.cfg` with your previous toolhead
+  config and carry over your values.
+- **Bucket and brush:** positions in `macros/bucket.cfg` (`_BUCKET_VARS`);
+  used for loading, PA calibration and print start.
+- **Park position:** `_global_var` in `macros/trident_macros.cfg`.
+- **Bed mesh:** `mesh_min`/`mesh_max` in `config/bed_mesh.cfg`.
 
-`mainsail.cfg` comes with MainsailOS, `timelapse.cfg` with
-[moonraker-timelapse](https://github.com/mainsail-crew/moonraker-timelapse).
-Comment out the line of anything you do not use.
+### 6. Optional parts [Optional]
 
-### 4. Other modules
+According to your answers in "Decide first":
 
-- `config/autotune_tmc.cfg` needs
-  [klipper_tmc_autotune](https://github.com/andrewmcgr/klipper_tmc_autotune),
-- `macros/shaketune.cfg` needs [Shake&Tune](https://github.com/Frix-x/klippain-shaketune).
-
-Install them or delete those files; otherwise Klipper does not start.
-
-### 5. With or without Spoolman
-
-`macros/spoolman.cfg` switches the active Spoolman spool on every tool change.
-That needs a working `[spoolman]` section in `moonraker.conf`; without it
-Kalico stops the tool change with an error (*Remote method ... not
-registered*), during a print the print as well.
-
-- **With Spoolman:** set it up as in [SPOOLMAN.md](SPOOLMAN.md) (it can be
-  done after this guide; until then do not change tools).
 - **Without Spoolman:** delete `macros/spoolman.cfg` and set
-  `variable_use_spoolman: 0` in `macros/filament_menu.cfg`. The load dialog
-  then offers material presets instead of spools.
+  `variable_use_spoolman: 0` in `macros/filament_menu.cfg`. Otherwise every
+  tool change stops with *Remote method ... not registered*, because
+  `spoolman.cfg` needs a `[spoolman]` section in `moonraker.conf`. With
+  Spoolman: set it up as in [SPOOLMAN.md](SPOOLMAN.md); until then do not
+  change tools.
+- **Without moonraker-timelapse:** comment out `[include timelapse.cfg]` in
+  `printer.cfg`.
+- **Without Shake&Tune:** delete `macros/shaketune.cfg`.
+- **Without TMC autotune:** delete `config/autotune_tmc.cfg`.
 
-### 6. User name
+### 7. User name [Machine-specific]
 
 Three `[gcode_shell_command]` sections (`macros/lc_pa_cal.cfg`,
 `macros/spoolman.cfg`, `macros/filament_menu.cfg`) call scripts via
-`/home/pi/printer_data/...`. Check your user name with `whoami`. If it is not
-`pi`, replace the paths:
+`/home/pi/printer_data/...`. If your user is not `pi`:
 
 ```bash
 cd ~/printer_data/config/macros && sed -i "s#/home/pi/#$HOME/#g" lc_pa_cal.cfg filament_menu.cfg spoolman.cfg
@@ -147,46 +167,44 @@ cd ~/printer_data/config/macros && sed -i "s#/home/pi/#$HOME/#g" lc_pa_cal.cfg f
 
 (Without Spoolman `sed` reports the missing `spoolman.cfg`; that is fine.)
 Otherwise the PA calibration, the Orca lanes and the spool dialog fail
-without a message. The scripts themselves find `printer_data` on their own.
+without a message.
 
-**Expected result:** `grep -rn "/home/" ~/printer_data/config/macros/` only
-shows your own home folder.
+**Check:** `grep -rn "/home/" ~/printer_data/config/macros/` only shows your
+own home folder.
 
-### 7. Hardware
+### 8. Moonraker [Optional]
 
-- Serial IDs: `ls /dev/serial/by-id/` and replace the `serial:` lines in
-  `config/`. If you use CAN, replace the `canbus_uuid`.
-- Check every pin against your wiring (steppers, heaters, thermistors, fans,
-  endstops).
-
-### 8. Moonraker
-
-Merge `moonraker/moonraker.example.conf` into your `moonraker.conf`, but only
-the sections for what is installed: `[spoolman]` only with Spoolman (step 5),
-`[timelapse]` only with moonraker-timelapse, each `[update_manager ...]` only
-if that module is installed. Then:
+`moonraker/moonraker.example.conf` has sections for Spoolman, timelapse and
+the update manager. Merge only the sections for what is installed into your
+`moonraker.conf`, then:
 
 ```bash
 sudo systemctl restart moonraker
 ```
 
-**Expected result:** Mainsail shows no Moonraker warnings (bell icon /
-notifications); with Spoolman the Spoolman panel appears on the dashboard.
+**Check:** Mainsail shows no Moonraker warnings (bell icon).
 
-### 9. First start
+### 9. First start [General]
 
-`FIRMWARE_RESTART` in the Mainsail console.
+`FIRMWARE_RESTART` in the Mainsail console, then check in this order:
 
-**Expected result:**
-- Klipper is *ready*, no config error. An error names the file and section;
-  see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
-- `LC_PA_SHOW` answers (macros from this repo are loaded).
-- `CAL_CHECK_OFFSETS` answers (Bondtech's calibration macros are loaded).
-- `G28 X Y` homes X and Y.
+- [ ] Klipper is *ready*, no config error. An error names the file and
+      section; see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+- [ ] `LC_PA_SHOW` answers: the macros from this repo are loaded.
+- [ ] `CAL_CHECK_OFFSETS` shows your previous tool offsets: Bondtech's files
+      and `indx_vars.cfg` are intact.
+- [ ] The `SAVE_CONFIG` block at the end of `printer.cfg` contains
+      `[load_cell_probe]` and `[indx]`.
+- [ ] `G28 X Y` homes X and Y.
+- [ ] Only then `G28` (with Z), hand on the emergency stop: the nozzle touches
+      the bed gently, Z is homed.
+- [ ] `T1`, then `PARK_TOOL`: the tool is picked up and parked.
+- [ ] `LOAD_FILAMENT` without parameters opens the tool dialog; *Cancel*
+      closes it.
 
-**Do not home Z yet.** Z is homed with the load cell (the nozzle is the
-probe), and it has to be calibrated first:
-[CALIBRATION.md](CALIBRATION.md), step 1 (load cell, by Bondtech/Kalico).
+Continue with [CALIBRATION.md](CALIBRATION.md). The INDX calibration of your
+previous installation stays valid; only this repo's parts need measuring
+(eddy scanner if new, and pressure advance).
 
 ## Updates later
 
@@ -194,26 +212,46 @@ probe), and it has to be calibrated first:
 cd ~/indx-trident-350 && git pull
 ```
 
-Then do **not** simply copy everything again as in step 2. That overwrites
-your adaptations from the setup:
+`git pull` updates **only the clone** in `~/indx-trident-350/`. The installed
+files in `~/printer_data/config/` do not change.
+
+Then do **not** simply copy everything again as in step 3. That overwrites
+your adaptations from steps 4–7:
 - `printer.cfg` loses its `SAVE_CONFIG` block,
-- without Spoolman (step 5) `macros/spoolman.cfg` is back and
-  `variable_use_spoolman` is `1` again, so every tool change aborts,
-- the `/home/pi` paths (step 6) are reset,
-- serial IDs, CAN UUID and pins in `config/` (step 7) are the originals again.
+- without Spoolman `macros/spoolman.cfg` is back and `variable_use_spoolman`
+  is `1` again, so every tool change aborts,
+- the `/home/pi` paths are reset,
+- serial IDs, pins, bucket positions etc. are the originals again.
 
 Compare first and take over only what you want. This lists only repo files
-that changed or are new (files that exist only in your config folder, such as
-`moonraker.conf` or Bondtech's `indx/` files, are filtered out):
+that changed or are new (files that exist only in your config folder are
+filtered out):
 
 ```bash
 diff -rq ~/indx-trident-350/klipper/ ~/printer_data/config/ | grep -v "^Only in $HOME/printer_data"
 ```
 
 Then look at single files with `diff`, e.g.
-`diff ~/indx-trident-350/klipper/macros/filament_menu.cfg ~/printer_data/config/macros/filament_menu.cfg`.
+`diff ~/indx-trident-350/klipper/macros/filament_menu.cfg ~/printer_data/config/macros/filament_menu.cfg`,
+and carry over changes by hand.
 
-If you do copy everything: back up first, then restore the `SAVE_CONFIG`
-block from the backup and repeat steps 5–7. The KlipperScreen add-on and the
-nozzle camera page are copies too: copy them again as described in their
-guides if they changed.
+If you do copy everything: back up first, then repeat steps 4–7. The
+KlipperScreen add-on and the nozzle camera page are copies too: copy them
+again as described in their guides if they changed.
+
+## Using single extensions in your own config
+
+If you want to keep your own config, you can take over single parts. This is
+not the tested path; the dependencies:
+
+| Extension | Files | Also needs |
+|---|---|---|
+| Load/unload dialog | `indx/indx_overrides.cfg`, `macros/filament_menu.cfg`, `macros/bucket.cfg`, `scripts/spool_picker/` | from `macros/trident_macros.cfg`: `UNLOAD_FILAMENT`, `_global_var`, `_ENSURE_HOMED`; `[respond]`, `[save_variables]` |
+| Spoolman per tool | `macros/spoolman.cfg`, `indx/indx_overrides.cfg`, `scripts/orca_lanes/` | `[save_variables]`, `[spoolman]` in Moonraker |
+| PA with the load cell | `macros/lc_pa_cal.cfg`, `scripts/lc_pa/` | `MOVE_TO_BUCKET` from `macros/bucket.cfg` |
+| `LC_EXTRUDE_TEST` | `macros/lc_extrude_test.cfg` | `macros/bucket.cfg` |
+| `CAL_VERIFY_XY`, safe Z hop | `indx/indx_overrides.cfg` | – |
+
+`macros/trident_macros.cfg` also contains `START_PRINT`, `END_PRINT`,
+`PAUSE`, `RESUME` and `CANCEL_PRINT`. If you keep your own print macros, take
+only the three macros named above from that file, not the whole file.

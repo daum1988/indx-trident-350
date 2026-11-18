@@ -4,79 +4,125 @@
 [README](../README.de.md)
 
 Die INDX-Kalibrierung selbst dokumentieren Bondtech und Kalico; diese
-Anleitung ersetzt das nicht. Sie gibt eine vorgeschlagene Reihenfolge,
-verlinkt die Quellen und beschreibt ausführlich nur das, was dieses Repo
-ergänzt.
+Anleitung ersetzt das nicht. Zu jedem INDX-Schritt steht hier, **wo** die
+Anleitung steht, **was** auszuführen ist und **woran** man den Erfolg
+erkennt. Ausführlich beschrieben ist nur, was dieses Repo ergänzt.
 
-**Voraussetzung:** Die Grundinstallation aus
-[INSTALLATION.de.md](INSTALLATION.de.md) ist fertig (Klipper startet,
-`G28 X Y` funktioniert).
+**Voraussetzung:** Die Installation aus [INSTALLATION.de.md](INSTALLATION.de.md)
+ist abgeschlossen.
 
-**Quellen für die INDX-Schritte:**
-- Bondtech: [BondtechAB/INDX](https://github.com/BondtechAB/INDX) und die
-  Kopfkommentare von `indx/indx-cal.cfg` (dort steht jeder
-  Kalibrierablauf mit seinen Befehlen),
+**Von einer kalibrierten INDX-Installation kommend?** Die Werte bleiben
+erhalten (`SAVE_CONFIG`-Block, `indx/indx.cfg`, `indx_vars.cfg`). Die Schritte
+1, 3, 5 und 6 sind dann schon erledigt; mit den Zeilen „Erledigt, wenn“
+prüfen. Neu messen: Schritt 2, wenn der Bauteillüfter von der bisherigen
+Config abweicht, Schritt 4, wenn der Scanner neu ist, und Schritt 8 (dieses
+Repo).
+
+**Quellen:**
+- Bondtech: [BondtechAB/INDX](https://github.com/BondtechAB/INDX) und
+  `~/printer_data/config/indx/indx-cal.cfg`. Der Kopf der Datei listet jeden
+  Kalibrierablauf mit seinen Befehlen; weiter unten hat jeder Ablauf einen
+  eigenen Abschnitt mit den genauen Schritten.
 - Kalico: [INDX-Doku](https://docs.kalico.gg/INDX.html) (Load-Cell,
-  Thermalmodell) und die Doku zu `probe_eddy_current`.
+  Thermalmodell), Doku zu `probe_eddy_current`.
 
-## Reihenfolge
-
-| # | Schritt | Quelle | Was dieses Repo ergänzt |
+| # | Schritt | Quelle | Dieses Repo ergänzt |
 |---|---|---|---|
-| 1 | Load-Cell (vor dem ersten Z-Homing) | Bondtech `indx-cal.cfg`, Kalico | – |
-| 2 | Thermalmodell, Bett-PID | Kalico-INDX-Doku | – |
-| 3 | Dock-Positionen | Bondtech `indx-cal.cfg` | – |
-| 4 | Eddy-Scanner | Kalico | [`config/bed_mesh.cfg`](#4-eddy-scanner), siehe unten |
-| 5 | XY-Tool-Offsets | Bondtech `indx-cal.cfg` (Kamera-Methode) | [Düsenkamera-Seite und `CAL_VERIFY_XY`](#5-xy-tool-offsets-düsenkamera) |
-| 6 | Z-Tool-Offsets (`CAL_Z`) | Bondtech `indx-cal.cfg` | [Hinweis zum globalen Z-Offset](#6-z-tool-offsets-globaler-z-offset) |
-| 7 | Input Shaper | Klipper / Shake&Tune | `[lis2dw]` und `[resonance_tester]` schon in `config/INDX_toolhead.cfg` |
-| 8 | Pressure Advance pro Tool | dieses Repo | [`PA_CAL_LOADCELL`](#8-pressure-advance-mit-der-load-cell) |
+| 1 | Load-Cell | Bondtech, Kalico | – |
+| 2 | Thermalmodell, Bett-PID | Kalico | Hinweis zum Lüfter |
+| 3 | Dock-Positionen | Bondtech | – |
+| 4 | Eddy-Scanner | Kalico | `config/bed_mesh.cfg` |
+| 5 | XY-Tool-Offsets | Bondtech | Düsenkamera-Seite, `CAL_VERIFY_XY` |
+| 6 | Z-Tool-Offsets | Bondtech | Hinweis zum globalen Z-Offset |
+| 7 | Input Shaper | Klipper / Shake&Tune | Beschleunigungssensor schon eingerichtet |
+| 8 | Pressure Advance | dieses Repo | `PA_CAL_LOADCELL` |
 
-Hinweise zu dieser Maschine:
-- Der Bauteillüfter ist ein CPAP am M8P (`[fan]` in
-  `config/Trident_M8P_v2.0_config.cfg`, `max_power 0.6`). Die
-  Thermalmodell-Werte `model_part_cooling_fan_a/k` hängen vom Lüfter und
-  seinem `max_power` ab: nach einer Änderung an einem von beiden das
-  Thermalmodell neu messen.
-- `printer.cfg` enthält keinen `SAVE_CONFIG`-Block; alle Messwerte kommen aus
-  der eigenen Kalibrierung.
+`SAVE_CONFIG` schreibt Ergebnisse in den Block am Ende von `printer.cfg` und
+startet Klipper neu. Werte, die mit `SAVE_VARIABLE` gespeichert werden
+(Tool-Offsets, PA), landen sofort in `indx_vars.cfg`.
+
+## 1. Load-Cell
+
+- **Wo:** `indx-cal.cfg`, Abschnitt *LOAD CELL CALIBRATION*;
+  Kalico-INDX-Doku.
+- **Was:** vor dem ersten Z-Homing, mit leerem Kopf: `CALIBRATE_LOAD_CELL`.
+  Ein Tool von Hand einsetzen, `CALIBRATE_LOAD_CELL_APPLY GRAMS=1600`,
+  `SAVE_CONFIG`. Für das allererste Z-Homing T0 von Hand einsetzen, mit
+  `MANUAL_TOOL_SEAT TOOL=0` eintragen, dann `G28`.
+- **Erledigt, wenn:** der `SAVE_CONFIG`-Block `[load_cell_probe]` enthält und
+  bei `G28` das Bett die Düse sanft berührt und anhält.
+
+## 2. Thermalmodell und Bett-PID
+
+- **Wo:** [Kalico-INDX-Doku](https://docs.kalico.gg/INDX.html)
+  (Thermalmodell, `INDX_CALIBRATE`).
+- **Was:** die INDX-Kalibrierung wie dort beschrieben, `SAVE_CONFIG`. Bett:
+  `PID_CALIBRATE HEATER=heater_bed TARGET=100`, `SAVE_CONFIG`.
+- **Erledigt, wenn:** der `SAVE_CONFIG`-Block einen Abschnitt `[indx]` mit
+  `model_...`-Werten hat und ein Tool ohne Thermalfehler auf Drucktemperatur
+  heizt.
+
+**Diese Maschine:** Der Bauteillüfter ist ein CPAP am M8P (`[fan]` in
+`config/Trident_M8P_v2.0_config.cfg`, `max_power 0.6`). Die Werte
+`model_part_cooling_fan_a/k` hängen vom Lüfter und seinem `max_power` ab.
+Weicht beides von der Config ab, mit der kalibriert wurde, das Thermalmodell
+neu messen.
+
+## 3. Dock-Positionen
+
+- **Wo:** `indx-cal.cfg`, Abschnitte *1. DOCK POSITION CALIBRATION*
+  (`CAL_SET_DOCK_Y`) und *DOCK X CALIBRATION* (`CALIBRATE_DOCK_X`,
+  `READ_DOCK_POSITION`).
+- **Was:** pro Tool Y und X wie dort beschrieben messen, die gemeldeten Zeilen
+  `variable_t<n>_...` in `indx/indx.cfg` eintragen, `RESTART`.
+- **Erledigt, wenn:** jedes Tool einmal aufgenommen und geparkt wird (`T1`,
+  `PARK_TOOL`, …), ohne am Dock hängen zu bleiben.
 
 ## 4. Eddy-Scanner
 
 Der Scanner ist `[probe_eddy_current scanner]` in `config/INDX_toolhead.cfg`
 und ist **nicht** als Standard-Probe eingetragen: Z=0 kommt von der
-Load-Cell, der Scanner liefert nur die Bettform. Einmalig kalibrieren, T0 am
-Kopf, **Düse kalt** (die Induktionsheizung stört den Scanner):
+Load-Cell, der Scanner liefert nur die Bettform.
 
-```
-G28
-LDC_CALIBRATE_DRIVE_CURRENT CHIP=scanner
-SAVE_CONFIG
-G28
-PROBE_EDDY_CURRENT_CALIBRATE CHIP=scanner
-SAVE_CONFIG
-```
+- **Wo:** Kalico-Doku zu `probe_eddy_current`; die Befehle stehen auch im Kopf
+  von `config/bed_mesh.cfg`.
+- **Was:** einmalig, T0 am Kopf, **Düse kalt** (die Induktionsheizung stört
+  den Scanner):
+  ```
+  G28
+  LDC_CALIBRATE_DRIVE_CURRENT CHIP=scanner
+  SAVE_CONFIG
+  G28
+  PROBE_EDDY_CURRENT_CALIBRATE CHIP=scanner
+  SAVE_CONFIG
+  ```
+  `PROBE_EDDY_CURRENT_CALIBRATE` lässt die Düse schrittweise bis aufs Bett
+  absenken (Papiertest).
+- **Erledigt, wenn:** `BED_MESH_CALIBRATE PROBE=scanner METHOD=rapid_scan` ein
+  Mesh in einer Fahrt über das Bett erzeugt.
 
-Jeder Mesh-Aufruf muss den Scanner wählen:
-`BED_MESH_CALIBRATE PROBE=scanner METHOD=rapid_scan` (`START_PRINT` macht das,
-angepasst an die Druckfläche). Ohne `PROBE=scanner` tippt die Load-Cell jeden
-Punkt einzeln an.
-
-**Kontrolle:** Der Befehl oben erzeugt ein Mesh in einer Fahrt über das Bett.
-„Sample rate is not high enough“: `speed` in `[bed_mesh]` senken oder
-`SCAN_SPEED=` mitgeben.
+Jeder Mesh-Aufruf muss den Scanner wählen; `START_PRINT` macht das, angepasst
+an die Druckfläche. Ohne `PROBE=scanner` tippt die Load-Cell jeden Punkt
+einzeln an. „Sample rate is not high enough“: `speed` in `[bed_mesh]` senken
+oder `SCAN_SPEED=` mitgeben.
 
 ## 5. XY-Tool-Offsets (Düsenkamera)
 
-Bondtechs Kamera-Methode (`CAL_ONE_SET_CAMERA_REF`,
-`CAL_TWO_PREP_TOOL_CAL TOOL=n`, `CAL_THREE_SAVE_XY_OFFSET`, siehe
-`indx-cal.cfg`) braucht eine Kamera, die von unten auf die Düse schaut. Dieses
-Repo ergänzt eine Browserseite dafür und eine Gegenprüfung.
+- **Wo:** `indx-cal.cfg`, Abschnitt *2. XY TOOL OFFSET CALIBRATION (CAMERA
+  METHOD)*.
+- **Was:** T0 aufnehmen, Düse ins Fadenkreuz der Kamera fahren,
+  `CAL_ONE_SET_CAMERA_REF`. Pro Tool: `CAL_TWO_PREP_TOOL_CAL TOOL=n`, ins
+  Fadenkreuz verfahren, `CAL_THREE_SAVE_XY_OFFSET`.
+- **Erledigt, wenn:** `CAL_VERIFY_XY TOOL=n` (siehe unten) jede Düse ohne
+  Verfahren ins Fadenkreuz bringt.
+
+Dieses Repo ergänzt eine Browserseite für die Kamera und die Gegenprüfung.
 
 **Düsenkamera-Seite** `tools/nozzle_cam.html`: Kamerabild mit Fadenkreuz und
 Zoom, Verfahrknöpfe, die Kalibrierschritte als Knöpfe und eine Konsole.
 
-1. **Kamera:** als zweite Kamera in crowsnest eingerichtet (MJPEG-Stream).
+1. **Kamera:** eine Kamera, die von unten auf die Düse schaut, als zweite
+   Kamera in crowsnest eingerichtet (MJPEG-Stream).
 2. **Installieren:** die Seite per SSH in den Mainsail-Ordner kopieren (aus
    dem Klon, siehe [INSTALLATION.de.md](INSTALLATION.de.md), Schritt 2) und
    `http://<DRUCKER-IP>/nozzle_cam.html` öffnen:
@@ -110,21 +156,32 @@ das Tool mit dem normalen Toolwechsel auf (Offsets aktiv wie beim Drucken) und
 fährt zur Kamera-Referenz aus `CAL_ONE_SET_CAMERA_REF`. Stimmt der Offset,
 sitzt die Düse ohne Verfahren im Fadenkreuz. Ändert nichts; danach kein
 `CAL_THREE_SAVE_XY_OFFSET` ausführen. Liegt die Düse daneben, für dieses Tool
-Bondtechs Schritte 2–3 wiederholen.
+`CAL_TWO_PREP_TOOL_CAL` und `CAL_THREE_SAVE_XY_OFFSET` wiederholen.
 
-## 6. Z-Tool-Offsets: globaler Z-Offset
+## 6. Z-Tool-Offsets
 
-`CAL_Z` (Bondtech) speichert den Z-Offset jedes Tools relativ zu T0. Die erste
-Schicht wird danach mit dem globalen Z-Offset feinjustiert:
+- **Wo:** `indx-cal.cfg`, Abschnitt *3. Z AUTO-CALIBRATION*.
+- **Was:** Düsen und Bett säubern, `CAL_Z`.
+- **Erledigt, wenn:** die Konsole für jedes Tool `t<n>_offset_z` meldet,
+  `CAL_CHECK_OFFSETS` sie zeigt und die erste Schicht bei allen Tools gleich
+  stark angedrückt ist.
 
-- Babystepping im Druck ändert nur den Live-Offset. Mit `SYNC_GLOBAL_Z`
-  (Bondtech) speichern; `CAL_CHECK_OFFSETS` zeigt ihn. Ohne das ist der Wert
-  beim nächsten Druckstart weg, weil `START_PRINT` Z homt und dabei den
-  gespeicherten Offset setzt.
-- Nach einem Neustart steht live 0, bis `G28` oder T0 aufgenommen wird; das
-  ist normal.
-- Verschiedene Druckplatten brauchen keinen eigenen Offset: Z wird mit der
-  Load-Cell auf der Plattenoberfläche gemessen.
+**Globaler Z-Offset (Hinweis dieses Repos):** Die erste Schicht im Druck per
+Babystepping feinjustieren, dann mit `SYNC_GLOBAL_Z` (Bondtech) speichern;
+`CAL_CHECK_OFFSETS` zeigt ihn. Ohne das ist der Wert beim nächsten Druckstart
+weg, weil `START_PRINT` Z homt und dabei den gespeicherten Offset setzt. Nach
+einem Neustart steht live 0, bis `G28` oder T0 aufgenommen wird; das ist
+normal. Verschiedene Druckplatten brauchen keinen eigenen Offset: Z wird mit
+der Load-Cell auf der Plattenoberfläche gemessen.
+
+## 7. Input Shaper
+
+- **Wo:** Klipper-Doku *Resonance compensation* oder
+  [Shake&Tune](https://github.com/Frix-x/klippain-shaketune).
+- **Was:** `SHAPER_CALIBRATE` (oder die Befehle von Shake&Tune),
+  `SAVE_CONFIG`. Der Beschleunigungssensor der INDX-Platine (`[lis2dw]`,
+  `[resonance_tester]`) ist in `config/INDX_toolhead.cfg` schon eingerichtet.
+- **Erledigt, wenn:** der `SAVE_CONFIG`-Block `[input_shaper]` enthält.
 
 ## 8. Pressure Advance mit der Load-Cell
 
@@ -133,11 +190,11 @@ ohne Testdruck. Das Tool extrudiert in Geschwindigkeitsstufen in den Bucket,
 die Load-Cell misst dabei den Düsendruck. Aus den Kraftsprüngen wird die
 Druck-Zeitkonstante gefittet; das ist der PA-Wert.
 
-**Voraussetzung:** Schritte 1–3 erledigt (Load-Cell, Thermalmodell, Docks),
-Filament geladen, Bucket eingebaut, richtiger Benutzername im Skriptpfad
-([INSTALLATION.de.md](INSTALLATION.de.md), Schritt 6). Einmal pro Tool und
-nach jedem Düsenwechsel die Düsengröße speichern:
-`SET_TOOL_NOZZLE TOOL=3 D=0.6`.
+**Voraussetzung:** Schritte 1–3 erledigt, Filament geladen, Bucket eingebaut
+und seine Position in `macros/bucket.cfg` eingetragen, richtiger
+Benutzername im Skriptpfad ([INSTALLATION.de.md](INSTALLATION.de.md),
+Schritt 7). Einmal pro Tool und nach jedem Düsenwechsel die Düsengröße
+speichern: `SET_TOOL_NOZZLE TOOL=3 D=0.6`.
 
 **Optional vorher:** `LC_EXTRUDE_TEST SPEED=1` / `SPEED=3` / `SPEED=6` mit
 heißem Tool zeigt, ob die Load-Cell den Extrusionsdruck überhaupt sieht (die
@@ -155,10 +212,11 @@ Mit dem Filament und der Temperatur messen, mit denen gedruckt wird, und
 während einer Messung keine anderen Befehle senden. Pro Tool: Toolwechsel,
 Fahrt zum Bucket, höchstens etwa 51 mm Filament, 1–2 Minuten.
 
-**Ergebnis:** ein PA-Wert pro Tool in der Konsole, gespeichert als `t<n>_pa`
-in `indx_vars.cfg`. Ist dem Tool eine Spule zugeordnet (Spoolman), auch im
-Filament der Spule (`pressure_advance_d025/_d04/_d06`, je Düsengröße).
-Unsichere Werte werden angezeigt, aber nicht gespeichert. Fehler:
+**Erledigt, wenn:** die Konsole pro Tool einen PA-Wert zeigt und `LC_PA_SHOW`
+ihn auflistet (gespeichert als `t<n>_pa` in `indx_vars.cfg`). Ist dem Tool
+eine Spule zugeordnet (Spoolman), steht der Wert auch im Filament der Spule
+(`pressure_advance_d025/_d04/_d06`, je Düsengröße). Unsichere Werte werden
+angezeigt, aber nicht gespeichert. Fehler:
 `~/printer_data/config/lc_pa_data/last_run.log`.
 
 In OrcaSlicer den normalen PA-Wert pro Filament nutzen (das Profil-Skript

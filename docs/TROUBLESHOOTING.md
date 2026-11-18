@@ -14,19 +14,19 @@ see [BondtechAB/INDX](https://github.com/BondtechAB/INDX) and the
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Klipper does not start, error names `indx/...cfg` | Bondtech's INDX files missing | Install them ([INSTALLATION.md](INSTALLATION.md), step 1) |
-| Error in `autotune_tmc.cfg` or `shaketune.cfg` | module not installed | install it or delete the file (step 4) |
-| `Unknown command` for `PARK_TOOL`, `CHANGE_TOOL`, `CAL_...` | Bondtech file not included | check the includes (step 3) |
-| Spoolman hook or Z hop has no effect | `indx_overrides.cfg` included before `homing.cfg` | include it last (step 3) |
-| `mcu ... Unable to connect` | wrong serial ID | `ls /dev/serial/by-id/` (step 7) |
-| Calibration values gone after copying | `SAVE_CONFIG` block overwritten | copy it back from the backup (step 2) |
+| `Include file '.../indx/indx.cfg' does not exist` | Bondtech's INDX files missing | this repo needs a working Bondtech INDX installation ([INSTALLATION.md](INSTALLATION.md#who-is-this-for)) |
+| Error in `autotune_tmc.cfg` or `shaketune.cfg` | module not installed | install it or delete the file ([INSTALLATION.md](INSTALLATION.md), step 6) |
+| `Unknown command:"PARK_TOOL"` (or `CHANGE_TOOL`, `CAL_...`) | Bondtech file not included | check the includes ([INSTALLATION.md](INSTALLATION.md), step 4) |
+| Spoolman hook or Z hop has no effect | `indx_overrides.cfg` included before `homing.cfg` | include it last ([INSTALLATION.md](INSTALLATION.md), step 4) |
+| `mcu ... Unable to connect` | wrong serial ID | `ls /dev/serial/by-id/` ([INSTALLATION.md](INSTALLATION.md), step 5) |
+| Calibration values gone after copying | `SAVE_CONFIG` block overwritten | copy it back from the backup ([INSTALLATION.md](INSTALLATION.md), step 4) |
 
 ## Tool change
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Tool change stops with *Remote method ... not registered* | `macros/spoolman.cfg` present, but no `[spoolman]` in Moonraker | set up Spoolman, or delete `spoolman.cfg` and set `variable_use_spoolman: 0` (step 5) |
-| Global Z offset lost at the next print | babystep not saved | `SYNC_GLOBAL_Z` after babystepping ([CALIBRATION.md](CALIBRATION.md#6-z-tool-offsets-global-z-offset)) |
+| Tool change stops with *Remote method ... not registered* | `macros/spoolman.cfg` present, but no `[spoolman]` in Moonraker | set up Spoolman, or delete `spoolman.cfg` and set `variable_use_spoolman: 0` ([INSTALLATION.md](INSTALLATION.md), step 6) |
+| Global Z offset lost at the next print | babystep not saved | `SYNC_GLOBAL_Z` after babystepping ([CALIBRATION.md](CALIBRATION.md#6-z-tool-offsets)) |
 
 ## Calibration
 
@@ -34,14 +34,14 @@ see [BondtechAB/INDX](https://github.com/BondtechAB/INDX) and the
 |---|---|---|
 | `Sample rate is not high enough` during the mesh | scan too fast | lower `speed` in `[bed_mesh]` or `SCAN_SPEED=` |
 | Mesh with a hot nozzle looks wrong | induction heater disturbs the scanner | scan with a cold nozzle |
-| `PA_CAL_LOADCELL` gives no value, no message | wrong `/home/pi` path | [INSTALLATION.md](INSTALLATION.md), step 6; log `~/printer_data/config/lc_pa_data/last_run.log` |
+| `PA_CAL_LOADCELL` gives no value, no message | wrong `/home/pi` path | [INSTALLATION.md](INSTALLATION.md), step 7; log `~/printer_data/config/lc_pa_data/last_run.log` |
 | PA value shown but not saved | measurement uncertain | check with `LC_EXTRUDE_TEST`, filament loaded, nozzle hot, measure again |
 
 ## Spoolman and OrcaSlicer
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Spoolman runs, but the load dialog shows no spools | script path wrong, Moonraker cannot reach Spoolman (`server:`), or all spools archived | `~/printer_data/logs/spool_picker.log`; [INSTALLATION.md](INSTALLATION.md), step 6; `server:` in `[spoolman]`; archived spools are not listed |
+| Spoolman runs, but the load dialog shows no spools | script path wrong, Moonraker cannot reach Spoolman (`server:`), or all spools archived | `~/printer_data/logs/spool_picker.log`; [INSTALLATION.md](INSTALLATION.md), step 7; `server:` in `[spoolman]`; archived spools are not listed |
 | Load dialog only shows materials, no spools | `variable_use_spoolman: 0`, or an old `filament_menu.cfg` | set it to `1` / copy the file from the repo again |
 | Active spool does not change on tool change | no spool assigned, or override not loaded | `SHOW_TOOL_SPOOLS`; include order ([SPOOLMAN.md](SPOOLMAN.md), step 3) |
 | Red message on pickup, usage not booked | tool has no spool | `SET_TOOL_SPOOL T=n ID=x` or the Mainsail dialog |

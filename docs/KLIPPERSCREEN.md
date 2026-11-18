@@ -38,7 +38,10 @@ back to the material presets.
 **Check:** type `LOAD_FILAMENT` in the Mainsail console: the tool dialog
 opens. *Cancel* closes it without doing anything.
 
-## KlipperScreen add-on
+## KlipperScreen add-on (optional)
+
+The dialog above works without it. Install the add-on only if you want the
+INDX panel and the active tool in the titlebar.
 
 - **Titlebar:** the active tool ("T3") with the colour of its spool. Tap it to
   open the INDX panel.

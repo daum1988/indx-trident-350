@@ -86,7 +86,7 @@ zusammen mit den Skripten aus dem Repo:
 
 Benötigt `gcode_shell_command` (in Kalico enthalten) und den richtigen
 Benutzernamen im Pfad (siehe [INSTALLATION.de.md](INSTALLATION.de.md),
-Schritt 6).
+Schritt 7).
 
 Das Skript läuft wieder, sobald sich eine Zuweisung ändert (`SET_TOOL_SPOOL`,
 Mainsail-Dialog). Nach Änderungen an einer Spule in Spoolman selbst (z. B.
@@ -174,7 +174,7 @@ erzeugt.
   Filament) ein Feld anlegen, dessen Schlüssel genau der Orca-Einstellung
   entspricht. Unbekannte Schlüssel meldet das Skript als Warnung.
 - `pressure_advance*` schreibt die Load-Cell-Kalibrierung (`PA_CAL_LOADCELL`,
-  siehe [CALIBRATION.de.md](CALIBRATION.de.md), Schritt 9) in Spoolman. Das
+  siehe [CALIBRATION.de.md](CALIBRATION.de.md), Schritt 8) in Spoolman. Das
   Profil-Skript übernimmt den Wert nach Orca (`pressure_advance`, Düsenfeld hat
   Vorrang) und schaltet `enable_pressure_advance` ein. Orca setzt PA dann beim
   Filamentwechsel im G-Code.

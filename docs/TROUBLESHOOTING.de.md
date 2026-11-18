@@ -14,19 +14,19 @@ Pi: `~/printer_data/logs/` (`klippy.log`, `moonraker.log`, `KlipperScreen.log`,
 
 | Symptom | Ursache | Lösung |
 |---|---|---|
-| Klipper startet nicht, Fehler nennt `indx/...cfg` | Bondtechs INDX-Dateien fehlen | installieren ([INSTALLATION.de.md](INSTALLATION.de.md), Schritt 1) |
-| Fehler in `autotune_tmc.cfg` oder `shaketune.cfg` | Modul nicht installiert | installieren oder Datei löschen (Schritt 4) |
-| `Unknown command` bei `PARK_TOOL`, `CHANGE_TOOL`, `CAL_...` | Bondtech-Datei nicht eingebunden | Includes prüfen (Schritt 3) |
-| Spoolman-Hook oder Z-Hop wirken nicht | `indx_overrides.cfg` vor `homing.cfg` eingebunden | als letzte einbinden (Schritt 3) |
-| `mcu ... Unable to connect` | falsche Serial-ID | `ls /dev/serial/by-id/` (Schritt 7) |
-| Kalibrierwerte nach dem Kopieren weg | `SAVE_CONFIG`-Block überschrieben | aus der Sicherung zurückkopieren (Schritt 2) |
+| `Include file '.../indx/indx.cfg' does not exist` | Bondtechs INDX-Dateien fehlen | dieses Repo braucht eine funktionierende Bondtech-INDX-Installation ([INSTALLATION.de.md](INSTALLATION.de.md#für-wen-ist-diese-anleitung)) |
+| Fehler in `autotune_tmc.cfg` oder `shaketune.cfg` | Modul nicht installiert | installieren oder Datei löschen ([INSTALLATION.de.md](INSTALLATION.de.md), Schritt 6) |
+| `Unknown command:"PARK_TOOL"` (oder `CHANGE_TOOL`, `CAL_...`) | Bondtech-Datei nicht eingebunden | Includes prüfen ([INSTALLATION.de.md](INSTALLATION.de.md), Schritt 4) |
+| Spoolman-Hook oder Z-Hop wirken nicht | `indx_overrides.cfg` vor `homing.cfg` eingebunden | als letzte einbinden ([INSTALLATION.de.md](INSTALLATION.de.md), Schritt 4) |
+| `mcu ... Unable to connect` | falsche Serial-ID | `ls /dev/serial/by-id/` ([INSTALLATION.de.md](INSTALLATION.de.md), Schritt 5) |
+| Kalibrierwerte nach dem Kopieren weg | `SAVE_CONFIG`-Block überschrieben | aus der Sicherung zurückkopieren ([INSTALLATION.de.md](INSTALLATION.de.md), Schritt 4) |
 
 ## Toolwechsel
 
 | Symptom | Ursache | Lösung |
 |---|---|---|
-| Toolwechsel bricht ab mit *Remote method ... not registered* | `macros/spoolman.cfg` vorhanden, aber kein `[spoolman]` in Moonraker | Spoolman einrichten oder `spoolman.cfg` löschen und `variable_use_spoolman: 0` setzen (Schritt 5) |
-| Globaler Z-Offset beim nächsten Druck weg | Babystep nicht gespeichert | nach dem Babystepping `SYNC_GLOBAL_Z` ([CALIBRATION.de.md](CALIBRATION.de.md#6-z-tool-offsets-globaler-z-offset)) |
+| Toolwechsel bricht ab mit *Remote method ... not registered* | `macros/spoolman.cfg` vorhanden, aber kein `[spoolman]` in Moonraker | Spoolman einrichten oder `spoolman.cfg` löschen und `variable_use_spoolman: 0` setzen ([INSTALLATION.de.md](INSTALLATION.de.md), Schritt 6) |
+| Globaler Z-Offset beim nächsten Druck weg | Babystep nicht gespeichert | nach dem Babystepping `SYNC_GLOBAL_Z` ([CALIBRATION.de.md](CALIBRATION.de.md#6-z-tool-offsets)) |
 
 ## Kalibrierung
 
@@ -34,14 +34,14 @@ Pi: `~/printer_data/logs/` (`klippy.log`, `moonraker.log`, `KlipperScreen.log`,
 |---|---|---|
 | `Sample rate is not high enough` beim Mesh | Scan zu schnell | `speed` in `[bed_mesh]` senken oder `SCAN_SPEED=` |
 | Mesh mit heißer Düse sieht falsch aus | Induktionsheizung stört den Scanner | mit kalter Düse scannen |
-| `PA_CAL_LOADCELL` liefert keinen Wert, keine Meldung | falscher `/home/pi`-Pfad | [INSTALLATION.de.md](INSTALLATION.de.md), Schritt 6; Log `~/printer_data/config/lc_pa_data/last_run.log` |
+| `PA_CAL_LOADCELL` liefert keinen Wert, keine Meldung | falscher `/home/pi`-Pfad | [INSTALLATION.de.md](INSTALLATION.de.md), Schritt 7; Log `~/printer_data/config/lc_pa_data/last_run.log` |
 | PA-Wert angezeigt, aber nicht gespeichert | Messung unsicher | mit `LC_EXTRUDE_TEST` prüfen, Filament geladen, Düse heiß, erneut messen |
 
 ## Spoolman und OrcaSlicer
 
 | Symptom | Ursache | Lösung |
 |---|---|---|
-| Spoolman läuft, aber der Lade-Dialog zeigt keine Spulen | Skriptpfad falsch, Moonraker erreicht Spoolman nicht (`server:`), oder alle Spulen archiviert | `~/printer_data/logs/spool_picker.log`; [INSTALLATION.de.md](INSTALLATION.de.md), Schritt 6; `server:` in `[spoolman]`; archivierte Spulen werden nicht gelistet |
+| Spoolman läuft, aber der Lade-Dialog zeigt keine Spulen | Skriptpfad falsch, Moonraker erreicht Spoolman nicht (`server:`), oder alle Spulen archiviert | `~/printer_data/logs/spool_picker.log`; [INSTALLATION.de.md](INSTALLATION.de.md), Schritt 7; `server:` in `[spoolman]`; archivierte Spulen werden nicht gelistet |
 | Lade-Dialog zeigt nur Materialien, keine Spulen | `variable_use_spoolman: 0` oder eine alte `filament_menu.cfg` | auf `1` setzen / Datei erneut aus dem Repo kopieren |
 | Aktive Spule wechselt beim Toolwechsel nicht | keine Spule zugeordnet oder Override nicht geladen | `SHOW_TOOL_SPOOLS`; Include-Reihenfolge ([SPOOLMAN.de.md](SPOOLMAN.de.md), Schritt 3) |
 | Rote Meldung beim Pickup, Verbrauch wird nicht gebucht | Tool hat keine Spule | `SET_TOOL_SPOOL T=n ID=x` oder Mainsail-Dialog |

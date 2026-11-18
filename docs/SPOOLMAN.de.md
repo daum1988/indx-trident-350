@@ -34,6 +34,13 @@ Tool aufgenommen, wird seine Spule in Moonraker die aktive Spule, und
 Moonraker bucht das extrudierte Filament in Spoolman darauf. OrcaSlicer liest
 die Zuordnung Tool → Spule (siehe [ORCASLICER.de.md](ORCASLICER.de.md)).
 
+**Welche Schritte?**
+- Spoolman läuft schon (auf dem Pi oder einem NAS) und Moonraker kennt es:
+  Schritt 0 prüfen, dann Schritte 3 und 4.
+- Spoolman läuft, aber `moonraker.conf` hat keinen Abschnitt `[spoolman]`:
+  Schritte 0, 2, 3, 4.
+- Noch kein Spoolman: Schritte 0–4.
+
 ## 0. Vorher prüfen: läuft Spoolman schon?
 
 Steht in `moonraker.conf` schon ein Abschnitt `[spoolman]`, die Adresse aus

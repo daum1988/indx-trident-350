@@ -39,7 +39,10 @@ die Material-Presets.
 **Kontrolle:** `LOAD_FILAMENT` in die Mainsail-Konsole tippen: Der Tool-Dialog
 öffnet sich. *Cancel* („Abbrechen“) schließt ihn, ohne etwas zu tun.
 
-## KlipperScreen-Add-on
+## KlipperScreen-Add-on (optional)
+
+Der Dialog oben funktioniert auch ohne. Das Add-on braucht nur, wer das
+INDX-Panel und das aktive Tool in der Titelleiste haben will.
 
 - **Titelleiste:** das aktive Tool („T3“) mit der Farbe seiner Spule. Antippen
   öffnet das INDX-Panel.
