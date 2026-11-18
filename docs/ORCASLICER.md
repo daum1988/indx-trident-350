@@ -60,7 +60,8 @@ PowerShell script.
 
 2. Edit your printer profile (*Printer settings → Basic information*),
    *Advanced* view: **Printer agent = Moonraker**. Enter `<PRINTER-IP>` as
-   address, without port ("Device (Web)" then shows Mainsail).
+   address, without port. **Check:** the "Device (Web)" tab shows Mainsail
+   with the current printer status.
 
    ![Orca printer settings: printer agent set to Moonraker](images/orca_printer_agent.png)
 3. Orca creates the printer entry with `"printer_agent_id": "orca"`; it must

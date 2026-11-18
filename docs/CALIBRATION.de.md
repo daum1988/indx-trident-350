@@ -89,7 +89,9 @@ Load-Cell, der Scanner liefert nur die Bettform.
 - **Was:** einmalig, T0 am Kopf, **Düse kalt** (die Induktionsheizung stört
   den Scanner), die Befehle unten der Reihe nach.
   `PROBE_EDDY_CURRENT_CALIBRATE` lässt die Düse schrittweise bis aufs Bett
-  absenken (Papiertest).
+  absenken (Papiertest): Jeder Schritt wird selbst mit `TESTZ Z=-0.1` usw.
+  ausgelöst. In kleinen Schritten gehen, die Düse beobachten und bei
+  unerwartetem Verhalten `ABORT` senden oder den Notaus drücken.
 - **Erledigt, wenn:** `BED_MESH_CALIBRATE PROBE=scanner METHOD=rapid_scan` ein
   Mesh in einer Fahrt über das Bett erzeugt.
 
@@ -194,8 +196,8 @@ Druck-Zeitkonstante gefittet; das ist der PA-Wert.
 **Voraussetzung:** Schritte 1–3 erledigt, Filament geladen, Bucket eingebaut
 und seine Position in `macros/bucket.cfg` eingetragen, richtiger
 Benutzername im Skriptpfad ([INSTALLATION.de.md](INSTALLATION.de.md),
-Schritt 7). Einmal pro Tool und nach jedem Düsenwechsel die Düsengröße
-speichern: `SET_TOOL_NOZZLE TOOL=3 D=0.6`.
+Schritt 7). **Einmal pro Tool und nach jedem Düsenwechsel, vor der Messung,**
+die Düsengröße speichern: `SET_TOOL_NOZZLE TOOL=3 D=0.6`.
 
 **Optional vorher:** `LC_EXTRUDE_TEST SPEED=1` / `SPEED=3` / `SPEED=6` mit
 heißem Tool zeigt, ob die Load-Cell den Extrusionsdruck überhaupt sieht (die

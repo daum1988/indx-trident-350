@@ -70,6 +70,12 @@ shows anything):
 
 ```bash
 BOOT=/boot/firmware; [ -f $BOOT/cmdline.txt ] || BOOT=/boot
+ls -l $BOOT/cmdline.txt.vor_bootlogo $BOOT/config.txt.vor_bootlogo
+```
+
+Only if both files are listed:
+
+```bash
 sudo cp $BOOT/cmdline.txt.vor_bootlogo $BOOT/cmdline.txt
 sudo cp $BOOT/config.txt.vor_bootlogo $BOOT/config.txt
 sudo reboot
@@ -160,6 +166,12 @@ installiert, zeigt aber nichts mehr an):
 
 ```bash
 BOOT=/boot/firmware; [ -f $BOOT/cmdline.txt ] || BOOT=/boot
+ls -l $BOOT/cmdline.txt.vor_bootlogo $BOOT/config.txt.vor_bootlogo
+```
+
+Nur wenn beide Dateien aufgelistet werden:
+
+```bash
 sudo cp $BOOT/cmdline.txt.vor_bootlogo $BOOT/cmdline.txt
 sudo cp $BOOT/config.txt.vor_bootlogo $BOOT/config.txt
 sudo reboot

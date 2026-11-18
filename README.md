@@ -60,7 +60,7 @@ Work through them in this order:
 | [Installation](docs/INSTALLATION.md) | prerequisites, copying, adapting, first start, updates | **yes** |
 | [Calibration](docs/CALIBRATION.md) | order with links to Bondtech/Kalico; this repo's parts: eddy scanner, nozzle camera, global Z offset, PA with the load cell | **yes** |
 | [Spoolman](docs/SPOOLMAN.md) | one spool per tool, usage tracking | optional |
-| [OrcaSlicer](docs/ORCASLICER.md) | printer profile, filament profiles from Spoolman | optional |
+| [OrcaSlicer](docs/ORCASLICER.md) | printer profile, filament profiles from Spoolman; profile script for Windows, tested with OrcaSlicer 2.5.x | optional |
 | [KlipperScreen](docs/KLIPPERSCREEN.md) | load/unload dialog, INDX add-on | dialog: part of the base; add-on optional |
 | [Boot logo](bootlogo/README.md) | Plymouth logo on the display | optional |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | symptoms, causes, fixes | – |

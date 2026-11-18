@@ -122,7 +122,12 @@ expect the scripts in `~/printer_data/config/scripts/`.
    grep -n "^#\*# \[" ~/printer_data/config/printer.cfg
    ```
    lists the sections in the block; `[load_cell_probe]` and `[indx]` must be
-   there. The block must be at the very end of the file.
+   there. The block must be at the very end of the file. A comparison with
+   the backup shows whether it is complete (no output except "same" =
+   complete):
+   ```bash
+   diff <(sed -n '/^#\*# <---------------------- SAVE_CONFIG/,$p' <BACKUP>/printer.cfg) <(sed -n '/^#\*# <---------------------- SAVE_CONFIG/,$p' ~/printer_data/config/printer.cfg) && echo same
+   ```
 2. **Includes:** the new `printer.cfg` loads `mainsail.cfg`, `config/*.cfg`,
    `macros/*.cfg`, `timelapse.cfg` and Bondtech's files;
    `indx_overrides.cfg` must come after `indx/homing.cfg`. If your old
@@ -218,7 +223,8 @@ toolhead config of *this* machine, not yours. Only restart once steps 4 and 5
 are done (serial IDs, pins, toolhead values, `SAVE_CONFIG` block). Wrong pins
 can drive heaters or motors incorrectly.
 
-`FIRMWARE_RESTART` in the Mainsail console, then check in this order:
+`FIRMWARE_RESTART` in the Mainsail console, then check in this order.
+Heaters and sensors first, then motion, the tool change last:
 
 - [ ] Klipper is *ready*, no config error. An error names the file and
       section; see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
@@ -227,6 +233,12 @@ can drive heaters or motors incorrectly.
       and `indx_vars.cfg` are intact.
 - [ ] The `SAVE_CONFIG` block at the end of `printer.cfg` contains
       `[load_cell_probe]` and `[indx]`.
+- [ ] Temperatures in Mainsail are plausible: bed, tool and chamber show
+      about room temperature, no sensor jumps or is missing.
+- [ ] Heaters one at a time and under observation: bed to 60 °C
+      (`SET_HEATER_TEMPERATURE HEATER=heater_bed TARGET=60`), then with a tool
+      on the head the nozzle to 150 °C (`M104 S150`). The right temperature
+      must rise each time. Then switch both off (`TURN_OFF_HEATERS`).
 - [ ] `G28 X Y` homes X and Y. Before: nothing in the way, bed clear, hand
       on the emergency stop.
 - [ ] Only then `G28` (with Z), hand on the emergency stop: the nozzle touches

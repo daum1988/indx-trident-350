@@ -63,8 +63,8 @@ Filamenten in Spoolman.
 
 2. Eigenes Druckerprofil bearbeiten (*Drucker-Einstellungen → Grundlegende
    Informationen*), Ansicht *Erweitert*: **Drucker-Agent = Moonraker**. Als
-   Adresse `<DRUCKER-IP>` ohne Port eintragen („Gerät (Web)“ zeigt dann
-   Mainsail).
+   Adresse `<DRUCKER-IP>` ohne Port eintragen. **Kontrolle:** Der Reiter
+   „Gerät (Web)“ zeigt Mainsail mit dem aktuellen Druckerstatus.
 
    ![Orca-Drucker-Einstellungen: Drucker-Agent auf Moonraker](images/orca_printer_agent.png)
 3. Orca legt den Drucker mit `"printer_agent_id": "orca"` an; es muss

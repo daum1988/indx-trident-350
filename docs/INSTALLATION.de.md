@@ -122,7 +122,12 @@ plus `indx_overrides.cfg`; `ls ~/printer_data/config/scripts/` zeigt
    grep -n "^#\*# \[" ~/printer_data/config/printer.cfg
    ```
    listet die Abschnitte im Block; `[load_cell_probe]` und `[indx]` müssen
-   dabei sein. Der Block muss ganz am Ende der Datei stehen.
+   dabei sein. Der Block muss ganz am Ende der Datei stehen. Ob er
+   vollständig übernommen ist, zeigt ein Vergleich mit der Sicherung (keine
+   Ausgabe außer „gleich“ = vollständig):
+   ```bash
+   diff <(sed -n '/^#\*# <---------------------- SAVE_CONFIG/,$p' <SICHERUNG>/printer.cfg) <(sed -n '/^#\*# <---------------------- SAVE_CONFIG/,$p' ~/printer_data/config/printer.cfg) && echo gleich
+   ```
 2. **Includes:** Die neue `printer.cfg` lädt `mainsail.cfg`, `config/*.cfg`,
    `macros/*.cfg`, `timelapse.cfg` und Bondtechs Dateien; `indx_overrides.cfg`
    muss nach `indx/homing.cfg` stehen. Hat die alte `printer.cfg` weitere
@@ -221,7 +226,8 @@ neu starten, wenn die Schritte 4 und 5 erledigt sind (Serial-IDs, Pins,
 Toolhead-Werte, `SAVE_CONFIG`-Block). Falsche Pins können Heizungen oder
 Motoren falsch ansteuern.
 
-`FIRMWARE_RESTART` in der Mainsail-Konsole, dann der Reihe nach prüfen:
+`FIRMWARE_RESTART` in der Mainsail-Konsole, dann der Reihe nach prüfen.
+Erst Heizungen und Sensoren, dann Bewegung, zuletzt der Toolwechsel:
 
 - [ ] Klipper ist *ready*, kein Config-Fehler. Ein Fehler nennt Datei und
       Abschnitt; siehe [TROUBLESHOOTING.de.md](TROUBLESHOOTING.de.md).
@@ -230,6 +236,12 @@ Motoren falsch ansteuern.
       und `indx_vars.cfg` sind erhalten.
 - [ ] Der `SAVE_CONFIG`-Block am Ende von `printer.cfg` enthält
       `[load_cell_probe]` und `[indx]`.
+- [ ] Temperaturen in Mainsail plausibel: Bett, Tool und Kammer zeigen
+      etwa Raumtemperatur, kein Sensor springt oder fehlt.
+- [ ] Heizungen einzeln und unter Beobachtung: Bett auf 60 °C
+      (`SET_HEATER_TEMPERATURE HEATER=heater_bed TARGET=60`), dann mit Tool
+      am Kopf die Düse auf 150 °C (`M104 S150`). Es muss jeweils die richtige
+      Temperatur steigen. Danach beide wieder aus (`TURN_OFF_HEATERS`).
 - [ ] `G28 X Y` homt X und Y. Vorher: nichts im Fahrweg, Bett frei, Hand
       am Notaus.
 - [ ] Erst danach `G28` (mit Z), die Hand am Notaus: Die Düse berührt das Bett

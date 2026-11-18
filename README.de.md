@@ -62,7 +62,7 @@ In dieser Reihenfolge abarbeiten:
 | [Installation](docs/INSTALLATION.de.md) | Voraussetzungen, Kopieren, Anpassen, erster Start, Updates | **ja** |
 | [Kalibrierung](docs/CALIBRATION.de.md) | Reihenfolge mit Links zu Bondtech/Kalico; Teile dieses Repos: Eddy-Scanner, Düsenkamera, globaler Z-Offset, PA per Load-Cell | **ja** |
 | [Spoolman](docs/SPOOLMAN.de.md) | eine Spule pro Tool, Verbrauch buchen | optional |
-| [OrcaSlicer](docs/ORCASLICER.de.md) | Druckerprofil, Filamentprofile aus Spoolman | optional |
+| [OrcaSlicer](docs/ORCASLICER.de.md) | Druckerprofil, Filamentprofile aus Spoolman; Profil-Skript für Windows, getestet mit OrcaSlicer 2.5.x | optional |
 | [KlipperScreen](docs/KLIPPERSCREEN.de.md) | Lade-/Entlade-Dialog, INDX-Add-on | Dialog: Teil der Grundinstallation; Add-on optional |
 | [Bootlogo](bootlogo/README.md#deutsch) | Plymouth-Logo auf dem Display | optional |
 | [Fehlerbehebung](docs/TROUBLESHOOTING.de.md) | Symptome, Ursachen, Lösungen | – |

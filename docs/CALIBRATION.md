@@ -88,7 +88,9 @@ the scanner only provides the bed shape.
 - **What:** once, T0 on the head, **nozzle cold** (the induction heater
   disturbs the scanner), the commands below in order.
   `PROBE_EDDY_CURRENT_CALIBRATE` asks you to lower the nozzle onto the bed
-  step by step (paper test).
+  step by step (paper test): you trigger every step yourself with
+  `TESTZ Z=-0.1` etc. Go in small steps, watch the nozzle and send `ABORT` or
+  press the emergency stop if anything unexpected happens.
 - **Done when:** `BED_MESH_CALIBRATE PROBE=scanner METHOD=rapid_scan` creates a
   mesh in one pass over the bed.
 
@@ -191,8 +193,8 @@ fitted and is the PA value.
 
 **Requires:** steps 1–3 done, filament loaded, purge bucket in place and its
 position set in `macros/bucket.cfg`, correct user name in the script path
-([INSTALLATION.md](INSTALLATION.md), step 7). Once per tool, and after every
-nozzle change, store the nozzle size: `SET_TOOL_NOZZLE TOOL=3 D=0.6`.
+([INSTALLATION.md](INSTALLATION.md), step 7). **Once per tool, and after every
+nozzle change before measuring,** store the nozzle size: `SET_TOOL_NOZZLE TOOL=3 D=0.6`.
 
 **Optional first:** `LC_EXTRUDE_TEST SPEED=1` / `SPEED=3` / `SPEED=6` with a hot
 tool shows whether the load cell sees the extrusion force at all (the
