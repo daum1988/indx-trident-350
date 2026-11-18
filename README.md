@@ -182,8 +182,8 @@ time your own machine.
 - **Global Z offset is lost after a restart / print start?** Babystepping only
   changes the live offset. `START_PRINT` homes Z, which re-applies the *saved*
   global offset. Run `SYNC_GLOBAL_Z` after babystepping to save it, check with
-  `CAL_CHECK_OFFSETS` (both from Bondtech's `indx-cal.cfg`). After a restart the live value shows 0 until `G28` or a
-  T0 pickup – that is normal.
+  `CAL_CHECK_OFFSETS` (both from Bondtech's `indx-cal.cfg`). After a restart the
+  live value shows 0 until `G28` or a T0 pickup – that is normal.
 - **Different build plates (smooth/textured)** need no Z offset per plate: Z is
   homed with the load cell on the actual plate surface.
 - **OrcaSlicer jerk warning:** with Klipper flavour, Orca treats

@@ -187,8 +187,8 @@ eigenen Maschine stoppen.
 - **Globaler Z-Offset nach Neustart oder Druckstart weg?** Babystepping ändert
   nur den Live-Offset. `START_PRINT` homt Z und setzt dabei den *gespeicherten*
   globalen Offset. Nach dem Babystepping `SYNC_GLOBAL_Z` ausführen, mit
-  `CAL_CHECK_OFFSETS` prüfen (beide aus Bondtechs `indx-cal.cfg`). Nach einem Neustart steht live 0, bis `G28` oder
-  T0 aufgenommen wird – das ist normal.
+  `CAL_CHECK_OFFSETS` prüfen (beide aus Bondtechs `indx-cal.cfg`). Nach einem
+  Neustart steht live 0, bis `G28` oder T0 aufgenommen wird – das ist normal.
 - **Verschiedene Druckplatten (glatt/strukturiert)** brauchen keinen eigenen
   Z-Offset: Z wird mit der Load-Cell direkt auf der Plattenoberfläche gemessen.
 - **Ruck-Warnung in OrcaSlicer:** Bei Klipper behandelt Orca

@@ -12,9 +12,10 @@ kann Farbe und Profil jedes Tools übernehmen.
 > Anzahl der Tools stammen von dieser Maschine; an die eigene anpassen.
 
 **Voraussetzungen:** die INDX-Config von Bondtech, `[save_variables]` mit
-`indx_vars.cfg` (in diesem Repo in `config/INDX_toolhead.cfg`), der Inhalt von `klipper/` aus diesem Repo im eigenen
-Config-Ordner (siehe [README](../README.de.md#einrichtung)), Moonraker mit
-Netzwerkzugriff auf Spoolman.
+`indx_vars.cfg` (in diesem Repo in `config/INDX_toolhead.cfg`), der Inhalt von
+`klipper/` aus diesem Repo im eigenen Config-Ordner (siehe
+[README](../README.de.md#einrichtung)), Moonraker mit Netzwerkzugriff auf
+Spoolman.
 
 ## 0. Vorher prüfen: läuft Spoolman schon?
 
@@ -157,7 +158,7 @@ Danach `FIRMWARE_RESTART`.
 ```
 SET_TOOL_SPOOL T=3 ID=12    Spule 12 an T3 zuweisen
 SET_TOOL_SPOOL T=3 ID=0     Zuweisung von T3 löschen
-                            (macht UNLOAD_FILAMENT automatisch)
+                            (erledigt UNLOAD_FILAMENT automatisch)
 SHOW_TOOL_SPOOLS            alle Zuweisungen anzeigen
 LOAD_FILAMENT               Dialog: Tool -> Material -> Spule (wird zugewiesen)
 ```

@@ -12,8 +12,9 @@ colour and profile of every tool.
 > are from that machine; adjust them to yours.
 
 **Requirements:** the INDX config from Bondtech, `[save_variables]` with
-`indx_vars.cfg` (in this repo in `config/INDX_toolhead.cfg`), this repo's `klipper/` content in your config folder (see
-the [README](../README.md#setup)), Moonraker with network access to Spoolman.
+`indx_vars.cfg` (in this repo in `config/INDX_toolhead.cfg`), this repo's
+`klipper/` content in your config folder (see the
+[README](../README.md#setup)), Moonraker with network access to Spoolman.
 
 ## 0. Check first: is Spoolman already running?
 
