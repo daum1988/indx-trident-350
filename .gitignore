@@ -13,3 +13,6 @@ mobileraker.conf
 KlipperScreen.conf
 secrets*
 .env
+
+# Orca plugin release files (orca/spoolman_profiles/build.py)
+orca/spoolman_profiles/dist/
