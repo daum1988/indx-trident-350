@@ -118,7 +118,8 @@ Tools ohne Spule haben `"material": ""` und sind in Orca leer.
 
 Das Plugin `orca/spoolman_profiles/spoolman_profiles.py` erzeugt die Profile
 direkt in OrcaSlicer (ab 2.5.0) und lädt sie ohne Neustart. Zusätzlich zeigt
-es die Spoolman-Weboberfläche in einem eigenen Reiter.
+es die Spoolman-Weboberfläche im Reiter **Spoolman**; Knopf, Status und
+Einstellungen stehen im Reiter **Spoolman Profiles**.
 
 1. **Vorlagen anlegen (einmalig):** In Orca pro Material ein *eigenständiges*
    Filament anlegen (Filament → *Filament erstellen*, nicht „Kopieren“ eines
@@ -131,12 +132,17 @@ es die Spoolman-Weboberfläche in einem eigenen Reiter.
    `spoolman_profiles.py` hineinkopieren. Orca starten, *Datei → Plugins*,
    bei „Spoolman Profiles“ **Aktivieren** anhaken. Die Rückfragen nach
    Netzwerkzugriff (Spoolman) und Threads erlauben.
-3. **Einrichten:** Reiter **Spoolman** → *Settings*: Spoolman-Adresse
-   (`http://<SPOOLMAN-IP>:7912`) eintragen, *Save*. Die Adresse bleibt lokal
-   in `%APPDATA%\OrcaSlicer\spoolman_profiles\settings.json`. Ein anderes
-   Vorlagen-Präfix (z. B. `SM-Template`) wird ebenfalls dort eingestellt.
-4. **Profile erzeugen:** **Update profiles from Spoolman** drücken. Die
-   Statuszeile zeigt z. B. „114 new … Loaded in OrcaSlicer: 114 profiles,
+3. **Einrichten:** *Datei → Plugins* → „Spoolman Profiles“ → *Config*
+   (oder Reiter **Spoolman Profiles**): Spoolman-Adresse
+   (`http://<SPOOLMAN-IP>:7912` oder eine eigene Domain) eintragen, *Save*.
+   Dort auch Vorlagen-Präfix (z. B. `SM-Template`), Abgleich beim Start,
+   Spoolio-Felder und archivierte Filamente. Die Einstellungen bleiben lokal
+   in `%APPDATA%\OrcaSlicer\spoolman_profiles\settings.json`. Danach Orca
+   neu starten: Der Reiter **Spoolman** lädt die Adresse beim Start.
+4. **Profile erzeugen:** Reiter **Spoolman Profiles** → **Update profiles
+   from Spoolman** drücken. Dasselbe gibt es als Fenster über den Befehl
+   *Update profiles from Spoolman* (*Datei → Plugins* oder Befehlspalette).
+   Die Statuszeile zeigt z. B. „114 new … Loaded in OrcaSlicer: 114 profiles,
    38 of them compatible with the selected printer“. Mit *Update
    automatically when OrcaSlicer starts* (Standard: an) läuft das bei jedem
    Start von selbst; eine Meldung kommt nur bei Änderungen oder Fehlern.
@@ -157,7 +163,7 @@ und Betttemperatur (Abstand zur ersten Schicht bleibt wie in der Vorlage),
 Preis pro kg. Was in Spoolman leer ist, bleibt wie in der Vorlage.
 Material-Zuordnung: genaue Vorlage, sonst die längste passende
 (`PLA+` → `SM-Vorlage PLA`). Angelegt werden Filamente mit mindestens einer
-nicht archivierten Spule (*Settings*: auch alle anderen). Profile von
+nicht archivierten Spule (Einstellung: auch alle anderen). Profile von
 Filamenten ohne aktive Spule entfernt das Plugin wieder.
 
 Technik: Das Plugin schreibt die Profile als lokales Preset-Bundle nach
@@ -165,6 +171,10 @@ Technik: Das Plugin schreibt die Profile als lokales Preset-Bundle nach
 und lädt es mit Orcas Plugin-API neu. Es sind eigenständige Profile ohne
 „erbt von“, deshalb findet Orcas Abgleich sie über die Filament-ID. Log:
 `%APPDATA%\OrcaSlicer\spoolman_profiles\spoolman_profiles.log`.
+
+Der Reiter **Spoolman** lädt die Spoolman-Seite direkt und nicht eingebettet: In
+einem eingebetteten Rahmen sperrt Orcas Webansicht Spoolman den Browser-Speicher,
+und Spoolman zeigt dann „500 Internal Error“.
 
 **Umstieg vom PowerShell-Skript:** Die alten Profile (`… (SM<id>) …` in
 `user\<Konto>\filament\base\`, Filament-ID `PSM…`) haben dieselbe ID wie die
@@ -213,13 +223,13 @@ Abgleich neu erzeugt.
   entspricht. Unbekannte Schlüssel meldet das Plugin als Warnung.
 - Spoolios Feldnamen `flow_ratio`, `max_volumetric_speed`,
   `retraction_length`, `retraction_speed` liest das Plugin als Ersatz, wenn
-  das Orca-Feld fehlt (*Settings*, Standard: an).
+  das Orca-Feld fehlt (Einstellung, Standard: an).
 - `pressure_advance*` schreibt die Load-Cell-Kalibrierung (`PA_CAL_LOADCELL`,
   siehe [CALIBRATION.de.md](CALIBRATION.de.md), Schritt 8) in Spoolman. Das
   Plugin übernimmt den Wert nach Orca (`pressure_advance`, Düsenfeld hat
   Vorrang) und schaltet `enable_pressure_advance` ein. Orca setzt PA dann beim
   Filamentwechsel im G-Code.
 
-Danach im Reiter Spoolman **Update profiles from Spoolman** drücken (oder Orca neu starten).
+Danach im Reiter **Spoolman Profiles** **Update profiles from Spoolman** drücken (oder Orca neu starten).
 
 Probleme: siehe [TROUBLESHOOTING.de.md](TROUBLESHOOTING.de.md#spoolman-und-orcaslicer).
