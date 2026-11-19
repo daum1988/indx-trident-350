@@ -132,11 +132,16 @@ Einstellungen stehen im Reiter **Spoolman Profiles**.
    `spoolman_profiles.py` hineinkopieren. Orca starten, *Datei → Plugins*,
    bei „Spoolman Profiles“ **Aktivieren** anhaken. Die Rückfragen nach
    Netzwerkzugriff (Spoolman) und Threads erlauben.
-3. **Einrichten:** *Datei → Plugins* → „Spoolman Profiles“ → *Config*
-   (oder Reiter **Spoolman Profiles**): Spoolman-Adresse
+3. **Einrichten:** *Datei → Plugins* → „Spoolman Profiles“ → *Config* →
+   Eintrag **Update profiles from Spoolman** (oben; die Einträge der Reiter
+   haben keine eigenen Einstellungen), oder Reiter **Spoolman Profiles**:
+   Spoolman-Adresse
    (`http://<SPOOLMAN-IP>:7912` oder eine eigene Domain) eintragen, *Save*.
    Dort auch Vorlagen-Präfix (z. B. `SM-Template`), Abgleich beim Start,
-   Spoolio-Felder und archivierte Filamente. Die Einstellungen bleiben lokal
+   Spoolio-Felder und archivierte Filamente sowie das **Layout**: zwei
+   Reiter (Standard), nur der Reiter Spoolman (Knopf dann über den Befehl als
+   Fenster) oder nur der Reiter Spoolman Profiles (Spoolman im Browser). Das
+   Layout gilt nach einem Neustart von Orca. Die Einstellungen bleiben lokal
    in `%APPDATA%\OrcaSlicer\spoolman_profiles\settings.json`. Danach Orca
    neu starten: Der Reiter **Spoolman** lädt die Adresse beim Start.
 4. **Profile erzeugen:** Reiter **Spoolman Profiles** → **Update profiles

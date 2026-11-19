@@ -128,19 +128,24 @@ status and settings are in the **Spoolman Profiles** tab.
    `spoolman_profiles.py` into it. Start Orca, *File → Plugins*, tick
    **Activate** for "Spoolman Profiles". Allow the prompts for network access
    (Spoolman) and threads.
-3. **Set up:** *File → Plugins* → "Spoolman Profiles" → *Config* (or the
-   **Spoolman Profiles** tab): enter the Spoolman address
+3. **Set up:** *File → Plugins* → "Spoolman Profiles" → *Config* → entry
+   **Update profiles from Spoolman** (at the top; the tab entries have no
+   settings of their own), or the **Spoolman Profiles** tab: enter the
+   Spoolman address
    (`http://<SPOOLMAN-IP>:7912` or your own domain), *Save*. The template
    prefix (e.g. `SM-Template`), update on start, Spoolio fields and archived
-   filaments are set there too. The settings stay local in
+   filaments are set there too, as is the **layout**: two tabs (default),
+   only the Spoolman tab (button through the command as a window) or only the
+   Spoolman Profiles tab (Spoolman in the browser). The layout applies after
+   restarting Orca. The settings stay local in
    `%APPDATA%\OrcaSlicer\spoolman_profiles\settings.json`. Then restart Orca:
    the **Spoolman** tab loads the address at start.
 4. **Generate profiles:** tab **Spoolman Profiles** → press **Update
    profiles from Spoolman**. The same is available as a window through the
    command *Update profiles from Spoolman* (*File → Plugins* or the command
    palette). The status line shows e.g. "114 new … Loaded in OrcaSlicer: 114
-   profiles, 38 of them compatible with the selected printer". With *Update automatically when
-   OrcaSlicer starts* (default: on) this runs on every start; a notification
+   profiles, 38 of them compatible with the selected printer". With *Update
+   automatically when OrcaSlicer starts* (default: on) this runs on every start; a notification
    only appears for changes or errors. The profiles are named
    `<Vendor> <Name> (SM<id>) @<printer> <nozzle> nozzle` and have filament ID
    `PSM<id>`. In the filament list they are under **Bundle presets →
