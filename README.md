@@ -12,6 +12,11 @@ CAD files of the printer (INDX conversion of the Trident):
 > drop-in config: pins, serial IDs and positions must be checked on your own
 > printer. Calibration values must be valid for your machine; the values of a
 > working INDX installation are carried over. Use at your own risk.
+>
+> This is my first project of this kind. Everything here has only been tested
+> on my own printer so far. Large parts of the config, scripts and docs, and the
+> OrcaSlicer plugin, were created with the help of AI (Anthropic's Claude). Bug
+> reports and hints are welcome as issues.
 
 **Starting point:** a working Bondtech INDX installation on Kalico (Bondtech's
 guide completed, tool changes and Z homing work). This repo adds Spoolman,

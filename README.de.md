@@ -13,6 +13,11 @@ CAD-Daten des Druckers (INDX-Umbau des Trident):
 > eigenen Drucker geprüft werden. Kalibrierwerte müssen für die eigene
 > Maschine gültig sein; die Werte einer funktionierenden INDX-Installation
 > werden übernommen. Nutzung auf eigene Gefahr.
+>
+> Das ist mein erstes eigenes Projekt dieser Art. Alles hier ist bisher nur an
+> meinem eigenen Drucker getestet. Große Teile von Config, Skripten und Doku
+> sowie das OrcaSlicer-Plugin sind mit Hilfe von KI (Claude von Anthropic)
+> entstanden. Fehlermeldungen und Hinweise gern als Issue.
 
 **Ausgangspunkt:** eine funktionierende Bondtech-INDX-Installation auf Kalico
 (Bondtechs Anleitung durchgearbeitet, Toolwechsel und Z-Homing
