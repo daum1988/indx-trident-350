@@ -42,7 +42,7 @@ flowchart LR
     SM[(Spoolman<br/>Spulen, Filamente)] -->|Spule pro Tool| K[Klipper / Moonraker<br/>t0__spool_id … t8__spool_id]
     K -->|orca_lanes.py schreibt<br/>lane0 … lane8| L[(Moonraker<br/>lane_data)]
     L -->|Sync-Knopf| O[OrcaSlicer<br/>Filament 1–9 = T0–T8]
-    SM -->|Orca-Plugin<br/>Spoolman Profiles| P[Orca-Filamentprofile<br/>eins pro Spoolman-Filament]
+    SM -->|Orca-Plugin<br/>orca-spoolman-profiles| P[Orca-Filamentprofile<br/>eins pro Spoolman-Filament]
     P --> O
 ```
 
@@ -116,44 +116,29 @@ Tools ohne Spule haben `"material": ""` und sind in Orca leer.
 
 ## 4. PC: Profile aus Spoolman erzeugen (Orca-Plugin)
 
-Das Plugin `orca/spoolman_profiles/spoolman_profiles.py` erzeugt die Profile
-direkt in OrcaSlicer (ab 2.5.0) und lädt sie ohne Neustart. Zusätzlich zeigt
-es die Spoolman-Weboberfläche im Reiter **Spoolman**; Knopf, Status und eine
-Statistik stehen im Reiter **Spools & Stats**.
+Die Profile erzeugt das OrcaSlicer-Plugin **Spoolman Profiles** (ab OrcaSlicer
+2.5.0). Es hat ein eigenes Repo:
+[daum1988/orca-spoolman-profiles](https://github.com/daum1988/orca-spoolman-profiles). Dort stehen Installation, alle
+Einstellungen, die Zusatzfelder, die Statistik und die Fehlersuche ausführlich.
 
-1. **Vorlagen anlegen (einmalig):** In Orca pro Material ein *eigenständiges*
-   Filament anlegen (Filament → *Filament erstellen*, nicht „Kopieren“ eines
-   System-Profils), kompatibel mit dem eigenen Drucker, mit den bewährten
-   Einstellungen. Name: `SM-Vorlage PLA`, `SM-Vorlage PETG`, … (Orca legt je
-   Düsengröße eine Variante „… @<Drucker> 0.4 nozzle“ an; jede Variante wird
-   genutzt). Im Filament-Startcode **kein** `SET_ACTIVE_SPOOL`.
-2. **Installieren:** Orca schließen. Ordner
-   `%APPDATA%\OrcaSlicer\orca_plugins\spoolman_profiles\` anlegen und
-   `spoolman_profiles.py` hineinkopieren. Orca starten, *Datei → Plugins*,
-   bei „Spoolman Profiles“ **Aktivieren** anhaken. Die Rückfragen nach
-   Netzwerkzugriff (Spoolman) und Threads erlauben.
-3. **Einrichten:** *Datei → Plugins* → „Spoolman Profiles“ → *Config* →
-   Eintrag **Update profiles from Spoolman** (oben; die Einträge der Reiter
-   haben keine eigenen Einstellungen): Spoolman-Adresse
-   (`http://<SPOOLMAN-IP>:7912` oder eine eigene Domain) eintragen, für die
-   Statistik auch die Druckeradresse (`http://<DRUCKER-IP>`), *Save*.
-   Dort auch Vorlagen-Präfix (z. B. `SM-Template`), Abgleich beim Start,
-   Spoolio-Felder und archivierte Filamente sowie das **Layout**: zwei
-   Reiter (Standard), nur der Reiter Spoolman (Knopf dann über den Befehl als
-   Fenster) oder nur der Reiter Spools & Stats (Spoolman im Browser). Das
-   Layout gilt nach einem Neustart von Orca. Die Einstellungen bleiben lokal
-   in `%APPDATA%\OrcaSlicer\spoolman_profiles\settings.json`. Danach Orca
-   neu starten: Der Reiter **Spoolman** lädt die Adresse beim Start.
-4. **Profile erzeugen:** Reiter **Spools & Stats** → **Update profiles
-   from Spoolman** drücken. Dasselbe gibt es als Fenster über den Befehl
-   *Update profiles from Spoolman* (*Datei → Plugins* oder Befehlspalette).
-   Die Statuszeile zeigt z. B. „114 new … Loaded in OrcaSlicer: 114 profiles,
-   38 of them compatible with the selected printer“. Mit *Update
-   automatically when OrcaSlicer starts* (Standard: an) läuft das bei jedem
-   Start von selbst; eine Meldung kommt nur bei Änderungen oder Fehlern.
-   Die Profile heißen `<Hersteller> <Name> (SM<id>) @<Drucker> <Düse> nozzle`,
-   z. B. „Sunlu High Speed Matte Pri-White (SM11) @Voron Trident 350 0.4 nozzle“,
-   und haben die Filament-ID `PSM<id>`. In der Filamentliste stehen sie unter
+Kurz für diese Maschine:
+
+1. **Installieren:** in der Orca Cloud *Spoolman Profiles* abonnieren, oder
+   `spoolman_profiles.py` aus dem Plugin-Repo nach
+   `%APPDATA%\OrcaSlicer\orca_plugins\spoolman_profiles\` legen. Dann
+   *Datei → Plugins* → *Aktivieren*, Rückfragen nach Netzwerk und Threads
+   erlauben.
+2. **Vorlagen:** pro Material ein *eigenständiges* Filament `SM-Vorlage
+   <Material>` (z. B. `SM-Vorlage PLA`), kompatibel mit dem Drucker. Im
+   Filament-Startcode **kein** `SET_ACTIVE_SPOOL`.
+3. **Einstellungen:** *Datei → Plugins* → „Spoolman Profiles“ → *Config* →
+   **Update profiles from Spoolman**: Spoolman-Adresse
+   (`http://<SPOOLMAN-IP>:7912`), Druckeradresse (`http://<DRUCKER-IP>`) und
+   *Tool statistics since* = Datum des INDX-Umbaus. *Save*, Orca neu starten.
+4. **Profile erzeugen:** Reiter **Spools & Stats** → **Update profiles from
+   Spoolman** (läuft auch bei jedem Start von Orca). Die Profile heißen
+   `<Hersteller> <Name> (SM<id>) @Voron Trident 350 <Düse> nozzle`, haben die
+   Filament-ID `PSM<id>` und stehen in der Filamentliste unter
    **Bundle presets → Spoolman Profiles**.
 5. **Abgleich:** Drucker wählen, im Bereich *Filament* den Sync-Knopf (rechts
    neben der Überschrift) drücken. Orca zählt ab 1: Filament 1 = T0 …
@@ -163,46 +148,10 @@ Statistik stehen im Reiter **Spools & Stats**.
 
 **Kontrolle:** Filament 1–9 bekommen Profil und Farbe der Spulen auf T0–T8.
 
-**Statistik:** Der Reiter **Spools & Stats** hat zwei auf- und zuklappbare
-Abschnitte, *Profiles* (Knopf und Status) und *Statistics*. Die Statistik liest
-Moonrakers Druckhistorie und Spoolman, gebucht wird nichts. Zeitraum wählbar
-(7 Tage bis alles):
-- verbrauchtes Filament, Drucke, Kosten (aus den Spoolman-Preisen), Spulen unter
-  der Schwelle *Low stock below (g)* (Standard 100 g);
-- Toolwechsel im Zeitraum laut Druckdateien und der INDX-Zähler
-  `toolchange_count` des Druckers;
-- Verbrauch pro Woche nach Farbe, Materialien, meistgenutzte Filamente,
-  fast leere Spulen;
-- pro Tool T0–T8: Gramm und Anzahl Drucke, mit der aktuell zugeordneten Spule;
-- Druckhistorie mit Datum, Status, Gramm und Kosten; gibt es zu einem Druck ein
-  Timelapse-Video (moonraker-timelapse), erscheint es mit Vorschaubild und spielt
-  direkt im Reiter.
-
-Die Gramm pro Tool und die Toolwechsel pro Druck sind die Werte des Slicers;
-abgebrochene Drucke zählen anteilig. Drucke mit Profilen ohne `(SM<id>)`
-zählen mit Material und Farbe aus der Druckdatei, ohne Kosten. *Tool
-statistics since* (z. B. Datum des INDX-Umbaus) blendet ältere Drucke aus der
-Auswertung pro Tool und den Toolwechseln aus. Bei Druckern mit nur einem Tool
-blendet *Show per-tool statistics and tool changes* beides ganz aus. Die Historie wird zwischengespeichert in
-`%APPDATA%\OrcaSlicer\spoolman_profiles\history_cache.json`.
-
-Aus Spoolman übernommen: Name, Hersteller, Farbe, Dichte, Durchmesser, Düsen-
-und Betttemperatur (Abstand zur ersten Schicht bleibt wie in der Vorlage),
-Preis pro kg. Was in Spoolman leer ist, bleibt wie in der Vorlage.
-Material-Zuordnung: genaue Vorlage, sonst die längste passende
-(`PLA+` → `SM-Vorlage PLA`). Angelegt werden Filamente mit mindestens einer
-nicht archivierten Spule (Einstellung: auch alle anderen). Profile von
-Filamenten ohne aktive Spule entfernt das Plugin wieder.
-
-Technik: Das Plugin schreibt die Profile als lokales Preset-Bundle nach
-`%APPDATA%\OrcaSlicer\user\<Konto oder default>\_local\spoolman-profiles\`
-und lädt es mit Orcas Plugin-API neu. Es sind eigenständige Profile ohne
-„erbt von“, deshalb findet Orcas Abgleich sie über die Filament-ID. Log:
-`%APPDATA%\OrcaSlicer\spoolman_profiles\spoolman_profiles.log`.
-
-Der Reiter **Spoolman** lädt die Spoolman-Seite direkt und nicht eingebettet: In
-einem eingebetteten Rahmen sperrt Orcas Webansicht Spoolman den Browser-Speicher,
-und Spoolman zeigt dann „500 Internal Error“.
+Die Statistik im selben Reiter liest Moonrakers Druckhistorie: Verbrauch gesamt
+und seit dem INDX-Umbau, Toolwechsel inklusive INDX-Zähler `toolchange_count`,
+Gramm pro Tool T0–T8, fast leere Spulen und die Druckhistorie mit
+Timelapse-Videos.
 
 **Umstieg vom PowerShell-Skript:** Die alten Profile (`… (SM<id>) …` in
 `user\<Konto>\filament\base\`, Filament-ID `PSM…`) haben dieselbe ID wie die

@@ -48,7 +48,7 @@ print macros. It does not replace Bondtech's or Kalico's documentation.
 - **Spoolman, one spool per tool:** the active spool follows the tool, usage
   is booked to the right spool.
 - **OrcaSlicer:** printer profile; filament profiles and colours per tool from
-  Spoolman.
+  Spoolman with the plugin [orca-spoolman-profiles](https://github.com/daum1988/orca-spoolman-profiles).
 - **KlipperScreen add-on:** INDX panel with all tools and their spools, active
   tool in the titlebar.
 - **Nozzle camera page** for the XY tool offsets, plus `CAL_VERIFY_XY` to
@@ -65,7 +65,7 @@ Work through them in this order:
 | [Installation](docs/INSTALLATION.md) | prerequisites, copying, adapting, first start, updates | **yes** |
 | [Calibration](docs/CALIBRATION.md) | order with links to Bondtech/Kalico; this repo's parts: eddy scanner, nozzle camera, global Z offset, PA with the load cell | **yes** |
 | [Spoolman](docs/SPOOLMAN.md) | one spool per tool, usage tracking | optional |
-| [OrcaSlicer](docs/ORCASLICER.md) | printer profile, filament profiles from Spoolman; Orca plugin (profiles, Spoolman tab, statistics), tested with OrcaSlicer 2.5.1 | optional |
+| [OrcaSlicer](docs/ORCASLICER.md) | printer profile, filament profiles from Spoolman; Orca plugin [orca-spoolman-profiles](https://github.com/daum1988/orca-spoolman-profiles) (profiles, Spoolman tab, statistics), tested with OrcaSlicer 2.5.1 | optional |
 | [KlipperScreen](docs/KLIPPERSCREEN.md) | load/unload dialog, INDX add-on | dialog: part of the base; add-on optional |
 | [Boot logo](bootlogo/README.md) | Plymouth logo on the display | optional |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | symptoms, causes, fixes | – |
@@ -82,7 +82,7 @@ klipper/                      content goes into ~/printer_data/config/
   scripts/orca_lanes/         writes the tool->spool mapping to Moonraker for OrcaSlicer
   scripts/spool_picker/       Spoolman spool list for the load dialog
 moonraker/moonraker.example.conf   the moonraker.conf sections this repo needs
-orca/                         OrcaSlicer printer profile + Spoolman -> Orca filament profile plugin
+orca/                         OrcaSlicer printer profile (+ legacy profile script; plugin: own repo)
 bootlogo/                     Plymouth boot logo for the CM4 display
 klipperscreen/                KlipperScreen add-on and example config
 tools/nozzle_cam.html         browser page for the XY tool offsets with a nozzle camera
