@@ -49,9 +49,10 @@ see [BondtechAB/INDX](https://github.com/BondtechAB/INDX) and the
 | Colour in Orca is outdated | spool changed in Spoolman itself | `ORCA_LANES_SYNC`, then sync in Orca |
 | Timelapse has no frames or no video | `TIMELAPSE_TAKE_FRAME` missing from the G-code: not in the printer profile, or Orca (logged in to an account) uses the profiles in `%APPDATA%\OrcaSlicer\user\<account-id>\` instead of `user\default\` | add `TIMELAPSE_TAKE_FRAME` under *Machine G-code → Before layer change* in the active printer profile ([ORCASLICER.md](ORCASLICER.md), section 1), slice again; check: the line appears in the G-code |
 | Orca shows no sync button | `printer_agent_id` not `moonraker`, or `lane_data` empty | [ORCASLICER.md](ORCASLICER.md), sections 2 and 3 |
-| Sync leaves a filament empty or generic | no matching profile `PSM<id>` | run the profile script again; profiles must be standalone |
-| Profile script writes nothing | Orca open, no template `SM-Vorlage <material>`, or filament without active spool | close Orca; check templates; `-WhatIf` shows the plan; `-All` for filaments without spool |
-| Shrinkage/flow etc. not applied | extra field empty or key wrong | field key must match the Orca setting exactly; script warns about unknown keys |
+| Sync leaves a filament empty or generic | no matching profile `PSM<id>`, or old script profiles with the same ID | Spoolman tab → *Update profiles from Spoolman*; read the status line; delete old `PSM` profiles in `filament\base` ([ORCASLICER.md](ORCASLICER.md), section 4) |
+| Plugin creates no profiles | Spoolman address missing or wrong, no template `SM-Vorlage <material>`, or filament without active spool | status line and `%APPDATA%\OrcaSlicer\spoolman_profiles\spoolman_profiles.log`; check templates; *Settings* → also filaments without spool |
+| SM profiles missing from the filament list | Orca shows bundle profiles in a group of their own | filament list → *Bundle presets → Spoolman Profiles* |
+| Shrinkage/flow etc. not applied | extra field empty or key wrong | field key must match the Orca setting exactly; the plugin warns about unknown keys |
 
 ## KlipperScreen and dialog
 

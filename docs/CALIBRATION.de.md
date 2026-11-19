@@ -224,6 +224,6 @@ eine Spule zugeordnet (Spoolman), steht der Wert auch im Filament der Spule
 angezeigt, aber nicht gespeichert. Fehler:
 `~/printer_data/config/lc_pa_data/last_run.log`.
 
-In OrcaSlicer den normalen PA-Wert pro Filament nutzen (das Profil-Skript
+In OrcaSlicer den normalen PA-Wert pro Filament nutzen (das Orca-Plugin
 übernimmt ihn aus Spoolman, siehe [ORCASLICER.de.md](ORCASLICER.de.md)); kein
 *adaptives PA*, das schickt sehr viele `SET_PRESSURE_ADVANCE` an Klipper.

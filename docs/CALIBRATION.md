@@ -220,6 +220,6 @@ tool (Spoolman), the value is also in the spool's filament
 (`pressure_advance_d025/_d04/_d06`, one per nozzle size). Uncertain values are
 shown but not saved. Errors: `~/printer_data/config/lc_pa_data/last_run.log`.
 
-In OrcaSlicer use plain PA per filament (the profile script copies it from
+In OrcaSlicer use plain PA per filament (the Orca plugin copies it from
 Spoolman, see [ORCASLICER.md](ORCASLICER.md)); avoid Orca's *adaptive PA*, it
 floods Klipper with `SET_PRESSURE_ADVANCE`.

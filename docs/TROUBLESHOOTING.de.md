@@ -49,9 +49,10 @@ Pi: `~/printer_data/logs/` (`klippy.log`, `moonraker.log`, `KlipperScreen.log`,
 | Farbe in Orca veraltet | Spule in Spoolman selbst geändert | `ORCA_LANES_SYNC`, dann in Orca abgleichen |
 | Timelapse ohne Bilder bzw. ohne Video | `TIMELAPSE_TAKE_FRAME` fehlt im G-Code: nicht im Druckerprofil, oder Orca nutzt bei angemeldetem Konto die Profile in `%APPDATA%\OrcaSlicer\user\<Konto-ID>\` statt `user\default\` | im aktiven Druckerprofil unter *Maschinen G-Code → Vor dem Schichtwechsel* `TIMELAPSE_TAKE_FRAME` eintragen ([ORCASLICER.de.md](ORCASLICER.de.md), Abschnitt 1), neu slicen; Kontrolle: Zeile kommt im G-Code vor |
 | Orca zeigt keinen Sync-Knopf | `printer_agent_id` nicht `moonraker` oder `lane_data` leer | [ORCASLICER.de.md](ORCASLICER.de.md), Abschnitte 2 und 3 |
-| Abgleich lässt ein Filament leer oder generisch | kein passendes Profil `PSM<id>` | Profil-Skript erneut ausführen; Profile müssen eigenständig sein |
-| Profil-Skript schreibt nichts | Orca offen, keine Vorlage `SM-Vorlage <Material>` oder Filament ohne aktive Spule | Orca schließen; Vorlagen prüfen; `-WhatIf` zeigt den Plan; `-All` für Filamente ohne Spule |
-| Schrumpfung/Fluss usw. nicht übernommen | Zusatzfeld leer oder Schlüssel falsch | Schlüssel muss genau der Orca-Einstellung entsprechen; unbekannte Schlüssel meldet das Skript |
+| Abgleich lässt ein Filament leer oder generisch | kein passendes Profil `PSM<id>`, oder alte Skript-Profile mit derselben ID | im Reiter Spoolman *Update profiles from Spoolman*; Statuszeile lesen; alte `PSM`-Profile in `filament\base` löschen ([ORCASLICER.de.md](ORCASLICER.de.md), Abschnitt 4) |
+| Plugin erzeugt keine Profile | Spoolman-Adresse fehlt oder falsch, keine Vorlage `SM-Vorlage <Material>` oder Filament ohne aktive Spule | Statuszeile und `%APPDATA%\OrcaSlicer\spoolman_profiles\spoolman_profiles.log`; Vorlagen prüfen; *Settings* → auch Filamente ohne Spule |
+| SM-Profile nicht in der Filamentliste | Orca zeigt Bundle-Profile in einer eigenen Gruppe | Filamentliste → *Bundle presets → Spoolman Profiles* |
+| Schrumpfung/Fluss usw. nicht übernommen | Zusatzfeld leer oder Schlüssel falsch | Schlüssel muss genau der Orca-Einstellung entsprechen; unbekannte Schlüssel meldet das Plugin |
 
 ## KlipperScreen und Dialog
 

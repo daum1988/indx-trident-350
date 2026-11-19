@@ -62,7 +62,7 @@ In dieser Reihenfolge abarbeiten:
 | [Installation](docs/INSTALLATION.de.md) | Voraussetzungen, Kopieren, Anpassen, erster Start, Updates | **ja** |
 | [Kalibrierung](docs/CALIBRATION.de.md) | Reihenfolge mit Links zu Bondtech/Kalico; Teile dieses Repos: Eddy-Scanner, Düsenkamera, globaler Z-Offset, PA per Load-Cell | **ja** |
 | [Spoolman](docs/SPOOLMAN.de.md) | eine Spule pro Tool, Verbrauch buchen | optional |
-| [OrcaSlicer](docs/ORCASLICER.de.md) | Druckerprofil, Filamentprofile aus Spoolman; Profil-Skript für Windows, getestet mit OrcaSlicer 2.5.x | optional |
+| [OrcaSlicer](docs/ORCASLICER.de.md) | Druckerprofil, Filamentprofile aus Spoolman; Orca-Plugin (Profile + Spoolman-Reiter), getestet mit OrcaSlicer 2.5.1 | optional |
 | [KlipperScreen](docs/KLIPPERSCREEN.de.md) | Lade-/Entlade-Dialog, INDX-Add-on | Dialog: Teil der Grundinstallation; Add-on optional |
 | [Bootlogo](bootlogo/README.md#deutsch) | Plymouth-Logo auf dem Display | optional |
 | [Fehlerbehebung](docs/TROUBLESHOOTING.de.md) | Symptome, Ursachen, Lösungen | – |
@@ -79,7 +79,7 @@ klipper/                      Inhalt kommt nach ~/printer_data/config/
   scripts/orca_lanes/         schreibt die Tool->Spulen-Zuordnung für OrcaSlicer in Moonraker
   scripts/spool_picker/       Spulenliste aus Spoolman für den Lade-Dialog
 moonraker/moonraker.example.conf   die benötigten Abschnitte für moonraker.conf
-orca/                         OrcaSlicer-Druckerprofil + Skript Spoolman -> Orca-Filamentprofile
+orca/                         OrcaSlicer-Druckerprofil + Plugin Spoolman -> Orca-Filamentprofile
 bootlogo/                     Plymouth-Bootlogo für das CM4-Display
 klipperscreen/                KlipperScreen-Add-on und Beispiel-Config
 tools/nozzle_cam.html         Browserseite für die XY-Tool-Offsets mit Düsenkamera
