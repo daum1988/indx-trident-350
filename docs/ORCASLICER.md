@@ -168,7 +168,8 @@ Moonraker's print history and Spoolman; nothing is booked. Period selectable
   counter `toolchange_count`;
 - use per week by colour, materials, most used filaments, spools running low;
 - per tool T0–T8: grams and number of prints, with the spool assigned now;
-- print history with date, status, grams and cost.
+- print history with date, status, grams and cost; if a print has a timelapse
+  video (moonraker-timelapse), it shows with a thumbnail and plays right in the tab.
 
 Grams per tool and tool changes per print are the slicer's values; cancelled
 prints count with the printed share. Prints with profiles without `(SM<id>)`

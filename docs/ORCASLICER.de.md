@@ -174,7 +174,9 @@ Moonrakers Druckhistorie und Spoolman, gebucht wird nichts. Zeitraum wählbar
 - Verbrauch pro Woche nach Farbe, Materialien, meistgenutzte Filamente,
   fast leere Spulen;
 - pro Tool T0–T8: Gramm und Anzahl Drucke, mit der aktuell zugeordneten Spule;
-- Druckhistorie mit Datum, Status, Gramm und Kosten.
+- Druckhistorie mit Datum, Status, Gramm und Kosten; gibt es zu einem Druck ein
+  Timelapse-Video (moonraker-timelapse), erscheint es mit Vorschaubild und spielt
+  direkt im Reiter.
 
 Die Gramm pro Tool und die Toolwechsel pro Druck sind die Werte des Slicers;
 abgebrochene Drucke zählen anteilig. Drucke mit Profilen ohne `(SM<id>)`
