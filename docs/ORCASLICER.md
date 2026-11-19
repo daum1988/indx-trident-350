@@ -115,7 +115,7 @@ Tools without a spool have `"material": ""` and are empty in Orca.
 The plugin `orca/spoolman_profiles/spoolman_profiles.py` creates the
 profiles directly inside OrcaSlicer (2.5.0 or newer) and reloads them without
 a restart. It also shows the Spoolman web UI in the **Spoolman** tab; button,
-status and settings are in the **Spoolman Profiles** tab.
+status and statistics are in the **Spools & Stats** tab.
 
 1. **Create templates (once):** in Orca, create a *standalone* filament per
    material (Filament → *Create filament*, not "copy" of a system profile),
@@ -130,17 +130,17 @@ status and settings are in the **Spoolman Profiles** tab.
    (Spoolman) and threads.
 3. **Set up:** *File → Plugins* → "Spoolman Profiles" → *Config* → entry
    **Update profiles from Spoolman** (at the top; the tab entries have no
-   settings of their own), or the **Spoolman Profiles** tab: enter the
-   Spoolman address
-   (`http://<SPOOLMAN-IP>:7912` or your own domain), *Save*. The template
+   settings of their own): enter the Spoolman address
+   (`http://<SPOOLMAN-IP>:7912` or your own domain) and, for the statistics,
+   the printer address (`http://<PRINTER-IP>`), *Save*. The template
    prefix (e.g. `SM-Template`), update on start, Spoolio fields and archived
    filaments are set there too, as is the **layout**: two tabs (default),
    only the Spoolman tab (button through the command as a window) or only the
-   Spoolman Profiles tab (Spoolman in the browser). The layout applies after
+   Spools & Stats tab (Spoolman in the browser). The layout applies after
    restarting Orca. The settings stay local in
    `%APPDATA%\OrcaSlicer\spoolman_profiles\settings.json`. Then restart Orca:
    the **Spoolman** tab loads the address at start.
-4. **Generate profiles:** tab **Spoolman Profiles** → press **Update
+4. **Generate profiles:** tab **Spools & Stats** → press **Update
    profiles from Spoolman**. The same is available as a window through the
    command *Update profiles from Spoolman* (*File → Plugins* or the command
    palette). The status line shows e.g. "114 new … Loaded in OrcaSlicer: 114
@@ -157,6 +157,26 @@ status and settings are in the **Spoolman Profiles** tab.
    ![Orca: Filament area with the sync button marked](images/orca_filament_sync.png)
 
 **Check:** filament 1–9 get the profile and colour of the spools on T0–T8.
+
+**Statistics:** the **Spools & Stats** tab has two collapsible sections,
+*Profiles* (button and status) and *Statistics*. The statistics read
+Moonraker's print history and Spoolman; nothing is booked. Period selectable
+(7 days to all time):
+- filament used, prints, cost (from Spoolman prices), spools under the
+  *Low stock below (g)* threshold (default 100 g);
+- tool changes in the period from the print files, and the printer's INDX
+  counter `toolchange_count`;
+- use per week by colour, materials, most used filaments, spools running low;
+- per tool T0–T8: grams and number of prints, with the spool assigned now;
+- print history with date, status, grams and cost.
+
+Grams per tool and tool changes per print are the slicer's values; cancelled
+prints count with the printed share. Prints with profiles without `(SM<id>)`
+count with material and colour from the print file, without cost. *Tool
+statistics since* (e.g. the date of the INDX conversion) leaves older prints
+out of the per-tool data and the tool changes. On printers with a single tool,
+*Show per-tool statistics and tool changes* hides both. The history is cached in
+`%APPDATA%\OrcaSlicer\spoolman_profiles\history_cache.json`.
 
 Taken from Spoolman: name, vendor, colour, density, diameter, nozzle and bed
 temperature (the first-layer offset stays as in the template), price per kg.
@@ -228,6 +248,6 @@ in Orca, they are regenerated on every update.
   precedence) and turns on `enable_pressure_advance`. Orca then sets PA on
   every filament change in the G-code.
 
-Afterwards press **Update profiles from Spoolman** in the **Spoolman Profiles** tab (or restart Orca).
+Afterwards press **Update profiles from Spoolman** in the **Spools & Stats** tab (or restart Orca).
 
 Problems: see [TROUBLESHOOTING.md](TROUBLESHOOTING.md#spoolman-and-orcaslicer).

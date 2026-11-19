@@ -118,8 +118,8 @@ Tools ohne Spule haben `"material": ""` und sind in Orca leer.
 
 Das Plugin `orca/spoolman_profiles/spoolman_profiles.py` erzeugt die Profile
 direkt in OrcaSlicer (ab 2.5.0) und lädt sie ohne Neustart. Zusätzlich zeigt
-es die Spoolman-Weboberfläche im Reiter **Spoolman**; Knopf, Status und
-Einstellungen stehen im Reiter **Spoolman Profiles**.
+es die Spoolman-Weboberfläche im Reiter **Spoolman**; Knopf, Status und eine
+Statistik stehen im Reiter **Spools & Stats**.
 
 1. **Vorlagen anlegen (einmalig):** In Orca pro Material ein *eigenständiges*
    Filament anlegen (Filament → *Filament erstellen*, nicht „Kopieren“ eines
@@ -134,17 +134,17 @@ Einstellungen stehen im Reiter **Spoolman Profiles**.
    Netzwerkzugriff (Spoolman) und Threads erlauben.
 3. **Einrichten:** *Datei → Plugins* → „Spoolman Profiles“ → *Config* →
    Eintrag **Update profiles from Spoolman** (oben; die Einträge der Reiter
-   haben keine eigenen Einstellungen), oder Reiter **Spoolman Profiles**:
-   Spoolman-Adresse
-   (`http://<SPOOLMAN-IP>:7912` oder eine eigene Domain) eintragen, *Save*.
+   haben keine eigenen Einstellungen): Spoolman-Adresse
+   (`http://<SPOOLMAN-IP>:7912` oder eine eigene Domain) eintragen, für die
+   Statistik auch die Druckeradresse (`http://<DRUCKER-IP>`), *Save*.
    Dort auch Vorlagen-Präfix (z. B. `SM-Template`), Abgleich beim Start,
    Spoolio-Felder und archivierte Filamente sowie das **Layout**: zwei
    Reiter (Standard), nur der Reiter Spoolman (Knopf dann über den Befehl als
-   Fenster) oder nur der Reiter Spoolman Profiles (Spoolman im Browser). Das
+   Fenster) oder nur der Reiter Spools & Stats (Spoolman im Browser). Das
    Layout gilt nach einem Neustart von Orca. Die Einstellungen bleiben lokal
    in `%APPDATA%\OrcaSlicer\spoolman_profiles\settings.json`. Danach Orca
    neu starten: Der Reiter **Spoolman** lädt die Adresse beim Start.
-4. **Profile erzeugen:** Reiter **Spoolman Profiles** → **Update profiles
+4. **Profile erzeugen:** Reiter **Spools & Stats** → **Update profiles
    from Spoolman** drücken. Dasselbe gibt es als Fenster über den Befehl
    *Update profiles from Spoolman* (*Datei → Plugins* oder Befehlspalette).
    Die Statuszeile zeigt z. B. „114 new … Loaded in OrcaSlicer: 114 profiles,
@@ -162,6 +162,27 @@ Einstellungen stehen im Reiter **Spoolman Profiles**.
    ![Orca: Bereich Filament mit markiertem Sync-Knopf](images/orca_filament_sync.png)
 
 **Kontrolle:** Filament 1–9 bekommen Profil und Farbe der Spulen auf T0–T8.
+
+**Statistik:** Der Reiter **Spools & Stats** hat zwei auf- und zuklappbare
+Abschnitte, *Profiles* (Knopf und Status) und *Statistics*. Die Statistik liest
+Moonrakers Druckhistorie und Spoolman, gebucht wird nichts. Zeitraum wählbar
+(7 Tage bis alles):
+- verbrauchtes Filament, Drucke, Kosten (aus den Spoolman-Preisen), Spulen unter
+  der Schwelle *Low stock below (g)* (Standard 100 g);
+- Toolwechsel im Zeitraum laut Druckdateien und der INDX-Zähler
+  `toolchange_count` des Druckers;
+- Verbrauch pro Woche nach Farbe, Materialien, meistgenutzte Filamente,
+  fast leere Spulen;
+- pro Tool T0–T8: Gramm und Anzahl Drucke, mit der aktuell zugeordneten Spule;
+- Druckhistorie mit Datum, Status, Gramm und Kosten.
+
+Die Gramm pro Tool und die Toolwechsel pro Druck sind die Werte des Slicers;
+abgebrochene Drucke zählen anteilig. Drucke mit Profilen ohne `(SM<id>)`
+zählen mit Material und Farbe aus der Druckdatei, ohne Kosten. *Tool
+statistics since* (z. B. Datum des INDX-Umbaus) blendet ältere Drucke aus der
+Auswertung pro Tool und den Toolwechseln aus. Bei Druckern mit nur einem Tool
+blendet *Show per-tool statistics and tool changes* beides ganz aus. Die Historie wird zwischengespeichert in
+`%APPDATA%\OrcaSlicer\spoolman_profiles\history_cache.json`.
 
 Aus Spoolman übernommen: Name, Hersteller, Farbe, Dichte, Durchmesser, Düsen-
 und Betttemperatur (Abstand zur ersten Schicht bleibt wie in der Vorlage),
@@ -235,6 +256,6 @@ Abgleich neu erzeugt.
   Vorrang) und schaltet `enable_pressure_advance` ein. Orca setzt PA dann beim
   Filamentwechsel im G-Code.
 
-Danach im Reiter **Spoolman Profiles** **Update profiles from Spoolman** drücken (oder Orca neu starten).
+Danach im Reiter **Spools & Stats** **Update profiles from Spoolman** drücken (oder Orca neu starten).
 
 Probleme: siehe [TROUBLESHOOTING.de.md](TROUBLESHOOTING.de.md#spoolman-und-orcaslicer).
