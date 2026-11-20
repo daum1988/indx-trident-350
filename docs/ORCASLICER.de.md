@@ -137,7 +137,7 @@ Kurz für diese Maschine:
    *Tool statistics since* = Datum des INDX-Umbaus. *Save*, Orca neu starten.
 4. **Profile erzeugen:** Reiter **Spools & Stats** → **Update profiles from
    Spoolman** (läuft auch bei jedem Start von Orca). Die Profile heißen
-   `<Hersteller> <Name> (SM<id>) @Voron Trident 350 <Düse> nozzle`, haben die
+   `<Hersteller> <Material> <Name> (SM<id>) @Voron Trident 350 <Düse> nozzle`, haben die
    Filament-ID `PSM<id>` und stehen in der Filamentliste unter
    **Bundle presets → Spoolman Profiles**.
 5. **Abgleich:** Drucker wählen, im Bereich *Filament* den Sync-Knopf (rechts
