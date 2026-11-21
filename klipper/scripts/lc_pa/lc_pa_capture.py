@@ -343,7 +343,33 @@ V_MAX = 4.0  # mm/s filament, upper limit of the steps
 V_MIN_HI = 1.0  # below this the signal is too small
 LOW_RATIO = 0.375  # low feed = 0.375 * high (like 1.5 <-> 4)
 DEFAULT_PRELOAD = 1100.0  # g, lowest seat preload according to INDX (1100-1900 g)
-PA_SCALE = 0.6  # print PA / measured time constant, from PA patterns (T0 0.63, T1 0.57)
+# print PA / measured time constant per nozzle diameter, from Orca PA patterns:
+#   0.4 mm: Sunlu T0 0.024/0.038, T1 0.024/0.042, Overture T0 0.025/0.042 -> 0.6
+#   0.6 mm: Overture T5 0.022/0.045, Sunlu T5 0.020/0.039 -> 0.5
+#   0.25 mm: Sunlu Cyan T7, measured 0.052, pattern clean from 0.054 up to
+#            0.082 (no upper limit seen) -> 1.1 (one filament so far)
+# Between two entries it is interpolated; outside the table the nearest
+# entry is used and the result is marked as not verified.
+PA_SCALE_BY_NOZZLE = {0.25: 1.1, 0.4: 0.6, 0.6: 0.5}
+AGREE_MAX = 1.6    # max ratio of the up and down medians
+AGREE_SMALL = 2.0  # same for nozzles below 0.35 mm
+PA_SCALE = PA_SCALE_BY_NOZZLE[0.4]  # nozzle unknown
+
+
+def pa_scale(noz):
+    """(factor, note) for the nozzle diameter."""
+    pts = sorted(PA_SCALE_BY_NOZZLE.items())
+    if noz <= 0:
+        return PA_SCALE, " - nozzle unknown, factor for 0.4 mm"
+    for d, s in pts:
+        if abs(noz - d) < 0.01:
+            return s, ""
+    if noz < pts[0][0] or noz > pts[-1][0]:
+        d, s = pts[0] if noz < pts[0][0] else pts[-1]
+        return s, " - factor for %s mm nozzle not verified, %s mm value used" % (nozzle_str(noz), nozzle_str(d))
+    for (d0, s0), (d1, s1) in zip(pts, pts[1:]):
+        if d0 < noz < d1:
+            return round(s0 + (s1 - s0) * (noz - d0) / (d1 - d0), 2), " - interpolated, not verified"
 DRIFT_MAX = 400.0  # g, spread of the slow-speed force level (usable runs up to ~250 g, T3 with drag 905 g)
 RESIDUAL_MAX = 0.3  # share of the preload that may stay after the stop (drag)
 
@@ -660,7 +686,10 @@ def evaluate(kl, tool, rows, moves, meta):
         reasons.append("only %d steps" % len(good))
     if spread:
         reasons.append("large spread")
-    if up and dn and max(median(up), median(dn)) > 1.6 * min(median(up), median(dn)):
+    # Small nozzles build pressure clearly slower than they release it
+    # (0.25 mm T7: up 0.065 / down 0.038).
+    agree = AGREE_SMALL if 0 < meta.get("nozzle", 0) < 0.35 else AGREE_MAX
+    if up and dn and max(median(up), median(dn)) > agree * min(median(up), median(dn)):
         reasons.append("faster/slower do not agree")
     if not 0.005 <= pa <= 0.15:
         reasons.append("implausible value")
@@ -784,20 +813,24 @@ def run_cal(kl, rec, args):
                       plan=None if args.seq else make_plan(kl, preload, round(args.flow / FILAMENT_AREA, 1)),
                       at_bucket=True)
         clean_after(kl, args)
+        _, noz = tool_vars(kl, tool)
         if res is not None:
             res[2]["preload"] = preload
+            res[2]["nozzle"] = noz
         pa, valid = evaluate(kl, tool, *res) if res is not None else (None, False)
         if not valid:
             pa = None
         tau = pa
         if pa is not None:
             # The measured time constant is longer than the PA that prints best
-            # (PA pattern 2026-11-20, same spool: T0 0.038 -> 0.024, T1 0.042
-            # -> 0.024). PA_SCALE maps one to the other.
-            pa = round(tau * args.scale, 3)
-            kl.respond("T%d: print PA %.3f (measured %.3f x %.2f)" % (tool, pa, tau, args.scale))
+            # (PA patterns, see PA_SCALE_BY_NOZZLE). The factor maps one to the other.
+            if args.scale is not None:
+                scale, note = args.scale, " (SCALE given)"
+            else:
+                scale, note = pa_scale(noz)
+            pa = round(tau * scale, 3)
+            kl.respond("T%d: print PA %.3f (measured %.3f x %.2f%s)" % (tool, pa, tau, scale, note))
         if pa is not None and args.save:
-            _, noz = tool_vars(kl, tool)
             kl.gcode("SAVE_VARIABLE VARIABLE=t%d_pa VALUE=%.3f\n"
                      "SAVE_VARIABLE VARIABLE=t%d_pa_raw VALUE=%.3f\n"
                      "SAVE_VARIABLE VARIABLE=t%d_pa_temp VALUE=%.0f"
@@ -833,8 +866,9 @@ def main():
     ap.add_argument("--save", type=int, default=1, help="cal: save the result via SAVE_VARIABLE")
     ap.add_argument("--spoolman", type=int, default=1, help="cal: write PA to the Spoolman filament (with --save)")
     ap.add_argument("--cool", type=int, default=1, help="turn the heater off at the end (M104 S0)")
-    ap.add_argument("--scale", type=float, default=PA_SCALE,
-                    help="cal: print PA = measured time constant x scale (default %.2f)" % PA_SCALE)
+    ap.add_argument("--scale", type=float, default=None,
+                    help="cal: print PA = measured time constant x scale "
+                         "(default: per nozzle diameter, see PA_SCALE_BY_NOZZLE)")
     ap.add_argument("--flow", type=float, default=V_MAX * FILAMENT_AREA,
                     help="cal: upper flow of the steps in mm3/s (default 9.6, max 19)")
     ap.add_argument("--soak", type=float, default=30.0, help="cal: soak time after heating from cold (s)")

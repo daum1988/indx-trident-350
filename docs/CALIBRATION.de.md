@@ -193,7 +193,8 @@ der Load-Cell auf der Plattenoberfläche gemessen.
 `PA_CAL_LOADCELL` (`macros/lc_pa_cal.cfg`) misst Pressure Advance pro Tool
 ohne Testdruck. Das Tool extrudiert in Geschwindigkeitsstufen in den Bucket,
 die Load-Cell misst dabei den Düsendruck. Aus den Kraftsprüngen wird die
-Druck-Zeitkonstante gefittet; das ist der PA-Wert.
+Druck-Zeitkonstante gefittet und mit einem Faktor je Düsengröße
+multipliziert; das ergibt den PA-Wert.
 
 **Voraussetzung:** Schritte 1–3 erledigt, Filament geladen, Bucket eingebaut
 und seine Position in `macros/bucket.cfg` eingetragen, richtiger
@@ -212,6 +213,28 @@ PA_CAL_LOADCELL TOOLS=ALL TEMP=230
 LC_PA_SHOW          gespeicherte Werte anzeigen
 LC_PA_APPLY         gespeicherten Wert des aktiven Tools anwenden
 ```
+
+**Faktor je Düsengröße** (gemessene Zeitkonstante -> Druck-PA), geprüft mit
+OrcaSlicer-PA-Mustern:
+
+| Düse | Faktor | Geprüft mit |
+|---|---|---|
+| 0,25 mm | 1,1 | 1 PLA |
+| 0,4 mm | 0,6 | 2 PLA, 3 Tools |
+| 0,6 mm | 0,5 | 2 PLA |
+
+Andere Größen werden interpoliert oder bekommen den nächstliegenden Wert; die
+Konsole meldet dann „not verified“. Ohne `SET_TOOL_NOZZLE` gilt der Faktor für
+0,4 mm. Bei anderen Materialien (PETG, ABS …) das Ergebnis einmal mit einem
+Orca-PA-Muster prüfen. `FLOW=15 SAVE=1` macht die Stufen größer (hilft bei
+0,6-mm-Düsen, wenn das Ergebnis „UNCERTAIN“ ist); bei kleinen Düsen den Fluss
+nicht senken, sonst wird das Signal zu schwach.
+
+**Filamentweg:** Kraft, die nach dem Vorspülen auf dem Tool bleibt (in der
+Konsole „residual“), ist Zug im Filamentweg, kein Düsendruck. Lange
+PTFE-Schläuche mit Bögen, eine schwergängige Kupplung oder eine bremsende
+Spule machen Messungen unsicher oder brechen sie ab. Dann mit kurz vor dem
+Drucker getrenntem Schlauch messen.
 
 Mit dem Filament und der Temperatur messen, mit denen gedruckt wird, und
 während einer Messung keine anderen Befehle senden. Pro Tool: Toolwechsel,

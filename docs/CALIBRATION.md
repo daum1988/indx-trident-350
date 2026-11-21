@@ -190,8 +190,8 @@ cell on the plate surface.
 
 `PA_CAL_LOADCELL` (`macros/lc_pa_cal.cfg`) measures pressure advance per tool
 without a test print. The tool extrudes into the purge bucket in speed steps
-while the load cell records the nozzle pressure; the pressure time constant is
-fitted and is the PA value.
+while the load cell records the nozzle pressure. The pressure time constant is
+fitted and multiplied by a factor per nozzle size, which gives the PA value.
 
 **Requires:** steps 1–3 done, filament loaded, purge bucket in place and its
 position set in `macros/bucket.cfg`, correct user name in the script path
@@ -209,6 +209,28 @@ PA_CAL_LOADCELL TOOLS=ALL TEMP=230
 LC_PA_SHOW          list stored values
 LC_PA_APPLY         apply the stored value of the active tool
 ```
+
+**Factor per nozzle size** (measured time constant -> print PA), checked
+against OrcaSlicer PA patterns:
+
+| Nozzle | Factor | Checked with |
+|---|---|---|
+| 0.25 mm | 1.1 | 1 PLA |
+| 0.4 mm | 0.6 | 2 PLA, 3 tools |
+| 0.6 mm | 0.5 | 2 PLA |
+
+Other sizes are interpolated or use the nearest value; the console then says
+"not verified". Without `SET_TOOL_NOZZLE` the 0.4 mm factor is used. For other
+materials (PETG, ABS ...) check the result once with an Orca PA pattern.
+`FLOW=15 SAVE=1` gives larger steps (helps with 0.6 mm nozzles if the
+result is "UNCERTAIN"); do not lower the flow for small nozzles, the signal
+gets too weak.
+
+**Filament path:** force that stays on the tool after the pre-flush (shown as
+"residual") is drag in the filament path, not nozzle pressure. Long PTFE runs
+with bends, a stiff coupling or a braking spool make runs uncertain or abort
+them. If that happens, measure with the tube separated just before the
+printer.
 
 Measure with the filament and temperature you print with, and do not send
 other commands during a measurement. Per tool: tool change, travel to the
