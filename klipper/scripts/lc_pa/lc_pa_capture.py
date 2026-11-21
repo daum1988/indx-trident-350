@@ -305,6 +305,27 @@ def analyze(rows, moves):
     return fits
 
 
+def low_drift(rows, moves):
+    """Spread of the force at the end of the slow segments (g).
+
+    Nozzle pressure at the same speed is the same every time. If the level
+    wanders, drag in the filament path builds up and releases (T3 2026-11-20:
+    slow level -356 -> -1262 g, spool/path dragging)."""
+    cruise = [m for m in moves if m[3] == 0 and m[1] > 0.8 and m[2] > 0]
+    if len(cruise) < 4:
+        return 0.0
+    v_lo = min(m[2] for m in cruise[1:])
+    lv = []
+    for m in cruise[1:]:
+        if abs(m[2] - v_lo) > 0.05:
+            continue
+        end = m[0] + m[1]
+        f = [r[1] for r in rows if end - 0.5 <= r[0] < end]
+        if f:
+            lv.append(sum(f) / len(f))
+    return max(lv) - min(lv) if len(lv) >= 2 else 0.0
+
+
 def median(xs):
     s = sorted(xs)
     n = len(s)
@@ -322,6 +343,9 @@ V_MAX = 4.0  # mm/s filament, upper limit of the steps
 V_MIN_HI = 1.0  # below this the signal is too small
 LOW_RATIO = 0.375  # low feed = 0.375 * high (like 1.5 <-> 4)
 DEFAULT_PRELOAD = 1100.0  # g, lowest seat preload according to INDX (1100-1900 g)
+PA_SCALE = 0.6  # print PA / measured time constant, from PA patterns (T0 0.63, T1 0.57)
+DRIFT_MAX = 400.0  # g, spread of the slow-speed force level (usable runs up to ~250 g, T3 with drag 905 g)
+RESIDUAL_MAX = 0.3  # share of the preload that may stay after the stop (drag)
 
 
 def seat_preload(kl):
@@ -336,29 +360,47 @@ def seat_preload(kl):
     return g if g >= 680.0 else DEFAULT_PRELOAD
 
 
-def make_plan(kl, preload):
+def make_plan(kl, preload, v_max=V_MAX):
     """Picks the step height so the force stays at about half the seat preload.
 
     Above the preload the nozzle pressure lifts the tool in its seat (T1/T2 at
     ~2000 g: time constant distorted, zero point shifted afterwards).
     """
-    def plan(level):
-        limit = 0.5 * preload
+    def plan(level, residual):
+        # level = nozzle pressure at 2 mm/s (force while flushing minus force
+        # 0.5 s after the stop), residual = force that stays after the stop.
+        # Nozzle pressure decays within ~0.2 s (T0: -450 g -> -70 g). Force that
+        # stays is friction or pull in the filament path (T1 2026-11-20: 600 g
+        # stayed, only ~60 g per mm/s came from the nozzle).
+        if residual > RESIDUAL_MAX * preload:
+            kl.respond("Aborted - %.0f g stay on the tool after the pre-flush stops, nozzle pressure "
+                       "only %.0f g. That is drag in the filament path, not nozzle pressure: spool "
+                       "brakes or is tangled, PTFE tube or buffer stiff, extruder idler too tight. "
+                       "Fix that first (feed by hand should be easy)." % (residual, level))
+            return None
         if not level == level or level < 40:  # NaN or no pressure build-up
             kl.respond("Aborted - hardly any force while pre-flushing (%.0f g). Filament loaded, nozzle clear?" % level)
             return None
-        v_hi = min(V_MAX, 2.0 * limit / level)
-        v_hi = math.floor(v_hi * 10) / 10.0
+        limit = 0.6 * preload - residual
+        v_seat = 2.0 * limit / level
+        v_hi = math.floor(min(v_max, v_seat) * 10) / 10.0
         if v_hi < V_MIN_HI:
             kl.respond("Aborted - already %.0f g nozzle pressure at 2 mm/s (preload %.0f g). "
                        "Nozzle partly clogged, temperature too low or wrong filament?"
                        % (level, preload))
             return None
         v_lo = round(LOW_RATIO * v_hi, 2)
-        kl.respond("Pre-flush: %.0f g at 2 mm/s, preload %.0f g -> steps %.2f <-> %.1f mm/s"
-                   % (level, preload, v_lo, v_hi))
+        kl.respond("Pre-flush: %.0f g nozzle pressure at 2 mm/s, %.0f g residual, preload %.0f g "
+                   "-> steps %.2f <-> %.1f mm/s (%.1f <-> %.1f mm3/s)"
+                   % (level, residual, preload, v_lo, v_hi,
+                      v_lo * FILAMENT_AREA, v_hi * FILAMENT_AREA))
+        if v_max > V_MAX and v_seat < v_max:
+            kl.respond("Requested %.1f mm3/s, limited to %.1f mm3/s by the seat preload."
+                       % (v_max * FILAMENT_AREA, v_hi * FILAMENT_AREA))
         # v_lo 4 s to rebuild pressure (not evaluated), then 4x up/down
-        return [(v_lo, 4.0)] + [(v_hi, 1.5), (v_lo, 1.5)] * 4
+        # above 4 mm/s shorter segments (still > 0.8 s cruise for the fit)
+        d = 1.5 if v_hi <= V_MAX else 1.2
+        return [(v_lo, 4.0)] + [(v_hi, d), (v_lo, d)] * 4
     return plan
 
 
@@ -386,7 +428,7 @@ def seq_to_gcode(seq):
     return g
 
 
-def measure(kl, rec, args, tool, seq_str, pa, label, plan=None):
+def measure(kl, rec, args, tool, seq_str, pa, label, plan=None, at_bucket=False):
     """One measurement on the active tool. Returns (rows, moves, meta) or None.
 
     With plan: seq_str is only the pre-flush. Then plan(force_g) is called with the
@@ -411,10 +453,15 @@ def measure(kl, rec, args, tool, seq_str, pa, label, plan=None):
                % (tool, ex["temperature"], pa, total_e, seq_str))
 
     lines = ["SAVE_GCODE_STATE NAME=_lc_pa_state"]
-    if not args.no_bucket:
+    if not args.no_bucket and not at_bucket:
         lines.append("MOVE_TO_BUCKET")
     lines.append("M400")
     kl.gcode("\n".join(lines), timeout=120)
+    _, act = query(kl)
+    if act != tool:  # e.g. homing inside MOVE_TO_BUCKET changed the tool
+        kl.gcode("RESTORE_GCODE_STATE NAME=_lc_pa_state", timeout=10)
+        kl.respond("Aborted - T%d is on the head now instead of T%d. Start again." % (act, tool))
+        return None
 
     kl.respond("waiting for a quiet zero point (max %.0f s) ..." % args.settle_timeout)
     ok, _, waited = wait_settled(kl, rec, args.settle_tol, args.settle_timeout)
@@ -431,17 +478,35 @@ def measure(kl, rec, args, tool, seq_str, pa, label, plan=None):
             kl.gcode("\n".join(["M83", "SET_PRESSURE_ADVANCE ADVANCE=%.4f" % pa, "G4 P3000"]
                                + seq_to_gcode(seq) + ["M400"]),
                      timeout=sum(d for _, d in seq) + 60)
-            time.sleep(0.4)  # load cell data lags slightly
+            # end of the pre-flush from the trapq, then wait until the load cell
+            # data covers 0.8 s after it (data lags slightly)
+            t_end = None
+            deadline = time.time() + 4.0
+            while time.time() < deadline:
+                with rec.lock:
+                    ends = [m[0] + m[1] for m in rec.moves.values() if m[0] >= t_mark]
+                    tl = rec.force[-1][0] if rec.force else 0.0
+                if ends:
+                    t_end = max(ends)
+                    if tl >= t_end + 0.8:
+                        break
+                time.sleep(0.1)
             with rec.lock:
-                tl = rec.force[-1][0] if rec.force else 0.0
-                lvl = [f for t, f, _ in rec.force if tl - 1.6 <= t < tl - 0.5]
-            level = abs(mean(lvl) - f_settled) if lvl else float("nan")
+                if t_end is None:
+                    t_end = tl - 0.9
+                run = [f for t, f, _ in rec.force if t_end - 1.0 <= t < t_end - 0.1]
+                rest = [f for t, f, _ in rec.force if t_end + 0.5 <= t < t_end + 0.8]
+            if run and rest:
+                level = abs(mean(run) - mean(rest))
+                residual = abs(mean(rest) - f_settled)
+            else:
+                level, residual = float("nan"), 0.0
             # Phase 2: steps with adapted speed
-            seq2 = plan(level)
+            seq2 = plan(level, residual)
             if seq2 is None:
                 return None
             total_e += sum(v * d for v, d in seq2)
-            if total_e > MAX_TOTAL_E + 15:
+            if total_e > MAX_TOTAL_E + 25:
                 raise KlippyError("Sequence would extrude %.0f mm" % total_e)
             seq_str += " + " + ",".join("%g:%g" % s for s in seq2)
             seq = seq2
@@ -515,12 +580,26 @@ def plateau_summary(rows, moves, f_base):
     return summary
 
 
+def clean_after(kl, args):
+    """Wipe the strand off at the brush while the nozzle is still hot."""
+    if args.no_bucket:
+        return
+    ex, _ = query(kl)
+    if ex["temperature"] < args.min_temp:
+        return
+    try:
+        kl.gcode("clean_nozzle\nM400", timeout=120)
+    except KlippyError as e:
+        kl.respond("clean_nozzle failed: %s" % e)
+
+
 def run_raw(kl, rec, args):
     _, tool = query(kl)
     if tool < 0:
         kl.respond("Aborted - no tool on the head.")
         return 1
     res = measure(kl, rec, args, tool, args.seq, args.pa, "raw")
+    clean_after(kl, args)
     if res is None:
         return 1
     rows, moves, meta = res
@@ -544,34 +623,57 @@ def evaluate(kl, tool, rows, moves, meta):
                         "%.1f" % (f["tau"] * 1000), "%.0f" % (f["delay"] * 1000),
                         "%.0f" % f["instant"], "%.0f" % f["delayed"], "%.1f" % f["rms"], int(f["ok"])])
     name = os.path.basename(meta["base"])
+    drift = low_drift(rows, moves)
+    drag_hint = ("The force drifted by %.0f g at the same speed: drag in the filament path "
+                 "(spool, PTFE tube, buffer, idler). Check that the filament feeds freely by hand."
+                 % drift) if drift > DRIFT_MAX else ""
     if len(good) < 5:
         kl.respond("T%d: only %d of %d steps usable - no result. Details: lc_pa_data/%s_fit.csv"
                    % (tool, len(good), len(fits), name))
+        if drag_hint:
+            kl.respond(drag_hint)
         return None, False
     taus = sorted(f["tau"] for f in good)
     up = [f["tau"] for f in good if f["v2"] > f["v1"]]
     dn = [f["tau"] for f in good if f["v2"] < f["v1"]]
-    pa = round(median(taus), 3)
     lo, hi = taus[len(taus) // 4], taus[(3 * len(taus)) // 4]
+    # Pressure builds up more slowly than it drops (T1 2026-11-20: up 47-62 ms,
+    # down 33-37 ms, each tight). Rate each direction on its own, PA = mean of both.
+    if up and dn:
+        pa = round((median(up) + median(dn)) / 2.0, 3)
+        spread = False
+        for g in (up, dn):
+            if len(g) < 2:
+                continue
+            m = median(g)
+            devs = sorted(abs(x - m) for x in g)
+            if len(devs) >= 3:
+                devs = devs[:-1]  # one outlier per direction is tolerated (T3 23:29: 31/50/50 ms)
+            spread = spread or devs[-1] > 0.3 * m
+    else:
+        pa = round(median(taus), 3)
+        spread = (hi - lo) > 0.35 * pa
     # Valid only with tight spread, enough steps, faster/slower
     # similar and a value plausible for direct drive
     reasons = []
     if len(good) < 6:
         reasons.append("only %d steps" % len(good))
-    if (hi - lo) > 0.35 * pa:
+    if spread:
         reasons.append("large spread")
     if up and dn and max(median(up), median(dn)) > 1.6 * min(median(up), median(dn)):
         reasons.append("faster/slower do not agree")
     if not 0.005 <= pa <= 0.15:
         reasons.append("implausible value")
+    if drag_hint:
+        reasons.append("force drifts %.0f g" % drift)
     preload = meta.get("preload")
     if preload and meta.get("max_dev", 0) > 0.8 * preload:
         reasons.append("force %.0f g close to the seat preload %.0f g" % (meta["max_dev"], preload))
     valid = not reasons
     quality = "good" if valid else "UNCERTAIN (%s) - not applied" % ", ".join(reasons)
-    kl.respond("T%d: PA = %.3f  (median of %d steps, middle half %.3f-%.3f, "
-               "faster %.3f / slower %.3f) - %s"
-               % (tool, pa, len(good), lo, hi, median(up), median(dn), quality))
+    kl.respond("T%d: measured %.3f  (%d steps, pressure up %.3f / down %.3f) - %s"
+               % (tool, pa, len(good), median(up) if up else float("nan"),
+                  median(dn) if dn else float("nan"), quality))
     kl.respond("Details: lc_pa_data/%s_fit.csv" % name)
     return pa, valid
 
@@ -651,6 +753,13 @@ def spoolman_write(kl, tool, pa, noz):
 def run_cal(kl, rec, args):
     tools = [int(t) for t in args.tools.split(",") if t.strip() != ""]
     results = []
+    # Home first: INDX homing needs a seated tool for Z and may pick up a
+    # different one (2026-11-20: after FIRMWARE_RESTART MOVE_TO_BUCKET homed,
+    # T0 ended up on the head and was measured instead of T1).
+    st = kl.call("objects/query", {"objects": {"toolhead": ["homed_axes"]}}, timeout=5)["status"]
+    if "".join(sorted(st["toolhead"].get("homed_axes", ""))) != "xyz":
+        kl.respond("printer not homed - homing first ...")
+        kl.gcode("G28", timeout=300)
     for tool in tools:
         ex, act = query(kl)
         # freshly picked up: INDX already heats on pickup, but the melt zone
@@ -659,6 +768,9 @@ def run_cal(kl, rec, args):
         if act != tool:
             kl.respond("switching to T%d ..." % tool)
             kl.gcode("CHANGE_TOOL TOOL=%d" % tool, timeout=300)
+        if not args.no_bucket:
+            # heat over the bucket, so oozing during heat-up and soak lands there
+            kl.gcode("MOVE_TO_BUCKET\nM400", timeout=120)
         kl.respond("heating T%d to %.0f C ..." % (tool, args.temp))
         kl.gcode("M109 S%.0f" % args.temp, timeout=600)
         if cold and args.soak > 0:
@@ -669,17 +781,27 @@ def run_cal(kl, rec, args):
             kl.gcode("G4 P%d" % int(args.soak * 1000), timeout=args.soak + 30)
         preload = seat_preload(kl)
         res = measure(kl, rec, args, tool, args.seq or PRIME_SEQ, 0.0, "cal",
-                      plan=None if args.seq else make_plan(kl, preload))
+                      plan=None if args.seq else make_plan(kl, preload, round(args.flow / FILAMENT_AREA, 1)),
+                      at_bucket=True)
+        clean_after(kl, args)
         if res is not None:
             res[2]["preload"] = preload
         pa, valid = evaluate(kl, tool, *res) if res is not None else (None, False)
         if not valid:
             pa = None
+        tau = pa
+        if pa is not None:
+            # The measured time constant is longer than the PA that prints best
+            # (PA pattern 2026-11-20, same spool: T0 0.038 -> 0.024, T1 0.042
+            # -> 0.024). PA_SCALE maps one to the other.
+            pa = round(tau * args.scale, 3)
+            kl.respond("T%d: print PA %.3f (measured %.3f x %.2f)" % (tool, pa, tau, args.scale))
         if pa is not None and args.save:
             _, noz = tool_vars(kl, tool)
             kl.gcode("SAVE_VARIABLE VARIABLE=t%d_pa VALUE=%.3f\n"
+                     "SAVE_VARIABLE VARIABLE=t%d_pa_raw VALUE=%.3f\n"
                      "SAVE_VARIABLE VARIABLE=t%d_pa_temp VALUE=%.0f"
-                     % (tool, pa, tool, args.temp)
+                     % (tool, pa, tool, tau, tool, args.temp)
                      + ("\nSAVE_VARIABLE VARIABLE=t%d_pa_nozzle VALUE=%s" % (tool, nozzle_str(noz))
                         if noz > 0 else ""), timeout=10)
             if args.spoolman:
@@ -711,7 +833,11 @@ def main():
     ap.add_argument("--save", type=int, default=1, help="cal: save the result via SAVE_VARIABLE")
     ap.add_argument("--spoolman", type=int, default=1, help="cal: write PA to the Spoolman filament (with --save)")
     ap.add_argument("--cool", type=int, default=1, help="turn the heater off at the end (M104 S0)")
-    ap.add_argument("--soak", type=float, default=60.0, help="cal: soak time after heating from cold (s)")
+    ap.add_argument("--scale", type=float, default=PA_SCALE,
+                    help="cal: print PA = measured time constant x scale (default %.2f)" % PA_SCALE)
+    ap.add_argument("--flow", type=float, default=V_MAX * FILAMENT_AREA,
+                    help="cal: upper flow of the steps in mm3/s (default 9.6, max 19)")
+    ap.add_argument("--soak", type=float, default=30.0, help="cal: soak time after heating from cold (s)")
     ap.add_argument("--min-temp", type=float, default=180.0)
     ap.add_argument("--settle-tol", type=float, default=15.0, help="g per 1.5 s")
     ap.add_argument("--settle-timeout", type=float, default=90.0)
@@ -719,6 +845,7 @@ def main():
     ap.add_argument("--analyze", nargs=2, metavar=("CSV", "MOVES_CSV"),
                     help="only evaluate an existing measurement (no printer)")
     args = ap.parse_args()
+    args.flow = max(3.0, min(19.0, args.flow))
     if args.analyze:
         return offline(args.analyze[0], args.analyze[1])
     if args.mode == "raw" and not args.seq:
