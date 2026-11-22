@@ -216,12 +216,12 @@ against OrcaSlicer PA patterns:
 | Nozzle | Factor | Checked with |
 |---|---|---|
 | 0.25 mm | 1.1 | 1 PLA |
-| 0.4 mm | 0.6 | 2 PLA, 3 tools |
+| 0.4 mm | 0.6 | 2 PLA, 3 tools, 1 ABS |
 | 0.6 mm | 0.5 | 2 PLA |
 
 Other sizes are interpolated or use the nearest value; the console then says
 "not verified". Without `SET_TOOL_NOZZLE` the 0.4 mm factor is used. For other
-materials (PETG, ABS ...) check the result once with an Orca PA pattern.
+materials (PETG ...) check the result once with an Orca PA pattern.
 `FLOW=15 SAVE=1` gives larger steps (helps with 0.6 mm nozzles if the
 result is "UNCERTAIN"); do not lower the flow for small nozzles, the signal
 gets too weak.

@@ -220,12 +220,12 @@ OrcaSlicer-PA-Mustern:
 | Düse | Faktor | Geprüft mit |
 |---|---|---|
 | 0,25 mm | 1,1 | 1 PLA |
-| 0,4 mm | 0,6 | 2 PLA, 3 Tools |
+| 0,4 mm | 0,6 | 2 PLA, 3 Tools, 1 ABS |
 | 0,6 mm | 0,5 | 2 PLA |
 
 Andere Größen werden interpoliert oder bekommen den nächstliegenden Wert; die
 Konsole meldet dann „not verified“. Ohne `SET_TOOL_NOZZLE` gilt der Faktor für
-0,4 mm. Bei anderen Materialien (PETG, ABS …) das Ergebnis einmal mit einem
+0,4 mm. Bei anderen Materialien (PETG …) das Ergebnis einmal mit einem
 Orca-PA-Muster prüfen. `FLOW=15 SAVE=1` macht die Stufen größer (hilft bei
 0,6-mm-Düsen, wenn das Ergebnis „UNCERTAIN“ ist); bei kleinen Düsen den Fluss
 nicht senken, sonst wird das Signal zu schwach.
