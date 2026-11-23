@@ -156,10 +156,13 @@ Timelapse-Videos.
 **Umstieg vom PowerShell-Skript:** Die alten Profile (`… (SM<id>) …` in
 `user\<Konto>\filament\base\`, Filament-ID `PSM…`) haben dieselbe ID wie die
 des Plugins; dann ist der Abgleich nicht mehr eindeutig. Das Plugin warnt
-davor in der Statuszeile. Orca schließen, den Ordner sichern, die alten
-`PSM`-Profile (`.json` und `.info`, nicht die `SM-Vorlage`-Dateien) löschen,
-Orca starten. Waren sie mit der Orca-Cloud synchronisiert, bleibt dort eine
-Kopie; taucht sie wieder auf, erneut löschen.
+davor in der Statuszeile. Orca schließen, den Ordner sichern, von den alten
+`PSM`-Profilen **nur die `.json`-Dateien** löschen (nicht die `SM-Vorlage`-Dateien)
+und die `.info`-Dateien liegen lassen, dann Orca starten. Orca findet die
+`.info`-Dateien ohne Profil und löscht die Profile damit auch in der Orca Cloud;
+danach verschwinden die `.info`-Dateien von selbst. Werden die `.info`-Dateien
+mitgelöscht, bleibt die Kopie in der Cloud und kommt bei einem vollständigen
+Abgleich zurück.
 
 `orca/orca_spoolman_profiles.ps1` bleibt im Repo als Alternative ohne Plugin
 (Orca schließen, `powershell -ExecutionPolicy Bypass -File

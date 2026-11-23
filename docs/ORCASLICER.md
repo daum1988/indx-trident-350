@@ -151,10 +151,12 @@ history with timelapse videos.
 **Switching from the PowerShell script:** the old profiles (`… (SM<id>) …`
 in `user\<account>\filament\base\`, filament ID `PSM…`) carry the same IDs as
 the plugin's, which makes the sync ambiguous. The plugin warns about this in
-the status line. Close Orca, back up the folder, delete the old `PSM`
-profiles (`.json` and `.info`, not the `SM-Vorlage` files), start Orca. If
-they were synced to the Orca cloud, a copy stays there; if it comes back,
-delete it again.
+the status line. Close Orca, back up the folder, delete **only the `.json`
+files** of the old `PSM` profiles (not the `SM-Vorlage` files) and keep the
+`.info` files, then start Orca. Orca finds the `.info` files without a profile
+and deletes the profiles in Orca Cloud too; the `.info` files then disappear on
+their own. If the `.info` files are deleted as well, the cloud copy stays and
+comes back with a full sync.
 
 `orca/orca_spoolman_profiles.ps1` stays in the repo as an alternative without
 the plugin (close Orca, `powershell -ExecutionPolicy Bypass -File
